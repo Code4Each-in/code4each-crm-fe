@@ -1,0 +1,17 @@
+a.signUp-btn {
+    color: #0e1631;
+    font-size: 18px;
+    text-decoration: none;
+}  
+a.signUp-btn:hover {
+    color: #454e66;
+} 
+
+.main-form1 .signup {
+    padding: 5px 0;
+    width: 71%;
+}
+.sevenDays {
+    margin-top: 15px;
+    text-align: center;
+}
