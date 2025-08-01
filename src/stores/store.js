@@ -8,7 +8,7 @@ export const useStore = defineStore('myStore', {
     websiteDomain: null,
     flashMeassge: false,
     menuShrink: false,
-    flashMeassgeValue: 'Sucess',
+    flashMeassgeValue: 'Success',
   }),
   actions: {
     updateWebsiteId(newValue) {
@@ -17,7 +17,7 @@ export const useStore = defineStore('myStore', {
     updateShrink() {
       this.menuShrink = !this.menuShrink;
     },
-    updateFlashMeassge(newValue, message = 'Sucess') {
+    updateFlashMeassge(newValue, message = 'Success') {
       this.flashMeassge = newValue;
       this.flashMeassgeValue = message;
     },

@@ -10,6 +10,7 @@ declare global {
 const getHeader = () => {
   return {
     "Content-Type": "application/json",
+    withCredentials: true
   }
 }
 
