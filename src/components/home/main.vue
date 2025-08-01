@@ -193,9 +193,8 @@ const handleShowModal = (modal) => {
               >
                 Watch demo video</a
               > -->
-              <h5>
-                <i class="fa fa-check" aria-hidden="true"></i> Free Trial . No
-                Credit Card Required
+              <h5 class="no-cc-req-message">
+                <i class="fa fa-check" aria-hidden="true"></i> Free Trial. No Credit Card Required
               </h5>
             </div>
           </div>
@@ -236,7 +235,7 @@ const handleShowModal = (modal) => {
                   <span></span>
                 </a>
                 <h5>
-                  <i class="fa fa-check" aria-hidden="true"></i> Free Trial . No
+                  <i class="fa fa-check" aria-hidden="true"></i> Free Trial. No
                   Credit Card Required
                 </h5>
               </div>
@@ -319,7 +318,7 @@ const handleShowModal = (modal) => {
                   <span></span>
                 </a>
                 <h5>
-                  <i class="fa fa-check" aria-hidden="true"></i> Free Trial . No
+                  <i class="fa fa-check" aria-hidden="true"></i> Free Trial. No
                   Credit Card Required
                 </h5>
               </div>
@@ -485,7 +484,7 @@ const handleShowModal = (modal) => {
                   <span> </span>
                 </a>
                 <h5>
-                  <i class="fa fa-check" aria-hidden="true"></i> Free Trial . No
+                  <i class="fa fa-check" aria-hidden="true"></i> Free Trial. No
                   Credit Card Required
                 </h5>
               </div>
