@@ -128,13 +128,13 @@ const props = defineProps({
             aria-labelledby="userInfo"
             :class="{ show: showUserMenu }"
           >
-            <div class="dropdown-header text-gray-700">
+            <!-- <div class="dropdown-header text-gray-700">
               <h6 class="text-uppercase font-weight-bold">
                 {{ dashboardData?.name }}
               </h6>
               <small>{{ dashboardData?.agency.name }}</small>
-            </div>
-            <div class="dropdown-divider"></div>
+            </div> -->
+            <!-- <div class="dropdown-divider"></div> -->
             <a class="dropdown-item" @click="logout">Logout</a>
           </div>
         </li>

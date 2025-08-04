@@ -34,9 +34,10 @@ const router = createRouter({
     },
     {
       path: '/login',
-      name: 'login',
-      component: LoginView,
-      meta: { title: 'Login', layout:FrontLayout }
+      redirect: '/',
+      // name: 'login',
+      // component: LoginView,
+      // meta: { title: 'Login', layout:FrontLayout }
     },
     {
       path: '/dashboard',

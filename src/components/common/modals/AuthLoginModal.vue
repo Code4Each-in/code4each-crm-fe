@@ -216,10 +216,14 @@ const login = handleSubmit(async () => {
       abortEarly: false,
     });
     allErrorsLogin.value = {};
+    backendError.value = "";
+
     const response = await WordpressService.loginUser(formDataLogin.value);
+
     if (response.status === 200 && response.data.success) {
       const token = response.data.token;
       localStorage.setItem("access_token", token);
+
       const fetchDashboardData = await WordpressService.fetchDashboardData();
       if (
         fetchDashboardData.status === 200 &&
@@ -231,6 +235,9 @@ const login = handleSubmit(async () => {
       }
     }
   } catch (error) {
+    allErrorsLogin.value = {};
+    backendError.value = "";
+    
     const errors =
       error.inner && Array.isArray(error.inner)
         ? error.inner.reduce((acc, err) => {
