@@ -184,7 +184,7 @@ import WordpressService from "@/service/WordpressService";
 import { useRouter } from "vue-router";
 import GoogleLogin from "@/components/common/modals/GoogleLogin.vue";
 
-const emits = defineEmits();
+const emits = defineEmits(['closeModal', 'showAnotherModal']);
 const props = defineProps({
   showSignUpModal: {
       type:Boolean,
@@ -192,9 +192,9 @@ const props = defineProps({
     }
 });
 
-watch(() => props.showSignUpModal, (newValue, oldValue) => {
-  showSignUpModal.value = newValue; // Update the value in the ref if needed
-});
+// watch(() => props.showSignUpModal, (newValue, oldValue) => {
+//   showSignUpModal.value = newValue; // Update the value in the ref if needed
+// });
 
 const { Errors, resetForm, handleSubmit } = useForm();
 
@@ -207,8 +207,29 @@ const loadingSignup = ref(false);
 const router = useRouter();
 
 
-const validationSchema = yup.object({
-  company_name: yup.string().required("Please enter your company name."),
+// const validationSchema = yup.object({
+//   company_name: yup.string().required("Please enter your company name."),
+//   name: yup.string().required("Please enter your name."),
+//   email: yup
+//     .string()
+//     .email("Please enter a valid email address.")
+//     .matches(
+//       /^[^+]+@[^+]+\.[^+]+$/,
+//       "Email address cannot contain the '+' character."
+//     )
+//     .required("Please enter your email address."),
+//   password: yup
+//     .string()
+//     .min(6, "Password must be at least 6 characters.")
+//     .max(20, "Password must not exceed 20 characters.")
+//     .required("Please enter your password."),
+//   phone: yup
+//     .string()
+//     .required("Please enter your phone number.")
+//     .matches(/^\d{10}$/, "Enter a valid 10-digit phone number."),
+// });
+
+const signupValidationSchema = yup.object({
   name: yup.string().required("Please enter your name."),
   email: yup
     .string()
@@ -223,22 +244,32 @@ const validationSchema = yup.object({
     .min(6, "Password must be at least 6 characters.")
     .max(20, "Password must not exceed 20 characters.")
     .required("Please enter your password."),
-  phone: yup
-    .string()
-    .required("Please enter your phone number.")
-    .matches(/^\d{10}$/, "Enter a valid 10-digit phone number."),
+});
+
+// Watch for modal open to reset fields and errors
+watch(() => props.showSignUpModal, (newValue) => {
+  showSignUpModal.value = newValue;
+
+  if (newValue) {
+    // Reset all fields and states when modal opens
+    formData.value = {};
+    allErrors.value = {};
+    backendError.value = "";
+    showPassword.value = false;
+    isDisabledSignUp.value = false;
+    loadingSignup.value = false;
+  }
 });
 
 const registerUser = handleSubmit(async () => {
   try {
-    console.log("Clicked Sign Up", formData.value);
     isDisabledSignUp.value = true;
     loadingSignup.value = true;
-    await validationSchema.validate(formData.value, { abortEarly: false });
+    await signupValidationSchema.validate(formData.value, { abortEarly: false });
     allErrors.value = {};
 
     const response = await WordpressService.registerUser(formData.value);
-    console.log(response);
+    
     if (response.status === 200 && response.data.success) {
       const token = response.data.token;
       localStorage.setItem("access_token", token);
@@ -276,7 +307,7 @@ const hideSignupModal = () => {
   formData.value = {};
   allErrors.value = {};
   backendError.value = "";
-  showPassword.value = false;  
+  showPassword.value = false;
   emits('closeModal');
 };
 

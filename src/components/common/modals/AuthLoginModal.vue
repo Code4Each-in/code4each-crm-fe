@@ -146,7 +146,8 @@
 import {
   ref,
   defineProps,
-  defineEmits
+  defineEmits,
+  watch
 } from "vue";
 import { useForm } from "vee-validate";
 import * as yup from "yup";
@@ -158,7 +159,7 @@ const { Errors, resetForm, handleSubmit } = useForm();
 
 const allErrorsLogin = ref({})
 const formDataLogin = ref({})
-const emits = defineEmits();
+const emits = defineEmits(['closeModal', 'showAnotherModal']);
 const underAction = ref(false);
 const router = useRouter();
 const backendError = ref("");
@@ -170,11 +171,25 @@ const props = defineProps({
     }
 });
 
-const hideLoginModal = () => {
+const resetLoginForm = () => {
   formDataLogin.value = {};
   allErrorsLogin.value = {};
   backendError.value = "";
-  showPassword.value = false;  
+  showPassword.value = false;
+};
+
+watch(
+  () => props.showLoginModal,
+  (newVal) => {
+    if (newVal) {
+      resetLoginForm();
+    }
+  }
+);
+
+// Hide modal
+const hideLoginModal = () => {
+  resetLoginForm();
   emits("closeModal");
 };
 
