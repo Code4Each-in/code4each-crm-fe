@@ -239,4 +239,44 @@ i.display-flex-center.fa.fa-google{
     -webkit-transition-timing-function: ease-out;
     transition-timing-function: ease-out;
 }
-
+.main-form1 .form-group {
+    padding: 10px 0;
+    width: 71%;
+}
+.dontAcc {
+    text-align: center;
+}
+a.signIn-btn {
+    color: #0e1631;
+    font-size: 18px;
+    text-decoration: none;
+}
+.sec-content {
+    margin: 10px auto;
+    font-size: 28px;
+}
+a.signIn-btn:hover {
+    color: #454e66;
+}
+.modal-content h2 {
+    margin: 15px auto;
+}
+.three-body3 {
+    position: absolute !important;
+    top: 37% !important;
+    right: 65% !important;
+    --uib-size: 80px !important;
+}
+.loader-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.7); /* Light fade */
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 15px; /* optional if your modal has rounded corners */
+}

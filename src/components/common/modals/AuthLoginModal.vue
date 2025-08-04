@@ -21,10 +21,12 @@
               <i class="fa fa-times"></i>
             </button>
 
-            <h1>Login</h1>
+            <a class="navbar-brand-logo" style="cursor: pointer;text-align: center;">
+              <img class="imgisite" src="/images/logo-beta.png" alt="logo" style="width: 40%;">
+            </a>
 
             <form class="form-start">
-              <div class="main-form1">
+              <div class="main-form1" style="display: flex;justify-content: space-evenly;flex-wrap: wrap;">
                 <div class="form-group">
                   <label for="exampleInputEmail1">Email </label>
                   <input
@@ -37,37 +39,62 @@
                   />
                   <div class="text-danger">{{ allErrorsLogin.email }}</div>
                 </div>
-                <div class="form-group">
-                  <label for="exampleInputPassword1">Password</label>
+                <div class="form-group" style="position: relative;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label for="exampleInputPassword1" style="margin-bottom: 0;">Password</label>
+                    <a
+                      class="text-body forgotPassword"
+                      @click.prevent="emits('showAnotherModal', 'forget')"
+                      style="font-size: 14px; color: #0d6efd; cursor: pointer;"
+                    >
+                      Forgotten?
+                    </a>
+                  </div>
                   <input
-                    type="password"
+                    :type="showPassword ? 'text' : 'password'"
                     class="form-control"
                     id="exampleInputPassword1"
                     placeholder="Password"
                     v-model="formDataLogin.password"
                   />
+                  <!-- Toggle icon -->
+                  <i
+                    :class="showPassword ? 'fa fa-eye' : 'fa fa-eye-slash'"
+                    @click="togglePasswordVisibility"
+                    style="position: absolute;top: 58px;right: 15px;cursor: pointer;font-size: 18px;"
+                  ></i>
                   <div class="text-danger">{{ allErrorsLogin.password }}</div>
+                   <div v-if="backendError" class="text-danger">{{ backendError }}</div>
                 </div>
-                <a class="text-body forgotPassword" @click="emits('showAnotherModal', 'forget')"
+                <!-- <a class="text-body forgotPassword" @click="emits('showAnotherModal', 'forget')"
                   >Forgot password?</a
-                >
+                > -->
 
-                <div class="text-danger">{{ backendError }}</div>
+                <!-- <div class="text-danger">{{ backendError }}</div> -->
               </div>
-              <div class="dual-logo">
+              <div class="login-logo"  style="text-align: center;">
                 <button
                   type="submit"
                   class="btn btn-primary1"
                   @click="login"
                   :disabled="underAction"
+                  style="
+                    width: 71%;
+                    margin: 15px auto;"
                 >
-                  Login
+                  Sign In
                 </button>
-                <div v-if="underAction" class="three-body3">
-                  <div class="three-body__dot1"></div>
-                  <div class="three-body__dot1"></div>
-                  <div class="three-body__dot1"></div>
+                <!-- Loader Overlay -->
+                <div v-if="underAction" class="loader-overlay">
+                  <div class="three-body3">
+                    <div class="three-body__dot1"></div>
+                    <div class="three-body__dot1"></div>
+                    <div class="three-body__dot1"></div>
+                  </div>
                 </div>
+              </div>
+              <div class="dontAcc">
+                <a href="javascript:void(0)" @click.prevent="emits('showAnotherModal', 'signup')" class="signIn-btn">Don't have an account?</a>
               </div>
             </form>
           </div>
@@ -100,14 +127,13 @@
           <div class="column" id="secondary">
             <div class="sec-content">
               <h2>Welcome Back!</h2>
-              <h3>Don't have an account?</h3>
-              <button
+              <!-- <button
                 type="button"
                 class="btn btn-primary"
                 @click="emits('showAnotherModal', 'signup')"
               >
                 Sign Up
-              </button>
+              </button> -->
               <GoogleLogin />
             </div>
           </div>
@@ -120,7 +146,8 @@
 import {
   ref,
   defineProps,
-  defineEmits
+  defineEmits,
+  watch
 } from "vue";
 import { useForm } from "vee-validate";
 import * as yup from "yup";
@@ -132,7 +159,7 @@ const { Errors, resetForm, handleSubmit } = useForm();
 
 const allErrorsLogin = ref({})
 const formDataLogin = ref({})
-const emits = defineEmits();
+const emits = defineEmits(['closeModal', 'showAnotherModal']);
 const underAction = ref(false);
 const router = useRouter();
 const backendError = ref("");
@@ -144,9 +171,25 @@ const props = defineProps({
     }
 });
 
-const hideLoginModal = () => {
+const resetLoginForm = () => {
   formDataLogin.value = {};
   allErrorsLogin.value = {};
+  backendError.value = "";
+  showPassword.value = false;
+};
+
+watch(
+  () => props.showLoginModal,
+  (newVal) => {
+    if (newVal) {
+      resetLoginForm();
+    }
+  }
+);
+
+// Hide modal
+const hideLoginModal = () => {
+  resetLoginForm();
   emits("closeModal");
 };
 
@@ -210,5 +253,10 @@ const login = handleSubmit(async () => {
   }
   underAction.value = false;
 });
+
+const showPassword = ref(false);
+const togglePasswordVisibility = () => {
+  showPassword.value = !showPassword.value;
+};
 
 </script>

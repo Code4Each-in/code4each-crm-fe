@@ -1,3 +1,6 @@
+<style>
+@import "@/assets/resetpass.css";
+</style>
 <template>
   <div v-if="showResetModal" class="modal-backdrop fade show"></div>
   <div
@@ -22,10 +25,12 @@
               <i class="fa fa-times"></i>
             </button>
 
-            <h1>Forgot Password?</h1>
+            <a class="navbar-brand-logo" style="cursor: pointer;text-align: center;">
+              <img class="imgisite" src="/images/logo-beta.png" alt="logo" style="width: 40%;">
+            </a>
 
             <form class="form-start">
-              <div class="main-form1">
+              <div class="main-form1" style="display: flex; justify-content: center; margin-top: 20px;">
                 <div class="form-group">
                   <label for="exampleInputEmail1">Email </label>
                   <input
@@ -36,17 +41,18 @@
                     aria-describedby="emailHelp"
                     v-model="formDataForget.email"
                   />
+                  <div class="text-danger mt-1" v-if="allErrorsForget.email">{{ allErrorsForget.email }}</div>
                 </div>
-                <div class="text-danger">{{ allErrorsForget.email }}</div>
-                <div class="text-danger">{{ backendError }}</div>
+                <div class="text-danger mt-2" v-if="backendError">{{ backendError }}</div>
               </div>
 
-              <div class="dual-logo">
+              <div class="reset-btn" style="text-align: center;">
                 <button
                   type="submit"
                   class="btn btn-primary1"
                   @click="sendMailToVerifyEmail"
                   :disabled="isForgetAction"
+                  style="margin: 15px auto;"
                 >
                   Email Reset Link
                 </button>
@@ -85,9 +91,9 @@
             </svg>
           </div>
           <div class="column" id="secondary">
-            <div class="sec-content">
-              <h2>Welcome Back!</h2>
-              <h3>Already have an account?</h3>
+            <div class="reset-section">
+              <h2>Having trouble logging in?</h2>
+              <h3>Enter your registered email and we’ll help you reset your password.</h3>
               <button
                 type="button"
                 @click="emits('showAnotherModal', 'login')"
@@ -118,7 +124,7 @@ import WordpressService from "@/service/WordpressService";
 import { useStore } from "@/stores/store";
 
 const store = useStore();
-const emits = defineEmits();
+const emits = defineEmits(['closeModal', 'showAnotherModal']);
 const props = defineProps({
   showResetModal: {
       type:Boolean,
