@@ -64,7 +64,10 @@
                     style="position: absolute;top: 58px;right: 15px;cursor: pointer;font-size: 18px;"
                   ></i>
                   <div class="text-danger">{{ allErrorsLogin.password }}</div>
-                   <div v-if="backendError" class="text-danger">{{ backendError }}</div>
+                  <div v-if="backendError && Object.keys(allErrorsLogin).length === 0" class="text-danger">
+                    {{ backendError }}
+                  </div>
+
                 </div>
                 <!-- <a class="text-body forgotPassword" @click="emits('showAnotherModal', 'forget')"
                   >Forgot password?</a
@@ -237,29 +240,46 @@ const login = handleSubmit(async () => {
   } catch (error) {
     allErrorsLogin.value = {};
     backendError.value = "";
-    
-    const errors =
-      error.inner && Array.isArray(error.inner)
-        ? error.inner.reduce((acc, err) => {
-            acc[err.path] = err.message;
-            return acc;
-          }, {})
-        : {};
 
-    allErrorsLogin.value = errors;
-    if (error.response && error.response.data && error.response.data.errors) {
+    const status = error?.response?.status || null;
+    const responseMessage = error?.response?.data?.message || "";
+
+    if (error.inner && Array.isArray(error.inner)) {
+      allErrorsLogin.value = error.inner.reduce((acc, err) => {
+        acc[err.path] = err.message;
+        return acc;
+      }, {});
+      underAction.value = false;
+      return;
+    }
+
+    if (status === 400 && error.response?.data?.errors) {
       allErrorsLogin.value = Object.fromEntries(
         Object.entries(error.response.data.errors).map(([key, value]) => [
           key,
           Array.isArray(value) ? value[0] : value,
         ])
       );
-    } else {
-      backendError.value = error?.response?.data?.message;
     }
+
+    else if (
+      error.response &&
+      (error.response.status === 401 || error.response.status === 405)
+    ) {
+      backendError.value = error?.response?.data?.message;
+    } else if (
+      error.response && error.response.status === 404
+    ) {
+      backendError.value = "An error occurred while logging in. Please try again.";
+    } else {
+      backendError.value = "An error occurred while logging in. Please try again.";
+      console.error("Login error:", error);
+    }
+
+    underAction.value = false;
   }
-  underAction.value = false;
 });
+
 
 const showPassword = ref(false);
 const togglePasswordVisibility = () => {

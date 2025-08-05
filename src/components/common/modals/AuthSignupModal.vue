@@ -278,25 +278,32 @@ const registerUser = handleSubmit(async () => {
       router.push("/dashboard");
     }
   } catch (error) {
-    const errors =
-      error.inner && Array.isArray(error.inner)
-        ? error.inner.reduce((acc, err) => {
-            acc[err.path] = err.message;
-            return acc;
-          }, {})
-        : {};
+    allErrors.value = {};
+    backendError.value = "";
 
-    allErrors.value = errors;
-    if (error.response && error.response.data && error.response.data.errors) {
+    if (error.inner && Array.isArray(error.inner)) {
+      allErrors.value = error.inner.reduce((acc, err) => {
+        acc[err.path] = err.message;
+        return acc;
+      }, {});
+    }
+
+    else if (error.response?.status === 400 && error.response.data.errors) {
       allErrors.value = Object.fromEntries(
-        Object.entries(error.response.data.errors).map(([key, value]) => [
-          key,
-          Array.isArray(value) ? value[0] : value,
+        Object.entries(error.response.data.errors).map(([key, val]) => [
+          key, Array.isArray(val) ? val[0] : val,
         ])
       );
-    } else {
-      backendError.value = error?.response?.data?.message;
     }
+
+    else if (error.response?.status === 500) {
+      backendError.value = error.response.data.message || "An unexpected error occurred.";
+    }
+
+    else {
+      backendError.value = "Something went wrong. Please try again later.";
+    }
+
   }
   isDisabledSignUp.value = false;
   loadingSignup.value = false;
