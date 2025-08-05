@@ -10,7 +10,7 @@
         <div class="subscription-form-side">
           <a
             class="btn btn-lg button-trial rounded-pill hover-top"
-            href="https://calendly.com/arshsharma91/code4each"
+            href="https://calendly.com/arsh-speedysites/30min"
             target="_blank"
             rel="noopener noreferrer"
             >BOOK A DEMO

@@ -319,7 +319,7 @@ const handleShowModal = (modal) => {
                 </a>
                 <a
                   class="btn btn-lg button-trial rounded-pill hover-top m-2"
-                  href="https://calendly.com/arshsharma91/code4each"
+                  href="https://calendly.com/arsh-speedysites/30min"
                   target="_blank"
                   rel="noopener noreferrer"
                   >BOOK A DEMO
@@ -442,7 +442,7 @@ const handleShowModal = (modal) => {
             <div class="add-listing d-none d-sm-block">
               <a
                 class="btn btn-lg button-trial rounded-pill hover-top"
-                href="https://calendly.com/arshsharma91/code4each"
+                href="https://calendly.com/arsh-speedysites/30min"
                 target="_blank"
                 rel="noopener noreferrer"
                 >BOOK A DEMO
