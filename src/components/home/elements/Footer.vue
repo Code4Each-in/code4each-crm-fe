@@ -10,8 +10,10 @@
         <div class="subscription-form-side">
           <a
             class="btn btn-lg button-trial rounded-pill hover-top"
-            @click=" store.updateFeedbackModalStore()"
-            >CONTACT US
+            href="https://calendly.com/arshsharma91/code4each"
+            target="_blank"
+            rel="noopener noreferrer"
+            >BOOK A DEMO
             <span></span>
             <span></span>
             <span></span>

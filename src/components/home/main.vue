@@ -317,6 +317,17 @@ const handleShowModal = (modal) => {
                   <span></span>
                   <span></span>
                 </a>
+                <a
+                  class="btn btn-lg button-trial rounded-pill hover-top m-2"
+                  href="https://calendly.com/arshsharma91/code4each"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >BOOK A DEMO
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </a>
                 <h5>
                   <i class="fa fa-check" aria-hidden="true"></i> Free Trial. No
                   Credit Card Required
@@ -431,8 +442,10 @@ const handleShowModal = (modal) => {
             <div class="add-listing d-none d-sm-block">
               <a
                 class="btn btn-lg button-trial rounded-pill hover-top"
-                @click="showModal('feedback')"
-                >CONTACT US
+                href="https://calendly.com/arshsharma91/code4each"
+                target="_blank"
+                rel="noopener noreferrer"
+                >BOOK A DEMO
                 <span></span>
                 <span></span>
                 <span></span>
