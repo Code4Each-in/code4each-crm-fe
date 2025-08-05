@@ -1,14 +1,14 @@
 <script setup>
-import { defineEmits, ref, defineProps, onMounted } from "vue";
+import { defineEmits, ref, defineProps, onMounted, onBeforeUnmount } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "@/stores/store";
 
 const router = useRouter();
-
 const emits = defineEmits();
 const isSidebarToggled = ref(true);
 const showUserMenu = ref(false);
 const store = useStore();
+const userMenuWrapper = ref(null); // Parent wrapper ref
 
 const toggleSidebar = () => {
   store.updateShrink();
@@ -21,120 +21,73 @@ const logout = () => {
 const navigate = () => {
   router.push("/");
 };
+
 const props = defineProps({
   dashboardData: Object,
 });
+
+// Close dropdown when clicking outside
+const handleClickOutside = (event) => {
+  if (userMenuWrapper.value && !userMenuWrapper.value.contains(event.target)) {
+    showUserMenu.value = false;
+  }
+};
+
+onMounted(() => {
+  document.addEventListener("click", handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("click", handleClickOutside);
+});
 </script>
+
 <template>
   <header class="header">
     <nav class="navbar navbar-expand-lg px-4 py-2 bg-white shadow">
-      <a
-        class="sidebar-toggler text-gray-500 me-4 me-lg-5 lead sidetoggle-s"
-        @click="toggleSidebar"
-      >
+      <a class="sidebar-toggler text-gray-500 me-4 me-lg-5 lead sidetoggle-s" @click="toggleSidebar">
         <i class="fa fa-align-left"></i>
       </a>
-      <a
-        class="navbar-brand fw-bold text-uppercase text-base"
-        @click="navigate"
-      >
+      <a class="navbar-brand fw-bold text-uppercase text-base" @click="navigate">
         <span class="d-none d-brand-partial">Bubbly </span>
         <span class="d-none d-sm-inline">
           <img src="/images/logo-beta.png" />
         </span>
       </a>
+
       <ul class="ms-auto d-flex align-items-center list-unstyled mb-0">
-        <li class="nav-item  ">
-              <div class="panel-header-title1">
-                
-                <!-- <button type="submit" class="preview-btn"><i class="fa fa-eye" aria-hidden="true"></i> preview</button> -->
-              </div>
-            </li>
-        <li class="nav-item dropdown">
-          <div
-            class="dropdown-menu dropdown-menu-animated text-sm"
-            id="searchDropdownMenu"
-          >
-            <h6 class="dropdown-header text-uppercase fw-normal">
-              Recent pages
-            </h6>
-            <a class="dropdown-item py-1" href="cms-post.html">
-              <i class="far fa-file me-2"></i>Posts
-            </a>
-            <a class="dropdown-item py-1" href="widgets-stats.html">
-              <i class="far fa-file me-2"></i>Widgets
-            </a>
-            <a class="dropdown-item py-1" href="pages-profile.html">
-              <i class="fa fa-file me-2"></i>Profile
-            </a>
-            <div class="dropdown-divider"></div>
-            <h6 class="dropdown-header text-uppercase fw-normal">Users</h6>
-            <a class="dropdown-item py-1" href="pages-profile.html">
-              <img
-                class="avatar avatar-xs p-1 me-2"
-                src="https://d19m59y37dris4.cloudfront.net/bubbly/1-2/img/avatar-0.jpg"
-                alt="Jason Doe"
-              />
-              <span>Jason Doe</span>
-            </a>
-            <a class="dropdown-item py-1" href="pages-profile.html">
-              <img
-                class="avatar avatar-xs p-1 me-2"
-                src="https://d19m59y37dris4.cloudfront.net/bubbly/1-2/img/avatar-1.jpg"
-                alt="Frank Williams"
-              />
-              <span>Frank Williams</span>
-            </a>
-            <a class="dropdown-item py-1" href="pages-profile.html">
-              <img
-                class="avatar avatar-xs p-1 me-2"
-                src="https://d19m59y37dris4.cloudfront.net/bubbly/1-2/img/avatar-2.jpg"
-                alt="Ashley Wood"
-              />
-              <span>Ashley Wood</span>
-            </a>
-            <div class="dropdown-divider"></div>
-            <h6 class="dropdown-header text-uppercase fw-normal">Filters</h6>
-            <a class="dropdown-item py-1" href="#!">
-              <span class="badge me-2 badge-success-light">Posts</span>
-              <span class="text-xs">Search all posts</span>
-            </a>
-            <a class="dropdown-item py-1" href="#!">
-              <span class="badge me-2 badge-danger-light">Users</span>
-              <span class="text-xs">Only in users</span>
-            </a>
-            <a class="dropdown-item py-1" href="#!">
-              <span class="badge me-2 badge-warning-light">Campaigns</span>
-              <span class="text-xs">Only in campaigns</span>
-            </a>
-          </div>
+        <li class="nav-item">
+          <div class="panel-header-title1"></div>
         </li>
-        <li class="nav-item dropdown ms-auto">
+
+        <!-- ✅ Wrap both toggle and dropdown in a parent div -->
+        <li class="nav-item dropdown ms-auto" ref="userMenuWrapper">
           <a
-            class="nav-link pe-0"
+            class="nav-link pe-0 d-flex align-items-center"
             id="userInfo"
             href="#"
-            data-bs-toggle="dropdown"
             aria-haspopup="true"
             aria-expanded="false"
-            @click="showUserMenu = !showUserMenu"
+            @click.prevent="showUserMenu = !showUserMenu"
           >
-            <span class="avatar p-1">
-              {{ dashboardData?.name.charAt(0).toUpperCase() }}</span
-            >
+            <div class="d-flex align-items-center bg-light rounded-pill px-3 py-2 shadow-sm">
+              <span
+                class="avatar text-white rounded-circle d-flex justify-content-center align-items-center me-2"
+                style="width: 32px; height: 32px; background: #1d2b64;"
+              >
+                {{ dashboardData?.name.charAt(0).toUpperCase() }}
+              </span>
+              <span class="fw-semibold" style="color: #1d2b64; font-size: 20px; font-weight: 600;">
+                {{ dashboardData?.name?.split(' ')[0] }}
+              </span>
+            </div>
           </a>
+
           <div
             class="dropdown-menu dropdown-menu-end dropdown-menu-animated"
             aria-labelledby="userInfo"
             :class="{ show: showUserMenu }"
           >
-            <!-- <div class="dropdown-header text-gray-700">
-              <h6 class="text-uppercase font-weight-bold">
-                {{ dashboardData?.name }}
-              </h6>
-              <small>{{ dashboardData?.agency.name }}</small>
-            </div> -->
-            <!-- <div class="dropdown-divider"></div> -->
             <a class="dropdown-item" @click="logout">Logout</a>
           </div>
         </li>
@@ -142,6 +95,7 @@ const props = defineProps({
     </nav>
   </header>
 </template>
+
 <style scoped>
 .sidetoggle-s {
   cursor: pointer;
