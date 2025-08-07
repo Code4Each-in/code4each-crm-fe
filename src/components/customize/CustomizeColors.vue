@@ -151,10 +151,7 @@ watch(
 );
 
 const getSiteDeatils = async () => {
-  if (!store.websiteId || store.websiteId === false) {
-    console.warn("⚠️ websiteId is missing or invalid:", store.websiteId);
-    return;
-  }
+  if (!store.websiteId || typeof store.websiteId !== "number") return;
   try {
     const response = await WordpressService.WebsiteSettings.getSiteDetail({
       website_id: store.websiteId,
