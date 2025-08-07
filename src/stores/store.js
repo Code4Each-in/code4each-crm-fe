@@ -9,6 +9,7 @@ export const useStore = defineStore('myStore', {
     flashMeassge: false,
     menuShrink: false,
     flashMeassgeValue: 'Success',
+    showFeedbackModal: false,
   }),
   actions: {
     updateWebsiteId(newValue) {
@@ -26,14 +27,14 @@ export const useStore = defineStore('myStore', {
         if (!this.websiteId) {
           const response = await WordpressService.fetchDashboardData();
           if (response.status === 200 && response.data.success) {
-            if (response.data?.agency_website_info[0].website_id) {
-              let websiteId = response.data?.agency_website_info[0].website_id
-              this.updateWebsiteId(websiteId);
-            }
+            const websiteList = response.data.agency_website_info;
+            if (Array.isArray(websiteList) && websiteList.length > 0) {
+              this.updateWebsiteId(websiteList[0].website_id);
+            } 
           }
         }
       } catch (error) {
-        console.error("An error occurred:", error.message);
+        console.error("An error occurred in fetchInitialWebsiteId:", error.message);
       }
     },
     updateFeedbackModalStore(){

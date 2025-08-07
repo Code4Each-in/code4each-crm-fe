@@ -45,7 +45,7 @@ watch(
   () => props.dashboardData,
   (newDashboardData, OldDashboardData) => {
     allDashboardData.value = props.dashboardData;
-    console.log('aaa',allDashboardData)
+    // console.log('aaa',allDashboardData)
   },
   {
     deep: true,
@@ -53,7 +53,7 @@ watch(
 );
 
 onMounted(() => {
-  console.log("test")
+  // console.log("test")
   fetchPlans();
   allDashboardData.value = props.dashboardData;
   allErrors.value = {};

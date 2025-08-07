@@ -243,7 +243,7 @@ const fetchWebsiteTemplates = async () => {
     const response = await WordpressService.getWebsiteTemplates();
     if (response && response.data && response.data.website_templates) {
       templates.value = response.data.website_templates;
-      console.log("template", templates.value)
+      // console.log("template", templates.value)
     } else {
       console.log("No website templates found or unexpected response structure");
     }

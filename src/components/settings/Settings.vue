@@ -56,6 +56,7 @@ const showOthersCategoryName = ref(false);
 watch(
   () => store.websiteId,
   async (newWebsiteId, oldWebsiteId) => {
+    if (!newWebsiteId || typeof newWebsiteId !== "number") return;
     loadingForSettings.value = true;
     await getSiteDeatils();
     await openModalWithCategories();
@@ -84,6 +85,7 @@ const fetchDashboardData = async () => {
 };
 
 const getSiteDeatils = async () => {
+  if (!store.websiteId || typeof store.websiteId !== "number") return;
   try {
     const response = await WordpressService.WebsiteSettings.getSiteDetail({
       website_id: store.websiteId,
