@@ -1800,6 +1800,7 @@ svg.shape.shapea {
     box-shadow: 0 3px 4px #00000029, 0 5px 20px #0000003b;
     margin-bottom: 10px;
     margin-top: 0;
+    cursor: pointer;
 }
 .main-div1:hover{
     color: #23abd4;
