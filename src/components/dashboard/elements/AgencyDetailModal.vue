@@ -274,12 +274,14 @@ const getCategoryNameById = (id) => {
 
 // Filter templates based on selected categories
 const filteredTemplates = computed(() => {
+  let tempTemplates = templates.value.filter(template => template.status === 'active');
+
   if (selectedCategories.value.includes('all')) {
-    return templates.value; 
+    return tempTemplates; 
   }
 
   const uniqueTemplates = new Set();
-  templates.value.forEach(template => {
+  tempTemplates.forEach(template => {
     const templateCategories = template.category_id.split(',').map(cat => cat.trim().toLowerCase());
 
     if (selectedCategories.value.some(selectedCategory => templateCategories.includes(selectedCategory.toLowerCase()))) {
