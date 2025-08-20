@@ -4,6 +4,8 @@ import { useRouter } from "vue-router";
 import { useStore } from "@/stores/store";
 import { useAuth } from "@/service/useAuth";
 import WordpressService from "@/service/WordpressService";
+import { useForm } from "vee-validate";
+const { handleSubmit } = useForm();
 
 import NavBar from "@/components/dashboard/layouts/navbar.vue";
 import SideBar from "@/components/dashboard/layouts/sidebar.vue";
@@ -22,12 +24,13 @@ const error = ref(false);
 
 // Forms list
 const forms = ref([]);
+const formFields = ref([]);
 
 // Builder state
 const showBuilder = ref(false);
 const builderLoading = ref(false);
 const formName = ref("");
-const formFields = ref([]);
+const siteSettingsDeatil = ref([]);
 
 // Fetch dashboard data
 const fetchDashboardData = async () => {
@@ -95,14 +98,26 @@ const removeField = (id) => {
 };
 
 // Save form
-const saveForm = () => {
-    const schema = JSON.stringify(formFields.value);
-    console.log("Form Name:", formName.value);
-    console.log("Form Schema:", schema);
+const submitCustomFields = handleSubmit(async (website_domain) => {
+    const formData = {
+        name: formName.value,
+        website_domain: siteSettingsDeatil.value.website_domain,
+        fields: formFields.value.map(field => ({
+            type: field.type,
+            label: field.label,
+            placeholder: field.placeholder || '',  
+            required: field.required || false,
+            position: field.position || 0,
+            options: field.options || [],
+        }))
+    };
+    const response = await WordpressService.submitCustomFields(formData);
 
-    alert("Form saved successfully!");
-    // Here you can call your API to save formName and schema
-};
+    if (response.status === 200 && response.data.success) {
+      console.log("Submitted");
+    }
+});
+
 
 // Logout
 const logout = async () => {
@@ -110,9 +125,25 @@ const logout = async () => {
     router.push("/login");
 };
 
-onMounted(async () => {
-    await fetchDashboardData();
+const getSiteDeatils = async () => {
+  if (!store.websiteId || typeof store.websiteId !== "number") return;
+  try {
+    const response = await WordpressService.WebsiteSettings.getSiteDetail({
+      website_id: store.websiteId, // correct property
+    }); // <-- use this instead
+    if (response.status === 200 && response.data.success) {
+      siteSettingsDeatil.value = response.data.settings_detail;
+      console.log(siteSettingsDeatil.value);
+    }
+  } catch (error) {
+    console.error("An error occurred:", error);
+  }
+};
 
+onMounted(async () => {
+    () => store.websiteId,
+    await fetchDashboardData();
+    await getSiteDeatils();
     // Dummy forms
     forms.value = [
         { id: 1, name: "Contact Form", status: "Active", schema_json: "[]" },
@@ -133,7 +164,7 @@ onMounted(async () => {
         <div v-if="!showBuilder">
             <div class="form-header">
                 <h3>Forms</h3>
-                <button class="btn btn-primary shadow-sm" @click="openBuilder()">
+                <button class="btn btn-addnewform shadow-sm" @click="openBuilder()">
                     <i class="bi bi-plus-lg"></i> Add New Form
                 </button>
             </div>
@@ -190,7 +221,13 @@ onMounted(async () => {
                     <h5 class="mb-0">Form Builder</h5>
                     <div>
                         <button class="btn btn-outline-secondary me-2" @click="closeBuilder">Back</button>
-                        <button class="btn btn-primary" @click="saveForm">Save Form</button>
+                        <button
+                            type="submit"
+                            class="btn btn-saveform"
+                            @click="submitCustomFields"
+                        >
+                            Save Form
+                        </button>
                     </div>
                 </div>
 
@@ -216,15 +253,26 @@ onMounted(async () => {
                                 <button class="btn btn-sm btn-danger" @click="removeField(field.id)">Remove</button>
                             </div>
                         </div>
+                        <!-- Label Input -->
                         <input v-model="field.label" class="form-control mb-1" placeholder="Label" />
+
+                        <!-- Placeholder Input (editable) -->
                         <input 
                             v-if="field.type === 'text' || field.type === 'email' || field.type === 'phone'" 
-                            :type="field.type === 'phone' ? 'tel' : field.type" 
-                            v-model="field.value" 
-                            :placeholder="field.placeholder" 
-                            class="form-control" 
+                            v-model="field.placeholder"
+                            class="form-control mb-1" 
+                            placeholder="Placeholder" 
                         />
-                        <div v-if="field.type === 'select' || field.type === 'radio' || field.type === 'checkbox'">
+
+                        <!-- Options input for select/radio/checkbox -->
+                        <div v-if="field.type === 'select' || field.type === 'radio' || field.type === 'checkbox'" class="mt-2">
+                            <!-- Placeholder for select/radio/checkbox -->
+                            <input
+                                v-model="field.placeholder"
+                                class="form-control mb-1"
+                                placeholder="Placeholder"
+                            />
+
                             <label>Options (comma separated)</label>
                             <input 
                                 v-model="field.optionsString" 
@@ -299,5 +347,29 @@ onMounted(async () => {
     justify-content: center;
     align-items: center;
     min-height: 240px;
+}
+
+.btn-addnewform {
+    background: #1d2b64;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.btn-addnewform:hover {
+    background: #fff;
+    color: #1d2b64;
+    border: 2px solid #1d2b64;
+}
+
+.btn-saveform {
+    background: #1d2b64;
+    color: #fff;
+}
+
+.btn-saveform:hover {
+    background: #fff;
+    color: #1d2b64;
+    border: 2px solid #1d2b64;
 }
 </style>
