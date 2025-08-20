@@ -88,7 +88,7 @@
                 <span class="sidebar-link-title"> Components</span>
               </router-link>
             </li>
-            <li class="sidebar-list-item">
+            <!-- <li class="sidebar-list-item">
               <router-link
                 :to="{ name: 'customize_colors' }"
                 class="sidebar-link text-muted"
@@ -111,7 +111,7 @@
                 <i class="fa fa-font" aria-hidden="true"></i>
                 <span class="sidebar-link-title">Fonts</span>
               </router-link>
-            </li>
+            </li> -->
             <li class="sidebar-list-item">
               <router-link
                 :to="{ name: 'customize_social_links' }"
@@ -149,6 +149,20 @@
               </router-link>
             </li>
           </ul>
+        </li>
+        <li class="sidebar-list-item"
+          v-if="
+            dashboardData?.agency_website_info?.length >= 1 &&
+            dashboardData?.agency_website_info[0].website_id
+          ">
+          <router-link
+            :to="{ name: 'form_builder' }"
+            class="sidebar-link text-muted"
+            :class="{ active: currentRoute.includes('/form-builder') }"
+          >
+            <i class="fa fa-wpforms me-3" aria-hidden="true"></i>
+            <span class="sidebar-link-title">Form Builder</span>
+          </router-link>
         </li>
         <!-- <li class="sidebar-list-item"
         v-if="
