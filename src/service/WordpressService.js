@@ -193,8 +193,11 @@ const WordpressService = {
     createOrder: (data) => {
       return requests(baseUrl).post(`/create-order`, data)
     },
-  }
+  },
 
+  submitCustomFields: (data) => {
+    return requests(baseUrl).post(`/create-CustomFromFields`, data)
+  },
 
 }
 export default WordpressService
