@@ -2126,8 +2126,9 @@ input.form-control {
 #multi-step-form i.fa.fa-upload {
     position: absolute;
     right: 30px;
-    bottom: 3%;
+    bottom: 29%;
     font-size: 20px;
+    cursor: pointer;
 }
 
 .step .mb-3 {

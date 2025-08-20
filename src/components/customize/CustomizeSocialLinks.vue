@@ -75,11 +75,8 @@ const socialLinksData = ref({
   facebook: "",
   youTube: "",
   instagram: "",
-  twitter: "",
-  linkedIn: "",
+  x: "",
   pinterest: "",
-  telegram: "",
-  shareChat: "",
 });
 
 const socialLinkIconPath = ref({
@@ -87,11 +84,8 @@ const socialLinkIconPath = ref({
   facebook: "/images/facebook.png",
   youTube: "/images/youtube.png",
   instagram: "/images/instagram.png",
-  twitter: "/images/twitter.png",
-  linkedIn: "/images/linkedin.png",
+  x: "/images/x.png",
   pinterest: "/images/pinterest.png",
-  telegram: "/images/telegram.png",
-  shareChat: "/images/icons8-sharechat-480.png",
 });
 
 const fetchDashboardData = async () => {
