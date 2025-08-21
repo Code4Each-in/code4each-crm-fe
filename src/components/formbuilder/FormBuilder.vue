@@ -181,7 +181,7 @@ const submitCustomFields = handleSubmit(async () => {
     }
 
     const formData = {
-        form_id: formId,
+        form_id: formId.value,
         name: formName.value,
         website_domain: siteSettingsDeatil.value.website_domain,
         fields: formFields.value.map(field => ({
