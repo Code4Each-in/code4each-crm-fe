@@ -383,7 +383,7 @@ onMounted(async () => {
                     </table>
                 </div>
 
-                <div v-else class="empty-state card shadow-sm text-center p-5">
+                <div v-if="forms.length === 0 && !loading" class="empty-state card shadow-sm text-center p-5">
                     <h5 class="mb-3">No Forms Found</h5>
                     <p class="text-muted mb-4">You haven’t created any forms yet. Click below to start!</p>
                     <button class="btn btn-primary" @click="openBuilder()">
