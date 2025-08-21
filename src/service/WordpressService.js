@@ -205,6 +205,11 @@ const WordpressService = {
     updateFormStatus: (data) => {
       return requests(baseUrl).post(`/update-form-status`, data)
     },
+    deleteForm: (data) => {
+      return requests(baseUrl).delete(`/delete-form`, {
+        params: data
+      })
+    },
   }
 
 }
