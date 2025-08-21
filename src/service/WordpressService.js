@@ -210,6 +210,9 @@ const WordpressService = {
         params: data
       })
     },
+    updateCustomFields: (data) => {
+      return requests(baseUrl).post(`/update-customfields`, data)
+    },
   }
 
 }
