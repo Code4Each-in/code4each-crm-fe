@@ -125,14 +125,14 @@ const fetchForms = async () => {
         });
 
         if (response.status === 200 && response.data.success) {
-            // Map API data to your forms ref
-            forms.value = response.data.response.map(f => ({
-                id: f.id,
-                name: f.form_name,      // your template uses `form.name`
-                status: f.status === "active" ? "Active" : "Inactive",
-                fields: f.fields || []
-            }));
-            console.log("All forms fetched successfully!", forms.value);
+        forms.value = response.data.response.map(f => ({
+            id: f.id,
+            name: f.form_name,
+            status: f.status === "active" ? "Active" : "Inactive",
+            fields: f.fields || []
+        }));
+        } else {
+        forms.value = []; 
         }
     } catch (error) {
         console.error("An error occurred:", error);
@@ -153,14 +153,39 @@ const getSiteDeatils = async () => {
     }); // <-- use this instead
     if (response.status === 200 && response.data.success) {
       siteSettingsDeatil.value = response.data.settings_detail;
-      console.log(siteSettingsDeatil.value);
     }
   } catch (error) {
     console.error("An error occurred:", error);
   }
 };
 
+const toggleFormStatus = async (form) => {
+  try {
+    const newStatus = form.status === "Active" ? "Inactive" : "Active";
+
+    const response = await WordpressService.FormBuilder.updateFormStatus({
+        website_domain: siteSettingsDeatil.value.website_domain,
+        form_id: form.id,
+        status: newStatus.toLowerCase(),
+    });
+
+    if (response.status === 200 && response.data.success) {
+      form.status = newStatus;
+    }
+  } catch (error) {
+    console.error("Error updating form status:", error);
+  }
+};
+
+const confirmToggleStatus = (form) => {
+  const action = form.status === "Active" ? "deactivate" : "activate";
+  if (window.confirm(`Are you sure you want to ${action} this form?`)) {
+    toggleFormStatus(form);
+  }
+};
+
 onMounted(async () => {
+    loading.value = true;
     () => store.websiteId,
     await fetchDashboardData();
     await getSiteDeatils();
@@ -206,13 +231,35 @@ onMounted(async () => {
                             <tr v-for="(form, index) in forms" :key="form.id">
                                 <td>{{ index + 1 }}</td>
                                 <td>{{ form.name }}</td>
-                                <td>{{ form.status }}</td>
+                                <td>
+                                    <div class="d-flex flex-column align-items-center">
+                                        <button
+                                        class="btn btn-sm"
+                                        :class="form.status === 'Active' ? 'btn-active-status' : 'btn-inactive-status'"
+                                        @click="confirmToggleStatus(form)"
+                                        >
+                                        {{ form.status }}
+                                        </button>
+                                        <small class="text-muted mt-1">
+                                        Click here to {{ form.status === 'Active' ? 'deactivate' : 'activate' }} the form
+                                        </small>
+                                    </div>
+                                </td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-primary me-2" @click="openBuilder(form)">
-                                        <i class="bi bi-pencil"></i> Edit
+                                    <button class="btn btn-sm btn-outline-primary me-2" 
+                                            @click="openBuilder(form)" 
+                                            data-bs-toggle="tooltip" 
+                                            data-bs-placement="top" 
+                                            title="Edit">
+                                    <i class="fa fa-pencil"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash"></i> Delete
+
+                                    <button class="btn btn-sm btn-outline-danger" 
+                                            @click="deleteForm(form)" 
+                                            data-bs-toggle="tooltip" 
+                                            data-bs-placement="top" 
+                                            title="Delete">
+                                    <i class="fa fa-trash"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -334,6 +381,14 @@ onMounted(async () => {
 .table {
     border-radius: 8px;
     overflow: hidden;
+    font-size: 14px;   
+}
+
+.table th,
+.table td {
+    padding: 8px 12px;         
+    vertical-align: middle; 
+    text-align: center; 
 }
 
 .table thead {
@@ -342,10 +397,16 @@ onMounted(async () => {
 
 .table th {
     font-weight: 600;
+    text-align: center;
 }
 
-.table td {
-    color: #444;
+.table td:first-child,
+.table th:first-child {
+    text-align: left;   
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
 }
 
 .empty-state {
@@ -388,4 +449,44 @@ onMounted(async () => {
     color: #1d2b64;
     border: 2px solid #1d2b64;
 }
+
+.btn-active-status,
+.btn-inactive-status {
+    min-width: 80px;
+    padding: 4px 10px;   
+    font-size: 13px;        
+    border-radius: 6px;      
+}
+
+/* --- Active Button --- */
+.btn-active-status {
+    background-color: #008000;
+    color: #fff;
+    border: none;
+}
+.btn-active-status:hover {
+    background-color: #fff;
+    color: #008000;
+    border: 2px solid #008000;
+}
+
+/* --- Inactive Button --- */
+.btn-inactive-status {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+}
+.btn-inactive-status:hover {
+    background-color: #fff;
+    color: #dc3545;
+    border: 2px solid #dc3545;
+}
+
+/* --- Note under buttons --- */
+.status-note {
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 4px;
+}
+
 </style>

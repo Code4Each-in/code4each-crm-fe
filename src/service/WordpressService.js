@@ -202,6 +202,9 @@ const WordpressService = {
     submitCustomFields: (data) => {
       return requests(baseUrl).post(`/create-customfromfields`, data)
     },
+    updateFormStatus: (data) => {
+      return requests(baseUrl).post(`/update-form-status`, data)
+    },
   }
 
 }
