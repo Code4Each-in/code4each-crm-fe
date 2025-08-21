@@ -195,10 +195,10 @@ const submitCustomFields = handleSubmit(async () => {
     };
 
     let response;
-    if (formId) {
-       response = await WordpressService.FormBuilder.updateCustomFields(formData);
+    if (formId.value) {
+    response = await WordpressService.FormBuilder.updateCustomFields(formData);
     } else {
-       response = await WordpressService.FormBuilder.submitCustomFields(formData);
+    response = await WordpressService.FormBuilder.submitCustomFields(formData);
     }
 
     if (response.status === 200 && response.data.success) {
