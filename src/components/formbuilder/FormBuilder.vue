@@ -29,11 +29,14 @@ const formFields = ref([]);
 
 // Builder state
 const showBuilder = ref(false);
-const builderLoading = ref(false);
 const formName = ref("");
 const siteSettingsDeatil = ref([]);
 
 const flashClass = computed(() => store.flashMeassgeType === 'error' ? 'flash-error' : 'flash-success');
+const sortedFields = computed(() => {
+  return [...formFields.value].sort((a, b) => a.position - b.position);
+});
+
 
 // Fetch dashboard data
 const fetchDashboardData = async () => {
@@ -62,18 +65,25 @@ const navBarToggle = (value) => isSidebarToggled.value = value;
 const openBuilder = (form = null) => {
     showBuilder.value = true;
     localStorage.setItem("builderOpen", "true");
-    builderLoading.value = true;
+    loading.value = true; 
 
     if (form) {
         formName.value = form.name;
-        formFields.value = JSON.parse(form.schema_json).map(f => ({
-            ...f,
+        formFields.value = form.fields.map(f => ({
+            id: f.id || Date.now(), 
+            type: f.type,
+            label: f.label || "",
+            placeholder: f.placeholder || "",
+            required: f.required || false,
+            position: f.position || 0,
+            options: f.options || [],
             optionsString: f.options ? f.options.join(", ") : ""
         }));
     } else {
         formName.value = "";
         formFields.value = [];
     }
+    loading.value = true; 
 };
 
 // Close builder
@@ -97,7 +107,8 @@ const addField = (type) => {
 }
 // Remove a field
 const removeField = (id) => {
-    formFields.value = formFields.value.filter(f => f.id !== id);
+  formFields.value = formFields.value.filter(f => f.id !== id)
+                                     .map((f, index) => ({ ...f, position: index + 1 }));
 };
 
 // Save form
@@ -132,9 +143,10 @@ const submitCustomFields = handleSubmit(async () => {
     }
 
     const formData = {
-      name: formName.value,
-      website_domain: siteSettingsDeatil.value.website_domain,
-      fields: formFields.value.map(field => ({
+        form_id: forms.value.find(f => f.name === formName.value)?.id,
+        name: formName.value,
+        website_domain: siteSettingsDeatil.value.website_domain,
+        fields: formFields.value.map(field => ({
         type: field.type,
         label: field.label,
         placeholder: field.placeholder || '',
@@ -376,7 +388,7 @@ onMounted(async () => {
                         <button class="btn btn-sm btn-outline-primary me-1" @click="addField('checkbox')">Checkbox</button>
                     </div>
                     <input v-model="formName" class="form-control mb-3" placeholder="Form Name" />
-                    <div v-for="field in formFields" :key="field.id" class="mb-3 border p-2 rounded">
+                    <div v-for="field in sortedFields" :key="field.id" class="mb-3 border p-2 rounded">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <strong>{{ field.type.toUpperCase() }}</strong>
                             <div class="d-flex align-items-center gap-2">
@@ -399,28 +411,13 @@ onMounted(async () => {
                         <input v-model="field.label" class="form-control mb-1" placeholder="Label" />
 
                         <!-- Placeholder Input (editable) -->
-                        <input 
-                            v-if="field.type === 'text' || field.type === 'email' || field.type === 'phone'" 
-                            v-model="field.placeholder"
-                            class="form-control mb-1" 
-                            placeholder="Placeholder" 
-                        />
+                        <input v-if="['text','email','phone','textarea'].includes(field.type)" v-model="field.placeholder" class="form-control mb-1" placeholder="Placeholder" />
 
                         <!-- Options input for select/radio/checkbox -->
-                        <div v-if="field.type === 'select' || field.type === 'radio' || field.type === 'checkbox'" class="mt-2">
-                            <!-- Placeholder for select/radio/checkbox -->
-                            <input
-                                v-model="field.placeholder"
-                                class="form-control mb-1"
-                                placeholder="Placeholder"
-                            />
-
+                        <div v-if="['select','radio','checkbox'].includes(field.type)" class="mt-2">
+                            <input v-model="field.placeholder" class="form-control mb-1" placeholder="Placeholder" />
                             <label>Options (comma separated)</label>
-                            <input 
-                                v-model="field.optionsString" 
-                                @input="field.options = field.optionsString.split(',').map(o => o.trim())" 
-                                class="form-control" 
-                            />
+                            <input v-model="field.optionsString" @input="field.options = field.optionsString.split(',').map(o => o.trim())" class="form-control" />
                         </div>
                     </div>
                 </div>
