@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "@/stores/store";
 import { useAuth } from "@/service/useAuth";
@@ -32,6 +32,8 @@ const showBuilder = ref(false);
 const builderLoading = ref(false);
 const formName = ref("");
 const siteSettingsDeatil = ref([]);
+
+const flashClass = computed(() => store.flashMeassgeType === 'error' ? 'flash-error' : 'flash-success');
 
 // Fetch dashboard data
 const fetchDashboardData = async () => {
@@ -104,27 +106,27 @@ const submitCustomFields = handleSubmit(async () => {
      loading.value = true;
      // Check if form name is empty
     if (!formName.value.trim()) {
-      store.updateFlashMeassge(true, "Form name is required.");
+      store.updateFlashMeassge(true, "Form name is required.", 'error');
       return;
     }
 
     // Check if fields exist
     if (formFields.value.length === 0) {
-      store.updateFlashMeassge(true, "Please add at least one field.");
+      store.updateFlashMeassge(true, "Please add at least one field.", 'error');
       return;
     }
 
     // Validate each field
     for (const field of formFields.value) {
       if (!field.label.trim()) {
-        store.updateFlashMeassge(true, `Label is required for ${field.type} field.`);
+        store.updateFlashMeassge(true, `Label is required for ${field.type} field.`, 'error');
         return;
       }
       if (
         (field.type === "select" || field.type === "radio" || field.type === "checkbox") &&
         (!field.options || field.options.length === 0 || field.options.every(o => !o.trim()))
       ) {
-        store.updateFlashMeassge(true, `Options are required for ${field.type} field.`);
+        store.updateFlashMeassge(true, `Options are required for ${field.type} field.`, 'error');
         return;
       }
     }
@@ -145,11 +147,11 @@ const submitCustomFields = handleSubmit(async () => {
     const response = await WordpressService.FormBuilder.submitCustomFields(formData);
 
     if (response.status === 200 && response.data.success) {
-      store.updateFlashMeassge(true, `Form "${formName.value}" saved successfully.`);
+      store.updateFlashMeassge(true, `Form "${formName.value}" saved successfully.`, 'success');
       closeBuilder();
       await fetchForms();
     } else {
-      store.updateFlashMeassge(true, "Something went wrong while saving the form.");
+      store.updateFlashMeassge(true, "Something went wrong while saving the form.", 'error');
     }
   } catch (error) {
     console.error("Error saving form:", error);
@@ -211,7 +213,7 @@ const toggleFormStatus = async (form) => {
 
     if (response.status === 200 && response.data.success) {
       form.status = newStatus;
-      store.updateFlashMeassge(true, `Form "${form.name}" has been ${newStatus.toLowerCase()} successfully.`);
+      store.updateFlashMeassge(true, `Form "${form.name}" has been ${newStatus.toLowerCase()} successfully.`, 'success');
     }
   } catch (error) {
     console.error("Error updating form status:", error);
@@ -238,9 +240,9 @@ const deleteForm = async (form) => {
 
     if (response.status === 200 && response.data.success) {
       forms.value = forms.value.filter(f => f.id !== form.id);
-      store.updateFlashMeassge(true, `Form "${form.name}" deleted successfully.`);
+      store.updateFlashMeassge(true, `Form "${form.name}" deleted successfully.`, 'success');
     }else {
-      store.updateFlashMeassge(true, response.data.message || "Something went wrong while deleting the form.");
+      store.updateFlashMeassge(true, "Something went wrong while deleting the form.", 'error');
     }
   } catch (error) {
     console.error("Error deleting form:", error);
@@ -262,7 +264,7 @@ onMounted(async () => {
 
 <template>
 <div class="page">
-    <FlashMessage :visible="store.flashMeassge" v-if="store.flashMeassge" />
+    <FlashMessage :visible="store.flashMeassge" v-if="store.flashMeassge" :class="flashClass" />
     <NavBar @logout="logout" @nav-bar-toggle="navBarToggle" :dashboardData="dashboardData?.user" />
     <SideBar :dashboardData="dashboardData" :toggled="isSidebarToggled" />
 
@@ -555,4 +557,13 @@ onMounted(async () => {
     margin-top: 4px;
 }
 
+.flash-success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.flash-error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
 </style>
