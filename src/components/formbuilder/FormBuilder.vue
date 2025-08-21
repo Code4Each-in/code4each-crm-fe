@@ -9,7 +9,7 @@ const { handleSubmit } = useForm();
 
 import NavBar from "@/components/dashboard/layouts/navbar.vue";
 import SideBar from "@/components/dashboard/layouts/sidebar.vue";
-// import FlashMessage from "@/components/common/FlashMessage.vue";
+import FlashMessage from "@/components/common/FlashMessage.vue";
 
 // Stores & Router
 const store = useStore();
@@ -102,27 +102,27 @@ const submitCustomFields = handleSubmit(async () => {
   try {
      // Check if form name is empty
     if (!formName.value.trim()) {
-      showFlashMessage("Form name is required.", "error");
+      store.updateFlashMeassge("Form name is required.", "error");
       return;
     }
 
     // Check if fields exist
     if (formFields.value.length === 0) {
-      showFlashMessage("Please add at least one field.", "error");
+      store.updateFlashMeassge("Please add at least one field.", "error");
       return;
     }
 
     // Validate each field
     for (const field of formFields.value) {
       if (!field.label.trim()) {
-        showFlashMessage(`Label is required for ${field.type} field.`, "error");
+        store.updateFlashMeassge(`Label is required for ${field.type} field.`, "error");
         return;
       }
       if (
         (field.type === "select" || field.type === "radio" || field.type === "checkbox") &&
         (!field.options || field.options.length === 0 || field.options.every(o => !o.trim()))
       ) {
-        showFlashMessage(`Options are required for ${field.type} field.`, "error");
+        store.updateFlashMeassge(`Options are required for ${field.type} field.`, "error");
         return;
       }
     }
@@ -143,15 +143,15 @@ const submitCustomFields = handleSubmit(async () => {
     const response = await WordpressService.FormBuilder.submitCustomFields(formData);
 
     if (response.status === 200 && response.data.success) {
-      showFlashMessage(`Form "${formName.value}" saved successfully.`, "success");
+      store.updateFlashMeassge(`Form "${formName.value}" saved successfully.`, "success");
       closeBuilder();
       await fetchForms();
     } else {
-      showFlashMessage("Something went wrong while saving the form.", "error");
+      store.updateFlashMeassge("Something went wrong while saving the form.", "error");
     }
   } catch (error) {
     console.error("Error saving form:", error);
-    showFlashMessage("Something went wrong while saving the form.", "error");
+    store.updateFlashMeassge("Something went wrong while saving the form.", "error");
   }
 });
 
@@ -208,9 +208,9 @@ const toggleFormStatus = async (form) => {
 
     if (response.status === 200 && response.data.success) {
       form.status = newStatus;
-      showFlashMessage(`Form "${form.name}" has been ${newStatus.toLowerCase()} successfully.`, "success");
+      store.updateFlashMeassge(`Form "${form.name}" has been ${newStatus.toLowerCase()} successfully.`, "success");
     } else {
-      showFlashMessage("Failed to update form status.", "error");
+      store.updateFlashMeassge("Failed to update form status.", "error");
     }
   } catch (error) {
     console.error("Error updating form status:", error);
@@ -222,13 +222,6 @@ const confirmToggleStatus = (form) => {
   if (window.confirm(`Are you sure you want to ${action} this form?`)) {
     toggleFormStatus(form);
   }
-};
-
-const showFlashMessage = (message, type = "success") => {
-  store.flashMessage = { text: message, type, visible: true };
-  setTimeout(() => {
-    store.flashMessage = null;
-  }, 3000);
 };
 
 const deleteForm = async (form) => {
@@ -244,13 +237,13 @@ const deleteForm = async (form) => {
 
     if (response.status === 200 && response.data.success) {
       forms.value = forms.value.filter(f => f.id !== form.id);
-      showFlashMessage(`Form "${form.name}" deleted successfully.`, "success");
+      store.updateFlashMeassge(`Form "${form.name}" deleted successfully.`, "success");
     } else {
-      showFlashMessage("Failed to delete the form.", "error");
+      store.updateFlashMeassge("Failed to delete the form.", "error");
     }
   } catch (error) {
     console.error("Error deleting form:", error);
-    showFlashMessage("Something went wrong while deleting the form.", "error");
+    store.updateFlashMeassge("Something went wrong while deleting the form.", "error");
   }
 };
 
@@ -266,13 +259,7 @@ onMounted(async () => {
 
 <template>
 <div class="page">
-    <div 
-        v-if="store.flashMessage && store.flashMessage.visible" 
-        class="flash-message" 
-        :class="store.flashMessage.type"
-        >
-        {{ store.flashMessage.text }}
-    </div>
+    <FlashMessage :visible="store.flashMeassge" v-if="store.flashMeassge" />
     <NavBar @logout="logout" @nav-bar-toggle="navBarToggle" :dashboardData="dashboardData?.user" />
     <SideBar :dashboardData="dashboardData" :toggled="isSidebarToggled" />
 
