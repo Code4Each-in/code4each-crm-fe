@@ -143,7 +143,7 @@ const submitCustomFields = handleSubmit(async () => {
     }
 
     const formData = {
-        form_id: forms.value.find(f => f.name === formName.value)?.id,
+        form_id: formId,
         name: formName.value,
         website_domain: siteSettingsDeatil.value.website_domain,
         fields: formFields.value.map(field => ({
@@ -156,7 +156,12 @@ const submitCustomFields = handleSubmit(async () => {
       }))
     };
 
-    const response = await WordpressService.FormBuilder.submitCustomFields(formData);
+    let response;
+    if (formId) {
+       response = await WordpressService.FormBuilder.updateCustomFields(formData);
+    } else {
+       response = await WordpressService.FormBuilder.submitCustomFields(formData);
+    }
 
     if (response.status === 200 && response.data.success) {
       store.updateFlashMeassge(true, `Form "${formName.value}" saved successfully.`, 'success');
