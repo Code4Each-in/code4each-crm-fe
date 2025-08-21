@@ -125,7 +125,14 @@ const fetchForms = async () => {
         });
 
         if (response.status === 200 && response.data.success) {
-            console.log("All form fetched succesfully!");
+            // Map API data to your forms ref
+            forms.value = response.data.response.map(f => ({
+                id: f.id,
+                name: f.form_name,      // your template uses `form.name`
+                status: f.status === "active" ? "Active" : "Inactive",
+                fields: f.fields || []
+            }));
+            console.log("All forms fetched successfully!", forms.value);
         }
     } catch (error) {
         console.error("An error occurred:", error);
@@ -158,11 +165,6 @@ onMounted(async () => {
     await fetchDashboardData();
     await getSiteDeatils();
     await fetchForms();
-    // Dummy forms
-    forms.value = [
-        { id: 1, name: "Contact Form", status: "Active", schema_json: "[]" },
-        { id: 2, name: "Survey Form", status: "Active", schema_json: "[]" },
-    ];
     loading.value = false;
 });
 </script>
