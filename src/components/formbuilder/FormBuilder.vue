@@ -111,13 +111,26 @@ const submitCustomFields = handleSubmit(async (website_domain) => {
             options: field.options || [],
         }))
     };
-    const response = await WordpressService.submitCustomFields(formData);
+    const response = await WordpressService.FormBuilder.submitCustomFields(formData);
 
     if (response.status === 200 && response.data.success) {
       console.log("Submitted");
     }
 });
 
+const fetchForms = async () => {
+    try {
+        const response = await WordpressService.FormBuilder.fetchForms({
+            website_domain: siteSettingsDeatil.value.website_domain,
+        });
+
+        if (response.status === 200 && response.data.success) {
+            console.log("All form fetched succesfully!");
+        }
+    } catch (error) {
+        console.error("An error occurred:", error);
+    }
+};
 
 // Logout
 const logout = async () => {
@@ -144,6 +157,7 @@ onMounted(async () => {
     () => store.websiteId,
     await fetchDashboardData();
     await getSiteDeatils();
+    await fetchForms();
     // Dummy forms
     forms.value = [
         { id: 1, name: "Contact Form", status: "Active", schema_json: "[]" },
