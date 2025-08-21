@@ -9,7 +9,7 @@ const { handleSubmit } = useForm();
 
 import NavBar from "@/components/dashboard/layouts/navbar.vue";
 import SideBar from "@/components/dashboard/layouts/sidebar.vue";
-import FlashMessage from "@/components/common/FlashMessage.vue";
+// import FlashMessage from "@/components/common/FlashMessage.vue";
 
 // Stores & Router
 const store = useStore();
@@ -98,9 +98,35 @@ const removeField = (id) => {
 };
 
 // Save form
-// Save form
 const submitCustomFields = handleSubmit(async () => {
   try {
+     // Check if form name is empty
+    if (!formName.value.trim()) {
+      showFlashMessage("Form name is required.", "error");
+      return;
+    }
+
+    // Check if fields exist
+    if (formFields.value.length === 0) {
+      showFlashMessage("Please add at least one field.", "error");
+      return;
+    }
+
+    // Validate each field
+    for (const field of formFields.value) {
+      if (!field.label.trim()) {
+        showFlashMessage(`Label is required for ${field.type} field.`, "error");
+        return;
+      }
+      if (
+        (field.type === "select" || field.type === "radio" || field.type === "checkbox") &&
+        (!field.options || field.options.length === 0 || field.options.every(o => !o.trim()))
+      ) {
+        showFlashMessage(`Options are required for ${field.type} field.`, "error");
+        return;
+      }
+    }
+
     const formData = {
       name: formName.value,
       website_domain: siteSettingsDeatil.value.website_domain,
@@ -199,10 +225,33 @@ const confirmToggleStatus = (form) => {
 };
 
 const showFlashMessage = (message, type = "success") => {
-  store.flashMeassge = { text: message, type, visible: true };
+  store.flashMessage = { text: message, type, visible: true };
   setTimeout(() => {
-    store.flashMeassge = null;
-  }, 3000); // auto-hide after 3s
+    store.flashMessage = null;
+  }, 3000);
+};
+
+const deleteForm = async (form) => {
+  if (!window.confirm(`Are you sure you want to delete the form "${form.name}"?`)) {
+    return;
+  }
+
+  try {
+    const response = await WordpressService.FormBuilder.deleteForm({
+      website_domain: siteSettingsDeatil.value.website_domain,
+      form_id: form.id,
+    });
+
+    if (response.status === 200 && response.data.success) {
+      forms.value = forms.value.filter(f => f.id !== form.id);
+      showFlashMessage(`Form "${form.name}" deleted successfully.`, "success");
+    } else {
+      showFlashMessage("Failed to delete the form.", "error");
+    }
+  } catch (error) {
+    console.error("Error deleting form:", error);
+    showFlashMessage("Something went wrong while deleting the form.", "error");
+  }
 };
 
 onMounted(async () => {
@@ -217,12 +266,13 @@ onMounted(async () => {
 
 <template>
 <div class="page">
-    <FlashMessage
-        v-if="store.flashMeassge"
-        :visible="store.flashMeassge.visible"
-        :text="store.flashMeassge.text"
-        :type="store.flashMeassge.type"
-    />
+    <div 
+        v-if="store.flashMessage && store.flashMessage.visible" 
+        class="flash-message" 
+        :class="store.flashMessage.type"
+        >
+        {{ store.flashMessage.text }}
+    </div>
     <NavBar @logout="logout" @nav-bar-toggle="navBarToggle" :dashboardData="dashboardData?.user" />
     <SideBar :dashboardData="dashboardData" :toggled="isSidebarToggled" />
 
@@ -321,8 +371,17 @@ onMounted(async () => {
                 </div>
 
                 <div class="card-body p-3">
+                    <div class="mt-3 mb-3 form-fields">
+                        <strong class="me-2">Add Field:</strong>
+                        <button class="btn btn-sm btn-outline-primary me-1" @click="addField('text')">Text</button>
+                        <button class="btn btn-sm btn-outline-primary me-1" @click="addField('email')">Email</button>
+                        <button class="btn btn-sm btn-outline-primary me-1" @click="addField('phone')">Phone</button>
+                        <button class="btn btn-sm btn-outline-primary me-1" @click="addField('textarea')">Textarea</button>
+                        <button class="btn btn-sm btn-outline-primary me-1" @click="addField('select')">Select</button>
+                        <button class="btn btn-sm btn-outline-primary me-1" @click="addField('radio')">Radio</button>
+                        <button class="btn btn-sm btn-outline-primary me-1" @click="addField('checkbox')">Checkbox</button>
+                    </div>
                     <input v-model="formName" class="form-control mb-3" placeholder="Form Name" />
-
                     <div v-for="field in formFields" :key="field.id" class="mb-3 border p-2 rounded">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <strong>{{ field.type.toUpperCase() }}</strong>
@@ -369,17 +428,6 @@ onMounted(async () => {
                                 class="form-control" 
                             />
                         </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <strong>Add Field:</strong>
-                        <button class="btn btn-sm btn-outline-primary me-1" @click="addField('text')">Text</button>
-                        <button class="btn btn-sm btn-outline-primary me-1" @click="addField('email')">Email</button>
-                        <button class="btn btn-sm btn-outline-primary me-1" @click="addField('phone')">Phone</button>
-                        <button class="btn btn-sm btn-outline-primary me-1" @click="addField('textarea')">Textarea</button>
-                        <button class="btn btn-sm btn-outline-primary me-1" @click="addField('select')">Select</button>
-                        <button class="btn btn-sm btn-outline-primary me-1" @click="addField('radio')">Radio</button>
-                        <button class="btn btn-sm btn-outline-primary me-1" @click="addField('checkbox')">Checkbox</button>
                     </div>
                 </div>
             </div>
