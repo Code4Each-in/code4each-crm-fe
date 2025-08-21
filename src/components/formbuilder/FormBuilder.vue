@@ -37,7 +37,6 @@ const sortedFields = computed(() => {
   return [...formFields.value].sort((a, b) => a.position - b.position);
 });
 
-
 // Fetch dashboard data
 const fetchDashboardData = async () => {
     try {
@@ -395,7 +394,7 @@ onMounted(async () => {
                     <input v-model="formName" class="form-control mb-3" placeholder="Form Name" />
                     <div v-for="field in sortedFields" :key="field.id" class="mb-3 border p-2 rounded">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <strong>{{ field.type.toUpperCase() }}</strong>
+                            <strong>{{ (field.type || '').toUpperCase() }}</strong>
                             <div class="d-flex align-items-center gap-2">
                                 <!-- Position Input with Label -->
                                 <div class="d-flex align-items-center gap-1">
