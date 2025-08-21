@@ -197,9 +197,7 @@ const WordpressService = {
 
   FormBuilder: {
     fetchForms: (data) => {
-      return requests(baseUrl).get('/get-forms'), {
-        params: data
-      }
+      return requests(baseUrl).get('/get-forms', { params: data });
     },
     submitCustomFields: (data) => {
       return requests(baseUrl).post(`/create-customfromfields`, data)
