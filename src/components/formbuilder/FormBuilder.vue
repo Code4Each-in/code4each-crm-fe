@@ -21,6 +21,7 @@ const isSidebarToggled = ref(false);
 const dashboardData = ref({});
 const loading = ref(true);
 const error = ref(false);
+const deletingFormId = ref(null);
 
 // Forms list
 const forms = ref([]);
@@ -100,29 +101,30 @@ const removeField = (id) => {
 // Save form
 const submitCustomFields = handleSubmit(async () => {
   try {
+     loading.value = true;
      // Check if form name is empty
     if (!formName.value.trim()) {
-      store.updateFlashMeassge("Form name is required.", "error");
+      store.updateFlashMeassge(true, "Form name is required.");
       return;
     }
 
     // Check if fields exist
     if (formFields.value.length === 0) {
-      store.updateFlashMeassge("Please add at least one field.", "error");
+      store.updateFlashMeassge(true, "Please add at least one field.");
       return;
     }
 
     // Validate each field
     for (const field of formFields.value) {
       if (!field.label.trim()) {
-        store.updateFlashMeassge(`Label is required for ${field.type} field.`, "error");
+        store.updateFlashMeassge(true, `Label is required for ${field.type} field.`);
         return;
       }
       if (
         (field.type === "select" || field.type === "radio" || field.type === "checkbox") &&
         (!field.options || field.options.length === 0 || field.options.every(o => !o.trim()))
       ) {
-        store.updateFlashMeassge(`Options are required for ${field.type} field.`, "error");
+        store.updateFlashMeassge(true, `Options are required for ${field.type} field.`);
         return;
       }
     }
@@ -143,15 +145,16 @@ const submitCustomFields = handleSubmit(async () => {
     const response = await WordpressService.FormBuilder.submitCustomFields(formData);
 
     if (response.status === 200 && response.data.success) {
-      store.updateFlashMeassge(`Form "${formName.value}" saved successfully.`, "success");
+      store.updateFlashMeassge(true, `Form "${formName.value}" saved successfully.`);
       closeBuilder();
       await fetchForms();
     } else {
-      store.updateFlashMeassge("Something went wrong while saving the form.", "error");
+      store.updateFlashMeassge(true, "Something went wrong while saving the form.");
     }
   } catch (error) {
     console.error("Error saving form:", error);
-    store.updateFlashMeassge("Something went wrong while saving the form.", "error");
+  } finally {
+    loading.value = false;
   }
 });
 
@@ -208,9 +211,7 @@ const toggleFormStatus = async (form) => {
 
     if (response.status === 200 && response.data.success) {
       form.status = newStatus;
-      store.updateFlashMeassge(`Form "${form.name}" has been ${newStatus.toLowerCase()} successfully.`, "success");
-    } else {
-      store.updateFlashMeassge("Failed to update form status.", "error");
+      store.updateFlashMeassge(true, `Form "${form.name}" has been ${newStatus.toLowerCase()} successfully.`);
     }
   } catch (error) {
     console.error("Error updating form status:", error);
@@ -225,11 +226,11 @@ const confirmToggleStatus = (form) => {
 };
 
 const deleteForm = async (form) => {
-  if (!window.confirm(`Are you sure you want to delete the form "${form.name}"?`)) {
-    return;
-  }
+  if (!window.confirm(`Are you sure you want to delete the form "${form.name}"?`)) return;
 
   try {
+    loading.value = true; 
+    deletingFormId.value = form.id;
     const response = await WordpressService.FormBuilder.deleteForm({
       website_domain: siteSettingsDeatil.value.website_domain,
       form_id: form.id,
@@ -237,14 +238,15 @@ const deleteForm = async (form) => {
 
     if (response.status === 200 && response.data.success) {
       forms.value = forms.value.filter(f => f.id !== form.id);
-      store.updateFlashMeassge(`Form "${form.name}" deleted successfully.`, "success");
-      await fetchForms();
-    } else {
-      store.updateFlashMeassge("Failed to delete the form.", "error");
+      store.updateFlashMeassge(true, `Form "${form.name}" deleted successfully.`);
+    }else {
+      store.updateFlashMeassge(true, response.data.message || "Something went wrong while deleting the form.");
     }
   } catch (error) {
     console.error("Error deleting form:", error);
-    store.updateFlashMeassge("Something went wrong while deleting the form.", "error");
+  } finally {
+    deletingFormId.value = null; 
+    loading.value = false;     
   }
 };
 
@@ -320,9 +322,11 @@ onMounted(async () => {
 
                                     <button class="btn btn-sm btn-outline-danger" 
                                             @click="deleteForm(form)" 
+                                            :disabled="deletingFormId === form.id || loading"
                                             data-bs-toggle="tooltip" 
                                             data-bs-placement="top" 
-                                            title="Delete">
+                                            :title="deletingFormId === form.id ? 'Deleting...' : 'Delete'">
+                                    <span v-if="deletingFormId === form.id" class="spinner-border spinner-border-sm"></span>
                                     <i class="fa fa-trash"></i>
                                     </button>
                                 </td>
