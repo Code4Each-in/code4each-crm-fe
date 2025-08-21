@@ -9,6 +9,7 @@ export const useStore = defineStore('myStore', {
     flashMeassge: false,
     menuShrink: false,
     flashMeassgeValue: 'Success',
+    flashMeassgeType: 'success',
     showFeedbackModal: false,
   }),
   actions: {
@@ -18,9 +19,10 @@ export const useStore = defineStore('myStore', {
     updateShrink() {
       this.menuShrink = !this.menuShrink;
     },
-    updateFlashMeassge(newValue, message = 'Success') {
+    updateFlashMeassge(newValue, message = 'Success', type = 'success') {
       this.flashMeassge = newValue;
       this.flashMeassgeValue = message;
+      this.flashMeassgeType = type;
     },
     async fetchInitialWebsiteId() {
       try {
