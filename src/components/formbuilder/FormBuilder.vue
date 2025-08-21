@@ -238,6 +238,7 @@ const deleteForm = async (form) => {
     if (response.status === 200 && response.data.success) {
       forms.value = forms.value.filter(f => f.id !== form.id);
       store.updateFlashMeassge(`Form "${form.name}" deleted successfully.`, "success");
+      await fetchForms();
     } else {
       store.updateFlashMeassge("Failed to delete the form.", "error");
     }
