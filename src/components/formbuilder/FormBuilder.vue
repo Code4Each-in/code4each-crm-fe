@@ -26,24 +26,23 @@ const deletingFormId = ref(null);
 // Forms list
 const forms = ref([]);
 const formFields = ref([]);
-
-// Builder state
-const showBuilder = ref(false);
 const formName = ref("");
+const showBuilder = ref(false);
 const siteSettingsDeatil = ref([]);
+const formId = ref(null);
 
+// Flash class
 const flashClass = computed(() => store.flashMeassgeType === 'error' ? 'flash-error' : 'flash-success');
-const sortedFields = computed(() => {
-  return [...formFields.value].sort((a, b) => a.position - b.position);
-});
+const sortedFields = computed(() => [...formFields.value].sort((a, b) => a.position - b.position));
 
-// Fetch dashboard data
+// -------------------------
+// Fetch Dashboard Data
+// -------------------------
 const fetchDashboardData = async () => {
     try {
         const response = await WordpressService.fetchDashboardData();
         if (response.status === 200 && response.data.success) {
             dashboardData.value = response.data;
-            loading.value = false;
         }
     } catch (err) {
         if (err.response && err.response.status === 401) {
@@ -52,81 +51,121 @@ const fetchDashboardData = async () => {
         } else {
             console.error(err.message);
             error.value = true;
-            loading.value = false;
         }
+    } finally {
+        loading.value = false;
     }
 };
 
+// -------------------------
 // Sidebar toggle
+// -------------------------
 const navBarToggle = (value) => isSidebarToggled.value = value;
 
-// Open builder (new or edit)
+// -------------------------
+// Open Builder (New or Edit)
+// -------------------------
 const openBuilder = (form = null) => {
     showBuilder.value = true;
     localStorage.setItem("builderOpen", "true");
-    loading.value = true; 
+    loading.value = true;
 
     if (form) {
-        formName.value = form.name;
-        formFields.value = form.fields.map(f => ({
-            id: f.id || Date.now(), 
-            type: f.type,
-            label: f.label || "",
-            placeholder: f.placeholder || "",
-            required: f.required || false,
-            position: f.position || 0,
-            options: f.options || [],
-            optionsString: f.options ? f.options.join(", ") : ""
+        formId.value = form.id || null;
+        formName.value = form.name || "";
+        formFields.value = (form.fields || []).map((f, index) => ({
+            id: f.id || Date.now() + index,
+            type: f.form_field_type || f.type || "", 
+            label: f.form_field_name || f.label || "",
+            placeholder: f.form_field_placeholder || f.placeholder || "",
+            required: f.form_field_required === "1" || f.required === true,
+            position: parseInt(f.form_field_position) || index + 1,
+            options: f.form_field_options ? JSON.parse(f.form_field_options) : (f.options || []),
+            optionsString: f.form_field_options
+                ? JSON.parse(f.form_field_options).join(", ")
+                : (f.options ? f.options.join(", ") : "")
         }));
     } else {
+        formId.value = null;
         formName.value = "";
         formFields.value = [];
     }
-    loading.value = true; 
+    loading.value = false;
 };
 
-// Close builder
-const closeBuilder = () => {
-    showBuilder.value = false;
-};
+// -------------------------
+// Close Builder
+// -------------------------
+const closeBuilder = () => showBuilder.value = false;
 
-// Add a new field
+// -------------------------
+// Add Field
+// -------------------------
 const addField = (type) => {
-    formFields.value.push({
+    const newField = {
         id: Date.now(),
         type,
         label: "",
         placeholder: "",
-        options: type === "select" || type === "radio" || type === "checkbox" ? ["Option 1"] : [],
-        optionsString: type === "select" || type === "radio" || type === "checkbox" ? "Option 1" : "",
+        options: ["select", "radio", "checkbox"].includes(type) ? ["Option 1"] : [],
+        optionsString: ["select", "radio", "checkbox"].includes(type) ? "Option 1" : "",
         value: "",
         required: false,
         position: formFields.value.length + 1
-    });
-}
-// Remove a field
-const removeField = (id) => {
-  formFields.value = formFields.value.filter(f => f.id !== id)
-                                     .map((f, index) => ({ ...f, position: index + 1 }));
+    };
+    formFields.value.push(newField);
 };
 
-// Save form
+// -------------------------
+// Remove Field
+// -------------------------
+const removeField = (id) => {
+    formFields.value = formFields.value
+        .filter(f => f.id !== id)
+        .map((f, index) => ({ ...f, position: index + 1 }));
+};
+
+// -------------------------
+// Fetch Forms
+// -------------------------
+const fetchForms = async () => {
+    try {
+        const response = await WordpressService.FormBuilder.fetchForms({
+            website_domain: siteSettingsDeatil.value.website_domain,
+        });
+
+        if (response.status === 200 && response.data.success) {
+            forms.value = response.data.response.map(f => ({
+                id: f.id,
+                name: f.form_name,
+                status: f.status === "active" ? "Active" : "Inactive",
+                fields: f.fields || []
+            }));
+        } else {
+            forms.value = [];
+        }
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+// -------------------------
+// Submit Form
+// -------------------------
 const submitCustomFields = handleSubmit(async () => {
   try {
-     loading.value = true;
-     // Check if form name is empty
+    loading.value = true;
+    
     if (!formName.value.trim()) {
       store.updateFlashMeassge(true, "Form name is required.", 'error');
       return;
     }
 
-    // Check if fields exist
     if (formFields.value.length === 0) {
       store.updateFlashMeassge(true, "Please add at least one field.", 'error');
       return;
     }
 
-    // Validate each field
     for (const field of formFields.value) {
       if (!field.label.trim()) {
         store.updateFlashMeassge(true, `Label is required for ${field.type} field.`, 'error');
@@ -176,101 +215,92 @@ const submitCustomFields = handleSubmit(async () => {
   }
 });
 
-const fetchForms = async () => {
-    try {
-        const response = await WordpressService.FormBuilder.fetchForms({
-            website_domain: siteSettingsDeatil.value.website_domain,
-        });
-
-        if (response.status === 200 && response.data.success) {
-        forms.value = response.data.response.map(f => ({
-            id: f.id,
-            name: f.form_name,
-            status: f.status === "active" ? "Active" : "Inactive",
-            fields: f.fields || []
-        }));
-        } else {
-        forms.value = []; 
-        }
-    } catch (error) {
-        console.error("An error occurred:", error);
-    }
-};
-
+// -------------------------
 // Logout
+// -------------------------
 const logout = async () => {
     await doLogout();
     router.push("/login");
 };
 
+// -------------------------
+// Get Site Details
+// -------------------------
 const getSiteDeatils = async () => {
-  if (!store.websiteId || typeof store.websiteId !== "number") return;
-  try {
-    const response = await WordpressService.WebsiteSettings.getSiteDetail({
-      website_id: store.websiteId, // correct property
-    }); // <-- use this instead
-    if (response.status === 200 && response.data.success) {
-      siteSettingsDeatil.value = response.data.settings_detail;
+    if (!store.websiteId || typeof store.websiteId !== "number") return;
+    try {
+        const response = await WordpressService.WebsiteSettings.getSiteDetail({
+            website_id: store.websiteId,
+        });
+        if (response.status === 200 && response.data.success) {
+            siteSettingsDeatil.value = response.data.settings_detail;
+        }
+    } catch (error) {
+        console.error(error);
     }
-  } catch (error) {
-    console.error("An error occurred:", error);
-  }
 };
 
+// -------------------------
+// Toggle Form Status
+// -------------------------
 const toggleFormStatus = async (form) => {
-  try {
-    const newStatus = form.status === "Active" ? "Inactive" : "Active";
+    try {
+        const newStatus = form.status === "Active" ? "Inactive" : "Active";
+        const response = await WordpressService.FormBuilder.updateFormStatus({
+            website_domain: siteSettingsDeatil.value.website_domain,
+            form_id: form.id,
+            status: newStatus.toLowerCase(),
+        });
 
-    const response = await WordpressService.FormBuilder.updateFormStatus({
-        website_domain: siteSettingsDeatil.value.website_domain,
-        form_id: form.id,
-        status: newStatus.toLowerCase(),
-    });
-
-    if (response.status === 200 && response.data.success) {
-      form.status = newStatus;
-      store.updateFlashMeassge(true, `Form "${form.name}" has been ${newStatus.toLowerCase()} successfully.`, 'success');
+        if (response.status === 200 && response.data.success) {
+            form.status = newStatus;
+            store.updateFlashMeassge(true, `Form "${form.name}" has been ${newStatus.toLowerCase()} successfully.`, 'success');
+        }
+    } catch (error) {
+        console.error(error);
     }
-  } catch (error) {
-    console.error("Error updating form status:", error);
-  }
 };
 
 const confirmToggleStatus = (form) => {
-  const action = form.status === "Active" ? "deactivate" : "activate";
-  if (window.confirm(`Are you sure you want to ${action} this form?`)) {
-    toggleFormStatus(form);
-  }
-};
-
-const deleteForm = async (form) => {
-  if (!window.confirm(`Are you sure you want to delete the form "${form.name}"?`)) return;
-
-  try {
-    loading.value = true; 
-    deletingFormId.value = form.id;
-    const response = await WordpressService.FormBuilder.deleteForm({
-      website_domain: siteSettingsDeatil.value.website_domain,
-      form_id: form.id,
-    });
-
-    if (response.status === 200 && response.data.success) {
-      forms.value = forms.value.filter(f => f.id !== form.id);
-      store.updateFlashMeassge(true, `Form "${form.name}" deleted successfully.`, 'success');
-    }else {
-      store.updateFlashMeassge(true, "Something went wrong while deleting the form.", 'error');
+    const action = form.status === "Active" ? "deactivate" : "activate";
+    if (window.confirm(`Are you sure you want to ${action} this form?`)) {
+        toggleFormStatus(form);
     }
-  } catch (error) {
-    console.error("Error deleting form:", error);
-  } finally {
-    deletingFormId.value = null; 
-    loading.value = false;     
-  }
 };
 
+// -------------------------
+// Delete Form
+// -------------------------
+const deleteForm = async (form) => {
+    if (!window.confirm(`Are you sure you want to delete the form "${form.name}"?`)) return;
+
+    try {
+        loading.value = true;
+        deletingFormId.value = form.id;
+        const response = await WordpressService.FormBuilder.deleteForm({
+            website_domain: siteSettingsDeatil.value.website_domain,
+            form_id: form.id,
+        });
+
+        if (response.status === 200 && response.data.success) {
+            forms.value = forms.value.filter(f => f.id !== form.id);
+            store.updateFlashMeassge(true, `Form "${form.name}" deleted successfully.`, 'success');
+        } else {
+            store.updateFlashMeassge(true, "Something went wrong while deleting the form.", 'error');
+        }
+    } catch (error) {
+        console.error(error);
+    } finally {
+        deletingFormId.value = null;
+        loading.value = false;
+    }
+};
+
+// -------------------------
+// Mounted
+// -------------------------
 onMounted(async () => {
     loading.value = true;
-    () => store.websiteId,
     await fetchDashboardData();
     await getSiteDeatils();
     await fetchForms();
@@ -396,30 +426,26 @@ onMounted(async () => {
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <strong>{{ (field.type || '').toUpperCase() }}</strong>
                             <div class="d-flex align-items-center gap-2">
-                                <!-- Position Input with Label -->
                                 <div class="d-flex align-items-center gap-1">
                                     <label class="mb-0"><strong>Position:</strong></label>
                                     <input type="number" v-model.number="field.position" class="form-control form-control-sm" style="width: 60px;" />
                                 </div>
 
-                                <!-- Required Checkbox -->
                                 <label class="mb-0">
                                     <strong>Required</strong> <input type="checkbox" v-model="field.required" />
                                 </label>
 
-                                <!-- Remove Button -->
                                 <button class="btn btn-sm btn-danger" @click="removeField(field.id)">Remove</button>
                             </div>
                         </div>
-                        <!-- Label Input -->
+
                         <input v-model="field.label" class="form-control mb-1" placeholder="Label" />
 
-                        <!-- Placeholder Input (editable) -->
+                        <!-- Placeholder for text/email/phone/textarea -->
                         <input v-if="['text','email','phone','textarea'].includes(field.type)" v-model="field.placeholder" class="form-control mb-1" placeholder="Placeholder" />
 
-                        <!-- Options input for select/radio/checkbox -->
+                        <!-- Options for select/radio/checkbox -->
                         <div v-if="['select','radio','checkbox'].includes(field.type)" class="mt-2">
-                            <input v-model="field.placeholder" class="form-control mb-1" placeholder="Placeholder" />
                             <label>Options (comma separated)</label>
                             <input v-model="field.optionsString" @input="field.options = field.optionsString.split(',').map(o => o.trim())" class="form-control" />
                         </div>
