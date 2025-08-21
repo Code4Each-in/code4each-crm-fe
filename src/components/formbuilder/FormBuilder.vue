@@ -98,24 +98,35 @@ const removeField = (id) => {
 };
 
 // Save form
-const submitCustomFields = handleSubmit(async (website_domain) => {
+// Save form
+const submitCustomFields = handleSubmit(async () => {
+  try {
     const formData = {
-        name: formName.value,
-        website_domain: siteSettingsDeatil.value.website_domain,
-        fields: formFields.value.map(field => ({
-            type: field.type,
-            label: field.label,
-            placeholder: field.placeholder || '',  
-            required: field.required || false,
-            position: field.position || 0,
-            options: field.options || [],
-        }))
+      name: formName.value,
+      website_domain: siteSettingsDeatil.value.website_domain,
+      fields: formFields.value.map(field => ({
+        type: field.type,
+        label: field.label,
+        placeholder: field.placeholder || '',
+        required: field.required || false,
+        position: field.position || 0,
+        options: field.options || [],
+      }))
     };
+
     const response = await WordpressService.FormBuilder.submitCustomFields(formData);
 
     if (response.status === 200 && response.data.success) {
-      console.log("Submitted");
+      showFlashMessage(`Form "${formName.value}" saved successfully.`, "success");
+      closeBuilder();
+      await fetchForms();
+    } else {
+      showFlashMessage("Something went wrong while saving the form.", "error");
     }
+  } catch (error) {
+    console.error("Error saving form:", error);
+    showFlashMessage("Something went wrong while saving the form.", "error");
+  }
 });
 
 const fetchForms = async () => {
@@ -171,6 +182,9 @@ const toggleFormStatus = async (form) => {
 
     if (response.status === 200 && response.data.success) {
       form.status = newStatus;
+      showFlashMessage(`Form "${form.name}" has been ${newStatus.toLowerCase()} successfully.`, "success");
+    } else {
+      showFlashMessage("Failed to update form status.", "error");
     }
   } catch (error) {
     console.error("Error updating form status:", error);
@@ -182,6 +196,13 @@ const confirmToggleStatus = (form) => {
   if (window.confirm(`Are you sure you want to ${action} this form?`)) {
     toggleFormStatus(form);
   }
+};
+
+const showFlashMessage = (message, type = "success") => {
+  store.flashMeassge = { text: message, type, visible: true };
+  setTimeout(() => {
+    store.flashMeassge = null;
+  }, 3000); // auto-hide after 3s
 };
 
 onMounted(async () => {
@@ -196,7 +217,12 @@ onMounted(async () => {
 
 <template>
 <div class="page">
-    <FlashMessage :visible="store.flashMeassge" v-if="store.flashMeassge" />
+    <FlashMessage
+        v-if="store.flashMeassge"
+        :visible="store.flashMeassge.visible"
+        :text="store.flashMeassge.text"
+        :type="store.flashMeassge.type"
+    />
     <NavBar @logout="logout" @nav-bar-toggle="navBarToggle" :dashboardData="dashboardData?.user" />
     <SideBar :dashboardData="dashboardData" :toggled="isSidebarToggled" />
 
