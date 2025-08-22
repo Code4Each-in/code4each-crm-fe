@@ -241,9 +241,8 @@ watch(
           field.meta1 != null ? field.meta1 : field.default_meta1;
         formData.value[field.field_name + "-meta2"] =
           field.meta2 != null ? field.meta2 : field.default_meta2;
-        // if action was "form", restore saved formId
         formData.value[field.field_name + "-formId"] =
-          field.formId ?? null;
+          field.form_id ?? field.formId ?? null;
       }
     });
   }
