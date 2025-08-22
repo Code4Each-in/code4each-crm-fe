@@ -30,9 +30,12 @@ const formName = ref("");
 const showBuilder = ref(false);
 const siteSettingsDeatil = ref([]);
 const formId = ref(null);
+const formsFetched = ref(false);
 
 // Flash class
-const flashClass = computed(() => store.flashMeassgeType === 'error' ? 'flash-error' : 'flash-success');
+const flashClass = computed(() => 
+    store.flashMeassgeType === 'error' ? 'flash-error' : 'flash-success'
+);
 const sortedFields = computed(() => [...formFields.value].sort((a, b) => a.position - b.position));
 
 // -------------------------
@@ -129,6 +132,7 @@ const removeField = (id) => {
 // Fetch Forms
 // -------------------------
 const fetchForms = async () => {
+    formsFetched.value = false;
     try {
         const response = await WordpressService.FormBuilder.fetchForms({
             website_domain: siteSettingsDeatil.value.website_domain,
@@ -146,6 +150,8 @@ const fetchForms = async () => {
         }
     } catch (error) {
         console.error(error);
+    } finally {
+        formsFetched.value = true; 
     }
 };
 
@@ -304,7 +310,9 @@ onMounted(async () => {
     loading.value = true;
     await fetchDashboardData();
     await getSiteDeatils();
-    await fetchForms();
+    if (siteSettingsDeatil.value.website_domain) {
+        await fetchForms();
+    }
     loading.value = false;
 });
 </script>
@@ -325,7 +333,7 @@ onMounted(async () => {
                 </button>
             </div>
 
-            <div v-if="loading" class="loader-wrapper">
+            <div v-if="!formsFetched" class="loader-wrapper">
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
@@ -384,7 +392,7 @@ onMounted(async () => {
                     </table>
                 </div>
 
-                <div v-if="forms.length === 0 && !loading" class="empty-state card shadow-sm text-center p-5">
+                <div v-if="formsFetched && forms.length === 0" class="empty-state card shadow-sm text-center p-5">
                     <h5 class="mb-3">No Forms Found</h5>
                     <p class="text-muted mb-4">You haven’t created any forms yet. Click below to start!</p>
                     <button class="btn btn-primary" @click="openBuilder()">
@@ -412,6 +420,7 @@ onMounted(async () => {
                 </div>
 
                 <div class="card-body p-3">
+                    <input v-model="formName" class="form-control mb-3" placeholder="Form Name" />
                     <div class="mt-3 mb-3 form-fields">
                         <strong class="me-2">Add Field:</strong>
                         <button class="btn btn-sm btn-outline-primary me-1" @click="addField('text')">Text</button>
@@ -421,8 +430,9 @@ onMounted(async () => {
                         <button class="btn btn-sm btn-outline-primary me-1" @click="addField('select')">Select</button>
                         <button class="btn btn-sm btn-outline-primary me-1" @click="addField('radio')">Radio</button>
                         <button class="btn btn-sm btn-outline-primary me-1" @click="addField('checkbox')">Checkbox</button>
+                        <button class="btn btn-sm btn-outline-primary me-1" @click="addField('date')">Date</button>
+                        <button class="btn btn-sm btn-outline-primary me-1" @click="addField('time')">Time</button>
                     </div>
-                    <input v-model="formName" class="form-control mb-3" placeholder="Form Name" />
                     <div v-for="field in sortedFields" :key="field.id" class="mb-3 border p-2 rounded">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <strong>{{ (field.type || '').toUpperCase() }}</strong>
@@ -593,5 +603,6 @@ onMounted(async () => {
 .flash-error {
   background-color: #f8d7da;
   color: #721c24;
+  border: 2px solid #721c24;
 }
 </style>
