@@ -201,6 +201,7 @@ const submitCustomFields = async (data) => {
     const formFields = Object.keys(data).reduce((acc, key) => {
       let meta1 = null;
       let meta2 = null;
+      let formId = null;
 
       let modifiedString = key.replace(/-meta1|-meta2/g, "");
 
@@ -218,12 +219,16 @@ const submitCustomFields = async (data) => {
         meta2 =
           existingField.meta2 ||
           (key.includes("meta2") ? data[key] : undefined);
+        formId =
+          existingField.formId ||
+          (key.includes("formId") ? data[key] : undefined);
 
         // Update the existing entry
         acc[existingFieldIndex] = {
           ...existingField,
           meta1: meta1,
           meta2: meta2,
+          formId: formId,
         };
       } else {
         acc.push({
@@ -232,6 +237,7 @@ const submitCustomFields = async (data) => {
           type: componentsFieldsUnderEdit.value.type,
           meta1: meta1,
           meta2: meta2,
+          formId: formId,
           field_type: null,
         });
       }
