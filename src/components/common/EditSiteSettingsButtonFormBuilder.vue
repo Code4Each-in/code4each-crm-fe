@@ -57,8 +57,8 @@
                 v-model="formData[field.field_name + '-formId']"
               >
                 <option disabled value="">-- Select a Form --</option>
-                <option v-for="form in forms" :key="form.id" :value="form.id">
-                  {{ form.name }} ({{ form.status }})
+                <option v-for="form in activeForms" :key="form.id" :value="form.id">
+                  {{ form.name }}
                 </option>
               </select>
             </div>
@@ -177,6 +177,7 @@ const siteSettingsFormFieldsCopy = ref(props.siteSettingsFormFields);
 // --- Forms API data ---
 const forms = ref([]);
 const formsFetched = ref(false);
+const activeForms = computed(() => forms.value.filter(f => f.status === "Active"));
 
 const changeHiddenValuesForAllFields = () => {
   siteSettingsFormFieldsCopy.value = JSON.parse(
@@ -206,6 +207,7 @@ const changeHiddenValuesForAllFields = () => {
 const fetchForms = async () => {
     formsFetched.value = false;
     try {
+        console.log(props.websiteDomain);
         const response = await WordpressService.FormBuilder.fetchForms({
           website_domain: props.websiteDomain,
         });
@@ -247,8 +249,17 @@ watch(
   }
 );
 
+watch(
+  () => props.websiteDomain,
+  (newVal) => {
+    if (newVal) {
+      fetchForms(); // calls your async function
+    }
+  },
+  { immediate: true }
+);
+
 onMounted(() => {
-  fetchForms();
   EventBus.on("submitButtonFormChildMethod", submitForm);
 });
 </script>
