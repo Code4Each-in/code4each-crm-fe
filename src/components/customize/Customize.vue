@@ -203,7 +203,7 @@ const submitCustomFields = async (data) => {
       let meta2 = null;
       let formId = null;
 
-      let modifiedString = key.replace(/-meta1|-meta2/g, "");
+      let modifiedString = key.replace(/-meta1|-meta2|-formId/g, "");
 
       // Check if field_name already exists
       const existingFieldIndex = acc.findIndex(
