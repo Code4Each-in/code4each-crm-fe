@@ -42,6 +42,24 @@
               >
                 <option value="_self">Self</option>
                 <option value="_blank">Blank</option>
+                <option value="form">Form</option>
+              </select>
+            </div>
+            <!-- Show form dropdown if user selects "form" -->
+            <div
+              class="col-sm-12 form-group mt-2"
+              v-if="formData[field.field_name + '-meta2'] === 'form'"
+            >
+              <label for="" class="form-label">Select Form</label>
+              <select
+                class="form-select"
+                :name="field.field_name + '-formId'"
+                v-model="formData[field.field_name + '-formId']"
+              >
+                <option disabled value="">-- Select a Form --</option>
+                <option v-for="form in forms" :key="form.id" :value="form.id">
+                  {{ form.name }} ({{ form.status }})
+                </option>
               </select>
             </div>
           </div>
@@ -121,6 +139,7 @@ import { useForm } from "vee-validate";
 import { capitalizeAndReplaceChar } from "@/util/helper";
 import SelectBox from "@/components/common/SelectBox.vue";
 import { EventBus } from "@/EventBus";
+import WordpressService from "@/service/WordpressService";
 
 const isButtonDisabled = ref(false);
 const resetToggle = ref(true);
@@ -129,6 +148,7 @@ const formData = ref({});
 const emits = defineEmits();
 const props = defineProps({
   siteSettingsFormFields: Object,
+  websiteDomain: String,
 });
 
 const { handleSubmit } = useForm({
@@ -154,6 +174,10 @@ const submitForm = () => {
 
 const siteSettingsFormFieldsCopy = ref(props.siteSettingsFormFields);
 
+// --- Forms API data ---
+const forms = ref([]);
+const formsFetched = ref(false);
+
 const changeHiddenValuesForAllFields = () => {
   siteSettingsFormFieldsCopy.value = JSON.parse(
     JSON.stringify(props.siteSettingsFormFields)
@@ -176,6 +200,33 @@ const changeHiddenValuesForAllFields = () => {
   resetToggle.value = !resetToggle.value;
 };
 
+// -------------------------
+// Fetch Forms
+// -------------------------
+const fetchForms = async () => {
+    formsFetched.value = false;
+    try {
+        const response = await WordpressService.FormBuilder.fetchForms({
+          website_domain: props.websiteDomain,
+        });
+
+        if (response.status === 200 && response.data.success) {
+            forms.value = response.data.response.map(f => ({
+                id: f.id,
+                name: f.form_name,
+                status: f.status === "active" ? "Active" : "Inactive",
+                fields: f.fields || []
+            }));
+        } else {
+            forms.value = [];
+        }
+    } catch (error) {
+        console.error(error);
+    } finally {
+        formsFetched.value = true; 
+    }
+};
+
 watch(
   () => props.siteSettingsFormFields,
   (newProp, oldProp) => {
@@ -188,12 +239,16 @@ watch(
           field.meta1 != null ? field.meta1 : field.default_meta1;
         formData.value[field.field_name + "-meta2"] =
           field.meta2 != null ? field.meta2 : field.default_meta2;
+        // if action was "form", restore saved formId
+        formData.value[field.field_name + "-formId"] =
+          field.formId ?? null;
       }
     });
   }
 );
 
 onMounted(() => {
+  fetchForms();
   EventBus.on("submitButtonFormChildMethod", submitForm);
 });
 </script>
