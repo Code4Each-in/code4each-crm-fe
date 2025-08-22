@@ -619,6 +619,7 @@ const showloading = (value)=>{
                           <div class="tab-pane" id="Buttons" role="tabpanel">
                             <EditSiteSettingsButtonFormBuilder
                               :siteSettingsFormFields="siteSettingsFormFields"
+                              :websiteDomain="siteSettingsDeatil?.website_domain"
                               @submit-custom-fields="submitCustomFields"
                             />
                           </div>
