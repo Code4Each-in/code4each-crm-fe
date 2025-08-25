@@ -713,4 +713,7 @@ onMounted(async () => {
   border: 2px solid #721c24;
 }
 
+.modal-footer {
+    justify-content: end !important;
+}
 </style>
