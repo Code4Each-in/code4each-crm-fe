@@ -35,6 +35,7 @@ const formsFetched = ref(false);
 // Submissions Modal
 const submissions = ref({ headers: [], rows: [] });
 let bsModal = null;
+const submissionsModalTitle = ref("Form Submissions");
 
 // Flash class
 const flashClass = computed(() => 
@@ -323,17 +324,15 @@ const deleteForm = async (form) => {
 const getFormSubmissions = async (form) => {
     try {
         loading.value = true;
-
+        submissionsModalTitle.value = `${form.name} Submission${form.submissionCount !== 1 ? 's' : ''}`;
         // Ensure modal instance exists
         const modalEl = document.getElementById('submissionsModal');
         if (!bsModal) {
             bsModal = new bootstrap.Modal(modalEl, { backdrop: 'static', keyboard: false });
             modalEl.addEventListener('hidden.bs.modal', () => {
-                submissions.value = { headers: [], rows: [] }; // optional reset
+                submissions.value = { headers: [], rows: [] }; 
             });
         }
-
-        // Show modal immediately so spinner is visible
         bsModal.show();
 
         // Fetch submissions
@@ -460,7 +459,7 @@ onMounted(async () => {
                 <div class="modal-dialog modal-xl" role="document">
                     <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="submissionsModalLabel">Form Submissions</h5>
+                        <h5 class="modal-title" id="submissionsModalLabel">{{ submissionsModalTitle }}</h5>
                         <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                         </button>
