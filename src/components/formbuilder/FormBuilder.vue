@@ -32,6 +32,10 @@ const siteSettingsDeatil = ref([]);
 const formId = ref(null);
 const formsFetched = ref(false);
 
+// Submissions Modal
+const submissions = ref({ headers: [], rows: [] });
+let bsModal = null;
+
 // Flash class
 const flashClass = computed(() => 
     store.flashMeassgeType === 'error' ? 'flash-error' : 'flash-success'
@@ -139,11 +143,21 @@ const fetchForms = async () => {
         });
 
         if (response.status === 200 && response.data.success) {
-            forms.value = response.data.response.map(f => ({
-                id: f.id,
-                name: f.form_name,
-                status: f.status === "active" ? "Active" : "Inactive",
-                fields: f.fields || []
+             forms.value = await Promise.all(response.data.response.map(async (f) => {
+                // Fetch submission count
+                const submissionsResponse = await WordpressService.FormBuilder.getFormSubmissions({
+                    form_id: f.id,
+                    website_domain: siteSettingsDeatil.value.website_domain,
+                });
+                const submissionCount = submissionsResponse?.data?.rows?.length || 0;
+
+                return {
+                    id: f.id,
+                    name: f.form_name,
+                    status: f.status === "active" ? "Active" : "Inactive",
+                    fields: f.fields || [],
+                    submissionCount
+                };
             }));
         } else {
             forms.value = [];
@@ -304,6 +318,45 @@ const deleteForm = async (form) => {
 };
 
 // -------------------------
+// GET FORM SUBMISSIONS DATA
+// -------------------------
+const getFormSubmissions = async (form) => {
+    try {
+        loading.value = true;
+
+        // Ensure modal instance exists
+        const modalEl = document.getElementById('submissionsModal');
+        if (!bsModal) {
+            bsModal = new bootstrap.Modal(modalEl, { backdrop: 'static', keyboard: false });
+            modalEl.addEventListener('hidden.bs.modal', () => {
+                submissions.value = { headers: [], rows: [] }; // optional reset
+            });
+        }
+
+        // Show modal immediately so spinner is visible
+        bsModal.show();
+
+        // Fetch submissions
+        const response = await WordpressService.FormBuilder.getFormSubmissions({
+            form_id: form.id,
+            website_domain: siteSettingsDeatil.value.website_domain,
+        });
+
+        if (response.status === 200 && response.data.success) {
+            submissions.value = response.data;
+        } else {
+            submissions.value = { headers: [], rows: [] };
+        }
+
+    } catch (error) {
+        console.error("Error fetching form submissions:", error);
+        submissions.value = { headers: [], rows: [] };
+    } finally {
+        loading.value = false;
+    }
+};
+
+// -------------------------
 // Mounted
 // -------------------------
 onMounted(async () => {
@@ -346,6 +399,7 @@ onMounted(async () => {
                             <tr>
                                 <th>#</th>
                                 <th>Form Name</th>
+                                <th>Form submitted</th>
                                 <th>Status</th>
                                 <th class="text-center">Actions</th>
                             </tr>
@@ -354,6 +408,7 @@ onMounted(async () => {
                             <tr v-for="(form, index) in forms" :key="form.id">
                                 <td>{{ index + 1 }}</td>
                                 <td>{{ form.name }}</td>
+                                <td>{{ form.submissionCount }}</td>
                                 <td>
                                     <div class="d-flex flex-column align-items-center">
                                         <button
@@ -377,7 +432,7 @@ onMounted(async () => {
                                     <i class="fa fa-pencil"></i>
                                     </button>
 
-                                    <button class="btn btn-sm btn-outline-danger" 
+                                    <button class="btn btn-sm btn-outline-danger me-2" 
                                             @click="deleteForm(form)" 
                                             :disabled="deletingFormId === form.id || loading"
                                             data-bs-toggle="tooltip" 
@@ -386,10 +441,59 @@ onMounted(async () => {
                                     <span v-if="deletingFormId === form.id" class="spinner-border spinner-border-sm"></span>
                                     <i class="fa fa-trash"></i>
                                     </button>
+
+                                    <button class="btn btn-sm btn-outline-info" 
+                                            @click="getFormSubmissions(form)"
+                                            data-bs-toggle="tooltip" 
+                                            data-bs-placement="top" 
+                                            title="View">
+                                        <i class="fa fa-eye"></i>
+                                    </button>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Submissions Modal -->
+                <div class="modal fade" id="submissionsModal" tabindex="-1" role="dialog" aria-labelledby="submissionsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="submissionsModalLabel">Form Submissions</h5>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div v-if="loading" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        </div>
+                        <div v-else-if="submissions.rows?.length">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                <th v-for="header in submissions.headers" :key="header">{{ header }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(row, index) in submissions.rows" :key="index">
+                                <td v-for="header in submissions.headers" :key="header">{{ row[header] || '' }}</td>
+                                </tr>
+                            </tbody>
+                            </table>
+                        </div>
+                        </div>
+                        <div v-else class="text-center p-3">
+                        No submissions found.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                    </div>
+                </div>
                 </div>
 
                 <div v-if="formsFetched && forms.length === 0" class="empty-state card shadow-sm text-center p-5">
@@ -484,11 +588,14 @@ onMounted(async () => {
     margin-bottom: 20px;
 }
 
-.table {
+.modal-body {
+    padding: 16px !important;
+}
+/* .table {
     border-radius: 8px;
     overflow: hidden;
     font-size: 14px;   
-}
+} */
 
 .table th,
 .table td {
@@ -605,4 +712,5 @@ onMounted(async () => {
   color: #721c24;
   border: 2px solid #721c24;
 }
+
 </style>
