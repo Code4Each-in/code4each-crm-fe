@@ -226,6 +226,14 @@ const fetchForms = async () => {
         console.error(error);
     } finally {
         formsFetched.value = true; 
+
+        // After forms are fetched, ensure selected form is correctly set
+        siteSettingsFormFieldsCopy.value.forEach((field) => {
+          if (field.field_type === "button" && formData.value[field.field_name + "-meta2"] === "form") {
+            formData.value[field.field_name + "-formId"] =
+              field.form_id != null ? Number(field.form_id) : null;
+          }
+        });
     }
 };
 
@@ -242,7 +250,7 @@ watch(
         formData.value[field.field_name + "-meta2"] =
           field.meta2 != null ? field.meta2 : field.default_meta2;
         formData.value[field.field_name + "-formId"] =
-          field.form_id ?? field.formId ?? null;
+          field.form_id != null ? Number(field.form_id) : null;
       }
     });
   }
