@@ -213,6 +213,9 @@ const WordpressService = {
     updateCustomFields: (data) => {
       return requests(baseUrl).post(`/update-customfields`, data)
     },
+    getFormSubmissions: (data) => {
+      return requests(baseUrl).get('/get-form-submissions', { params: data });
+    },
   }
 
 }
