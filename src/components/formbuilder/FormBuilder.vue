@@ -36,6 +36,7 @@ const formsFetched = ref(false);
 const submissions = ref({ headers: [], rows: [] });
 let bsModal = null;
 const submissionsModalTitle = ref("Form Submissions");
+const showSubmissions = ref(false);
 
 // Flash class
 const flashClass = computed(() => 
@@ -150,14 +151,15 @@ const fetchForms = async () => {
                     form_id: f.id,
                     website_domain: siteSettingsDeatil.value.website_domain,
                 });
-                const submissionCount = submissionsResponse?.data?.rows?.length || 0;
+                const rows = submissionsResponse?.data?.rows || [];
+                const submissionCount = rows.length;
 
                 return {
                     id: f.id,
                     name: f.form_name,
                     status: f.status === "active" ? "Active" : "Inactive",
                     fields: f.fields || [],
-                    submissionCount
+                    submissionCount,
                 };
             }));
         } else {
@@ -323,17 +325,10 @@ const deleteForm = async (form) => {
 // -------------------------
 const getFormSubmissions = async (form) => {
     try {
+        showSubmissions.value = true;
         loading.value = true;
-        submissionsModalTitle.value = `${form.name} Submission${form.submissionCount !== 1 ? 's' : ''}`;
-        // Ensure modal instance exists
-        const modalEl = document.getElementById('submissionsModal');
-        if (!bsModal) {
-            bsModal = new bootstrap.Modal(modalEl, { backdrop: 'static', keyboard: false });
-            modalEl.addEventListener('hidden.bs.modal', () => {
-                submissions.value = { headers: [], rows: [] }; 
-            });
-        }
-        bsModal.show();
+        submissionsModalTitle.value = `${form.name} Submissions (${form.submissionCount})`;
+        submissions.value = { headers: [], rows: [] };
 
         // Fetch submissions
         const response = await WordpressService.FormBuilder.getFormSubmissions({
@@ -346,7 +341,6 @@ const getFormSubmissions = async (form) => {
         } else {
             submissions.value = { headers: [], rows: [] };
         }
-
     } catch (error) {
         console.error("Error fetching form submissions:", error);
         submissions.value = { headers: [], rows: [] };
@@ -354,6 +348,27 @@ const getFormSubmissions = async (form) => {
         loading.value = false;
     }
 };
+
+const backToForms = () => {
+    showSubmissions.value = false;
+    submissions.value = { headers: [], rows: [] };
+};
+
+function formatDate(dateString) {
+  if (!dateString) return "";
+  
+  // Treat DB string as UTC
+  const date = new Date(dateString + "Z"); // <-- add Z for UTC
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+
+  return `${day}-${month}-${year}, ${hours}:${minutes}:${seconds}`;
+}
 
 // -------------------------
 // Mounted
@@ -377,7 +392,7 @@ onMounted(async () => {
 
     <div class="main-form-content">
         <!-- LIST VIEW -->
-        <div v-if="!showBuilder">
+        <div v-if="!showBuilder && !showSubmissions">
             <div class="form-header">
                 <h3>Forms</h3>
                 <button class="btn btn-addnewform shadow-sm" @click="openBuilder()">
@@ -398,7 +413,7 @@ onMounted(async () => {
                             <tr>
                                 <th>#</th>
                                 <th>Form Name</th>
-                                <th>Form submitted</th>
+                                <th>Form Submitted</th>
                                 <th>Status</th>
                                 <th class="text-center">Actions</th>
                             </tr>
@@ -453,48 +468,6 @@ onMounted(async () => {
                         </tbody>
                     </table>
                 </div>
-
-                <!-- Submissions Modal -->
-                <div class="modal fade" id="submissionsModal" tabindex="-1" role="dialog" aria-labelledby="submissionsModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-xl" role="document">
-                    <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="submissionsModalLabel">{{ submissionsModalTitle }}</h5>
-                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div v-if="loading" class="text-center py-5">
-                        <div class="spinner-border text-primary" role="status"></div>
-                        </div>
-                        <div v-else-if="submissions.rows?.length">
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                <th v-for="header in submissions.headers" :key="header">{{ header }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(row, index) in submissions.rows" :key="index">
-                                <td v-for="header in submissions.headers" :key="header">{{ row[header] || '' }}</td>
-                                </tr>
-                            </tbody>
-                            </table>
-                        </div>
-                        </div>
-                        <div v-else class="text-center p-3">
-                        No submissions found.
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                    </div>
-                </div>
-                </div>
-
                 <div v-if="formsFetched && forms.length === 0" class="empty-state card shadow-sm text-center p-5">
                     <h5 class="mb-3">No Forms Found</h5>
                     <p class="text-muted mb-4">You haven’t created any forms yet. Click below to start!</p>
@@ -502,6 +475,42 @@ onMounted(async () => {
                         <i class="bi bi-plus-circle"></i> Create Your First Form
                     </button>
                 </div>
+            </div>
+        </div>
+         <!-- SUBMISSIONS VIEW -->
+        <div v-else-if="showSubmissions">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3>{{ submissionsModalTitle }}</h3>
+                <button class="btn btn-outline-secondary" @click="backToForms">Back</button>
+            </div>
+
+            <div v-if="loading" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+            </div>
+            <div v-else-if="submissions.rows?.length">
+                <div class="table-responsive card shadow-sm">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Submitted At</th>
+                                <th v-for="header in submissions.headers" :key="header">{{ header }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(row, index) in submissions.rows" :key="index">
+                                <td>{{ index + 1 }}</td>
+                                <td>{{ formatDate(row.submitted_at) || '---' }}</td>
+                                <td v-for="header in submissions.headers" :key="header">
+                                    {{ row[header] || '---' }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div v-else class="text-center p-3 card shadow-sm">
+                No submissions found.
             </div>
         </div>
 
