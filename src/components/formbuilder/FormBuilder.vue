@@ -5,6 +5,7 @@ import { useStore } from "@/stores/store";
 import { useAuth } from "@/service/useAuth";
 import WordpressService from "@/service/WordpressService";
 import { useForm } from "vee-validate";
+import config from "/config";
 const { handleSubmit } = useForm();
 
 import NavBar from "@/components/dashboard/layouts/navbar.vue";
