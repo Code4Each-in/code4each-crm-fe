@@ -34,15 +34,43 @@ const formsFetched = ref(false);
 
 // Submissions Modal
 const submissions = ref({ headers: [], rows: [] });
-let bsModal = null;
 const submissionsModalTitle = ref("Form Submissions");
 const showSubmissions = ref(false);
+
+// Pagination state
+const currentPage = ref(1);
+const perPage = ref(10);
+const selectedForm = ref(null);
+const totalPages = ref(0);
 
 // Flash class
 const flashClass = computed(() => 
     store.flashMeassgeType === 'error' ? 'flash-error' : 'flash-success'
 );
 const sortedFields = computed(() => [...formFields.value].sort((a, b) => a.position - b.position));
+
+const changePage = (page) => {
+  if (page < 1 || page > totalPages.value) {
+    return;
+  }
+  currentPage.value = page;
+  getFormSubmissions(selectedForm.value, page);
+};
+
+
+const visiblePages = computed(() => {
+  const blockSize = 10;
+  const currentBlock = Math.floor((currentPage.value - 1) / blockSize);
+  const start = currentBlock * blockSize + 1;
+  const end = Math.min(start + blockSize - 1, totalPages.value);
+
+  const pages = [];
+  for (let i = start; i <= end; i++) {
+    pages.push(i);
+  }
+
+  return pages;
+});
 
 // -------------------------
 // Fetch Dashboard Data
@@ -226,6 +254,12 @@ const submitCustomFields = handleSubmit(async () => {
 
     if (response.status === 200 && response.data.success) {
       store.updateFlashMeassge(true, `Form "${formName.value}" saved successfully.`, 'success');
+      if (!formId.value) { 
+        const newFormId = response.data.response.form_id;
+        console.log("New Form ID:", newFormId);
+        await createDefaultTemplate(newFormId);
+    }
+
       closeBuilder();
       await fetchForms();
     } else {
@@ -323,30 +357,39 @@ const deleteForm = async (form) => {
 // -------------------------
 // GET FORM SUBMISSIONS DATA
 // -------------------------
-const getFormSubmissions = async (form) => {
-    try {
-        showSubmissions.value = true;
-        loading.value = true;
-        submissionsModalTitle.value = `${form.name} Submissions (${form.submissionCount})`;
-        submissions.value = { headers: [], rows: [] };
+const getFormSubmissions = async (form, page = 1) => {
+  try {
+    selectedForm.value = form;
+    showSubmissions.value = true;
+    loading.value = true;
+    submissionsModalTitle.value = `${form.name} Submissions`;
 
-        // Fetch submissions
-        const response = await WordpressService.FormBuilder.getFormSubmissions({
-            form_id: form.id,
-            website_domain: siteSettingsDeatil.value.website_domain,
-        });
+    const response = await WordpressService.FormBuilder.getFormSubmissions({
+      form_id: form.id,
+      website_domain: siteSettingsDeatil.value.website_domain,
+      page,
+      per_page: perPage.value,
+    });
 
-        if (response.status === 200 && response.data.success) {
-            submissions.value = response.data;
-        } else {
-            submissions.value = { headers: [], rows: [] };
-        }
-    } catch (error) {
-        console.error("Error fetching form submissions:", error);
-        submissions.value = { headers: [], rows: [] };
-    } finally {
-        loading.value = false;
+    if (response.status === 200 && response.data.success) {
+        submissions.value = response.data;
+        currentPage.value = Number(response.data.current_page);
+        totalPages.value = Number(response.data.total_pages);
+        perPage.value = response.data.per_page || 10;
+        submissions.value.total_rows = response.data.total_rows || submissions.value.rows.length;
+    } else {
+        submissions.value = { headers: [], rows: [], total_rows: 0 };
+        currentPage.value = 1;
+        totalPages.value = 1;
+        perPage.value = 10;
     }
+
+  } catch (error) {
+    console.error("Error fetching form submissions:", error);
+    submissions.value = { headers: [], rows: [], total_rows: 0 };
+  } finally {
+    loading.value = false;
+  }
 };
 
 const backToForms = () => {
@@ -369,6 +412,41 @@ function formatDate(dateString) {
 
   return `${day}-${month}-${year}, ${hours}:${minutes}:${seconds}`;
 }
+
+// -------------------------
+// Create Default Template
+// -------------------------
+const createDefaultTemplate = async (formId) => {
+    try {
+        const logoUrl = siteSettingsDeatil.value?.agency_website_detail?.logo
+        ? config.CRM_API_URL + siteSettingsDeatil.value.agency_website_detail.logo
+        : '';
+        const siteName = siteSettingsDeatil.value?.agency_website_detail?.business_name
+        || 'Your Site Name';
+
+        const defaultBody = `
+            <div style="font-family: Arial, sans-serif; color: #333;">
+                ${logoUrl ? `<img src="${logoUrl}" alt="Site Logo" style="max-width: 150px;"/>` : ''}
+                <h2>Thank you, {{user_name}}!</h2>
+                <p>We appreciate your submission to ${siteName}.</p>
+                <p>We will get back to you shortly.</p>
+            </div>
+        `;
+
+        const data = {
+            website_domain: siteSettingsDeatil.value.website_domain,
+            form_id: formId,
+            subject: "Thank you for your submission!",
+            body: defaultBody,
+            secondary_email: ""
+        };
+
+        await WordpressService.FormBuilder.createEmailTemplate(data);
+
+    } catch (error) {
+        console.error("Error creating default template:", error);
+    }
+};
 
 // -------------------------
 // Mounted
@@ -456,12 +534,20 @@ onMounted(async () => {
                                     <i class="fa fa-trash"></i>
                                     </button>
 
-                                    <button class="btn btn-sm btn-outline-info" 
+                                    <button class="btn btn-sm btn-outline-info me-2" 
                                             @click="getFormSubmissions(form)"
                                             data-bs-toggle="tooltip" 
                                             data-bs-placement="top" 
                                             title="View">
                                         <i class="fa fa-eye"></i>
+                                    </button>
+
+                                    <!-- Template Edit -->
+                                    <button class="btn btn-sm btn-outline-warning" 
+                                            data-bs-toggle="tooltip" 
+                                            data-bs-placement="top" 
+                                            title="Edit Template">
+                                        <i class="fa fa-file-text"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -477,7 +563,7 @@ onMounted(async () => {
                 </div>
             </div>
         </div>
-         <!-- SUBMISSIONS VIEW -->
+        <!-- SUBMISSIONS VIEW -->
         <div v-else-if="showSubmissions">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h3>{{ submissionsModalTitle }}</h3>
@@ -499,7 +585,7 @@ onMounted(async () => {
                         </thead>
                         <tbody>
                             <tr v-for="(row, index) in submissions.rows" :key="index">
-                                <td>{{ index + 1 }}</td>
+                                <td>{{ (currentPage - 1) * perPage + index + 1 }}</td>
                                 <td>{{ formatDate(row.submitted_at) || '---' }}</td>
                                 <td v-for="header in submissions.headers" :key="header">
                                     {{ row[header] || '---' }}
@@ -507,6 +593,60 @@ onMounted(async () => {
                             </tr>
                         </tbody>
                     </table>
+                    <div class="pagination-list">
+                        <!-- Pagination Buttons -->
+                        <nav>
+                            <ul class="pagination mb-0">
+                            <!-- Jump to previous block -->
+                            <li class="page-item" :class="{ disabled: visiblePages[0] === 1 }">
+                                <button class="page-link" @click="changePage(visiblePages[0] - 1)" :disabled="visiblePages[0] === 1">
+                                &laquo;
+                                </button>
+                            </li>
+
+                            <!-- Previous page -->
+                            <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                                <a class="page-link" href="#"
+                                @click.prevent="currentPage > 1 && changePage(currentPage - 1)">‹</a>
+                            </li>
+
+                            <!-- Page Numbers -->
+                            <li 
+                                v-for="page in visiblePages" 
+                                :key="page" 
+                                class="page-item" 
+                                :class="{ active: currentPage === page }"
+                            >
+                                <button class="page-link" @click="changePage(page)">
+                                {{ page }}
+                                </button>
+                            </li>
+
+                            <!-- Next page -->
+                            <li class="page-item" :class="{ disabled: currentPage === totalPages.value }">
+                            <a class="page-link" href="#"
+                                @click.prevent="currentPage < totalPages.value && changePage(currentPage + 1)">
+                                ›
+                            </a>
+                            </li>
+
+                            <!-- Jump to next block -->
+                            <li class="page-item" :class="{ disabled: visiblePages[visiblePages.length - 1] === totalPages }">
+                                <button class="page-link" @click="changePage(visiblePages[visiblePages.length - 1] + 1)" 
+                                        :disabled="visiblePages[visiblePages.length - 1] === totalPages">
+                                &raquo;
+                                </button>
+                            </li>
+
+                            </ul>
+                        </nav>
+                        <!-- Showing X to Y of Z -->
+                        <div>
+                            Showing {{ (currentPage - 1) * perPage + 1 }} to 
+                                    {{ Math.min(currentPage * perPage, submissions.total_rows) }} of 
+                                    {{ submissions.total_rows }} records
+                        </div>
+                    </div>
                 </div>
             </div>
             <div v-else class="text-center p-3 card shadow-sm">
@@ -544,6 +684,7 @@ onMounted(async () => {
                         <button class="btn btn-sm btn-outline-primary me-1" @click="addField('checkbox')">Checkbox</button>
                         <button class="btn btn-sm btn-outline-primary me-1" @click="addField('date')">Date</button>
                         <button class="btn btn-sm btn-outline-primary me-1" @click="addField('time')">Time</button>
+                        <button class="btn btn-sm btn-outline-primary me-1" @click="addField('calendar')">Calendar</button>
                     </div>
                     <div v-for="field in sortedFields" :key="field.id" class="mb-3 border p-2 rounded">
                         <div class="d-flex justify-content-between align-items-center mb-1">
@@ -723,5 +864,16 @@ onMounted(async () => {
 
 .modal-footer {
     justify-content: end !important;
+}
+
+.pagination-list {
+    text-align: center;
+    margin: 10px;
+}
+
+.pagination-list nav {
+    display: flex;
+    justify-content: center;
+    margin: 6px;
 }
 </style>

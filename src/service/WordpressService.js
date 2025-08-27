@@ -216,6 +216,10 @@ const WordpressService = {
     getFormSubmissions: (data) => {
       return requests(baseUrl).get('/get-form-submissions', { params: data });
     },
+    createEmailTemplate: (data) => {
+      console.log("Creating email template with data:", data);
+      return requests(baseUrl).post(`/create-email-template`, data)
+    }
   }
 
 }
