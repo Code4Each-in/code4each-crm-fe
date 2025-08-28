@@ -209,6 +209,7 @@ const setFormValues = () => {
   const agencyWebsiteDetail = siteSettingsDeatil?.value?.agency_website_detail;
   formData.value.category_id = agencyWebsiteDetail?.website_category_id || "";
   formData.value.business_name = agencyWebsiteDetail?.business_name || "";
+  formData.value.email = agencyWebsiteDetail?.email || "";
   formData.value.address = agencyWebsiteDetail?.address || "";
   formData.value.description =
     agencyWebsiteDetail?.description !== "undefined"
@@ -390,6 +391,17 @@ const oncategoryChange = (event) => {
                     id="business_name"
                   />
                   <div class="text-danger">{{ allErrors.business_name }}</div>
+                </div>
+                <div class="col-sm-6 form-group">
+                  <label for="address" class="form-label">Email*</label>
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    class="form-control input"
+                    v-model="formData.email"
+                    id="email"
+                  />
+                  <div class="text-danger">{{ allErrors.email }}</div>
                 </div>
                 <div class="col-sm-6 form-group">
                   <label for="address" class="form-label">Address*</label>
