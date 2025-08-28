@@ -221,9 +221,16 @@ const WordpressService = {
     getFormSubmissions: (data) => {
       return requests(baseUrl).get('/get-form-submissions', { params: data });
     },
-    createEmailTemplate: (data) => {
-      return requests(baseUrl).post(`/create-email-template`, data)
-    }
+    // createEmailTemplate: (data) => {
+    //   return requests(baseUrl).post(`/create-email-template`, data)
+    // },
+    getSettingEmailOptions: (data) => {
+      console.log("Form ID in service:", data.form_id);
+      return requests(baseUrl).get('/get-setting-email-options', { params: data });
+    }, 
+    updateSettingEmailOptions: (data) => {
+      return requests(baseUrl).post(`/update-setting-email-options`, data)
+    },
   }
 
 }

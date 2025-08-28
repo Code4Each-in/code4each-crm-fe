@@ -45,6 +45,15 @@ const perPage = ref(10);
 const selectedForm = ref(null);
 const totalPages = ref(0);
 
+// Email Template Editor
+const showEmailEditor = ref(false);
+const emailTemplate = ref({
+  subject: "",
+  body: "",
+  adminEmail: ""
+});
+const currentFormId = ref(null);
+
 // Flash class
 const flashClass = computed(() => 
     store.flashMeassgeType === 'error' ? 'flash-error' : 'flash-success'
@@ -58,7 +67,6 @@ const changePage = (page) => {
   currentPage.value = page;
   getFormSubmissions(selectedForm.value, page);
 };
-
 
 const visiblePages = computed(() => {
   const blockSize = 10;
@@ -233,10 +241,12 @@ const submitCustomFields = handleSubmit(async () => {
       }
     }
 
+    const website_domain = siteSettingsDeatil.value.website_domain;
+    
     const formData = {
         form_id: formId.value,
         name: formName.value,
-        website_domain: siteSettingsDeatil.value.website_domain,
+        website_domain,
         fields: formFields.value.map(field => ({
         type: field.type,
         label: field.label,
@@ -244,23 +254,32 @@ const submitCustomFields = handleSubmit(async () => {
         required: field.required || false,
         position: field.position || 0,
         options: field.options || [],
-      }))
+      })),
     };
 
     let response;
     if (formId.value) {
-    response = await WordpressService.FormBuilder.updateCustomFields(formData);
+        response = await WordpressService.FormBuilder.updateCustomFields(formData);
     } else {
-    response = await WordpressService.FormBuilder.submitCustomFields(formData);
+        const siteName = getGlobalValue("agency_name") || "Your Site Name";
+
+        const defaultBody = `
+            Thank you, {{user_name}}!\n\n
+            We appreciate your submission to ${siteName}.\n\n
+            We will get back to you shortly.
+        `;
+
+        formData.template = {
+            subject: "Thank you for your submission!",
+            body: defaultBody,
+            secondary_email: ""
+        };
+
+        response = await WordpressService.FormBuilder.submitCustomFields(formData);
     }
 
     if (response.status === 200 && response.data.success) {
       store.updateFlashMeassge(true, `Form "${formName.value}" saved successfully.`, 'success');
-      if (!formId.value) { 
-        const newFormId = response.data.response.form_id;
-        await createDefaultTemplate(newFormId);
-    }
-
       closeBuilder();
       await fetchForms();
     } else {
@@ -272,7 +291,6 @@ const submitCustomFields = handleSubmit(async () => {
     loading.value = false;
   }
 });
-
 
 // -------------------------
 // Logout
@@ -422,40 +440,40 @@ const getGlobalValue = (key) => {
 // -------------------------
 // Create Default Template
 // -------------------------
-const createDefaultTemplate = async (formId) => {
-    try {
-        const website_domain = siteSettingsDeatil.value.website_domain;
-        const logoUrl = getGlobalValue("logo")
-            ? website_domain.replace(/\/$/, '') + 
-              "/wp-content/themes/codeforeach" + 
-              getGlobalValue("logo")
-            : '';
+// const createDefaultTemplate = async (formId) => {
+//     try {
+//         const website_domain = siteSettingsDeatil.value.website_domain;
+//         const logoUrl = getGlobalValue("logo")
+//             ? website_domain.replace(/\/$/, '') + 
+//               "/wp-content/themes/codeforeach" + 
+//               getGlobalValue("logo")
+//             : '';
 
-        const siteName = getGlobalValue("agency_name") || "Your Site Name";
+//         const siteName = getGlobalValue("agency_name") || "Your Site Name";
 
-        const defaultBody = `
-            <div style="font-family: Arial, sans-serif; color: #333;">
-                ${logoUrl ? `<img src="${logoUrl}" alt="Site Logo" style="max-width: 150px;"/>` : ''}
-                <h2>Thank you, {{user_name}}!</h2>
-                <p>We appreciate your submission to ${siteName}.</p>
-                <p>We will get back to you shortly.</p>
-            </div>
-        `;
+//         const defaultBody = `
+//             <div style="font-family: Arial, sans-serif; color: #333;">
+//                 ${logoUrl ? `<img src="${logoUrl}" alt="Site Logo" style="max-width: 150px;"/>` : ''}
+//                 <h2>Thank you, {{user_name}}!</h2>
+//                 <p>We appreciate your submission to ${siteName}.</p>
+//                 <p>We will get back to you shortly.</p>
+//             </div>
+//         `;
 
-        const data = {
-            website_domain: website_domain,
-            form_id: formId,
-            subject: "Thank you for your submission!",
-            body: defaultBody,
-            secondary_email: ""
-        };
+//         const data = {
+//             website_domain: website_domain,
+//             form_id: formId,
+//             subject: "Thank you for your submission!",
+//             body: defaultBody,
+//             secondary_email: ""
+//         };
 
-        await WordpressService.FormBuilder.createEmailTemplate(data);
+//         await WordpressService.FormBuilder.createEmailTemplate(data);
 
-    } catch (error) {
-        console.error("Error creating default template:", error);
-    }
-};
+//     } catch (error) {
+//         console.error("Error creating default template:", error);
+//     }
+// };
 
 // -------------------------
 // GET GLOBAL VARIABLES
@@ -474,14 +492,72 @@ const fetchGlobalVariables = async () => {
 };
 
 // -------------------------
+// GET SETTING EMAIL OPTIONS
+// -------------------------
+const getSettingEmailOptions = async (form) => {
+    try {
+        loading.value = true;
+        showEmailEditor.value = true;
+
+        const response = await WordpressService.FormBuilder.getSettingEmailOptions({
+            form_id: form.id,
+            website_domain: siteSettingsDeatil.value.website_domain,
+        });
+
+        if (response.status === 200 && response.data.success) {
+            const data = response.data.response;
+
+            emailTemplate.value = {
+                subject: data.find((item) => item.metakey === "thank_you_email_subject")
+                ?.metavalue || "",
+                body: data.find((item) => item.metakey === "thank_you_email_body")
+                ?.metavalue || "",
+                adminEmail: data.find((item) => item.metakey === "notify_admin_email")
+                ?.metavalue || "",
+            };
+
+            currentFormId.value = form.id;
+        }
+    } catch (error) {
+        console.error("Error fetching email options:", error);
+    } finally {
+        loading.value = false;
+    }
+};
+
+// -------------------------
+// SAVE EMAIL TEMPLATE
+// -------------------------
+const updateEmailTemplate = async () => {
+  try {
+    const response = await WordpressService.FormBuilder.updateSettingEmailOptions({
+      website_domain: siteSettingsDeatil.value.website_domain,
+      form_id: currentFormId.value,
+      subject: emailTemplate.value.subject,
+      body: emailTemplate.value.body,
+      admin_email: emailTemplate.value.adminEmail,
+    });
+
+    if (response.status === 200 && response.data.success) {
+      store.updateFlashMeassge(true, "Email template updated successfully!", "success");
+      showEmailEditor.value = false;
+    } else {
+      store.updateFlashMeassge(true, "Failed to save template.", "error");
+    }
+  } catch (error) {
+    console.error("Error saving email template:", error);
+  }
+};
+
+// -------------------------
 // Mounted
 // -------------------------
 onMounted(async () => {
     loading.value = true;
     await fetchDashboardData();
     await getSiteDeatils();
-    await fetchGlobalVariables();
     if (siteSettingsDeatil.value.website_domain) {
+        await fetchGlobalVariables();
         await fetchForms();
     }
     loading.value = false;
@@ -496,7 +572,7 @@ onMounted(async () => {
 
     <div class="main-form-content">
         <!-- LIST VIEW -->
-        <div v-if="!showBuilder && !showSubmissions">
+        <div v-if="!showBuilder && !showSubmissions && !showEmailEditor">
             <div class="form-header">
                 <h3>Forms</h3>
                 <button class="btn btn-addnewform shadow-sm" @click="openBuilder()">
@@ -570,6 +646,7 @@ onMounted(async () => {
 
                                     <!-- Template Edit -->
                                     <button class="btn btn-sm btn-outline-warning" 
+                                            @click="getSettingEmailOptions(form)"
                                             data-bs-toggle="tooltip" 
                                             data-bs-placement="top" 
                                             title="Edit Template">
@@ -677,6 +754,47 @@ onMounted(async () => {
             </div>
             <div v-else class="text-center p-3 card shadow-sm">
                 No submissions found.
+            </div>
+        </div>
+
+        <!-- EMAIL TEMPLATE EDITOR -->
+        <div v-else-if="showEmailEditor">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>Edit Email Template</h5>
+                    <button class="btn btn-outline-secondary" @click="showEmailEditor = false">Back</button>
+                </div>
+
+                <div class="card-body">
+                    <!-- Loader -->
+                    <div v-if="loading" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                    </div>
+
+                    <!-- Editor Content -->
+                    <div v-else>
+                        <div class="mb-3">
+                            <label>Subject</label>
+                            <input v-model="emailTemplate.subject" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                        <label>Email Body</label>
+                        <textarea
+                            v-model="emailTemplate.body"
+                            class="form-control"
+                            style="min-height:200px"
+                        ></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Admin Email</label>
+                            <input v-model="emailTemplate.adminEmail" class="form-control" />
+                        </div>
+
+                        <button class="btn btn-primary" @click="updateEmailTemplate">Save Template</button>
+                    </div>
+                </div>
             </div>
         </div>
 
