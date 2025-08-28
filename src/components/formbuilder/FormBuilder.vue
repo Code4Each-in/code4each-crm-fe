@@ -264,8 +264,8 @@ const submitCustomFields = handleSubmit(async () => {
         const siteName = getGlobalValue("agency_name") || "Your Site Name";
 
         const defaultBody = `
-            Thank you, {{user_name}}!\n\n
-            We appreciate your submission to ${siteName}.\n\n
+            Thank you, {{user_name}}!\n
+            We appreciate your submission to ${siteName}.\n
             We will get back to you shortly.
         `;
 
