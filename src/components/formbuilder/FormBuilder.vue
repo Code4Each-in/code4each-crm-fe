@@ -258,7 +258,6 @@ const submitCustomFields = handleSubmit(async () => {
       store.updateFlashMeassge(true, `Form "${formName.value}" saved successfully.`, 'success');
       if (!formId.value) { 
         const newFormId = response.data.response.form_id;
-        console.log("New Form ID:", newFormId);
         await createDefaultTemplate(newFormId);
     }
 
@@ -417,7 +416,6 @@ function formatDate(dateString) {
 
 const getGlobalValue = (key) => {
   const item = globalVariables.value.find(v => v.name === key);
-  console.log("Global Variable found:", item);
   return item ? item.value : '';
 };
 
