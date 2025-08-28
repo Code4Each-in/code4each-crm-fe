@@ -32,6 +32,7 @@ const showBuilder = ref(false);
 const siteSettingsDeatil = ref([]);
 const formId = ref(null);
 const formsFetched = ref(false);
+const globalVariables = ref([]);
 
 // Submissions Modal
 const submissions = ref({ headers: [], rows: [] });
@@ -414,17 +415,22 @@ function formatDate(dateString) {
   return `${day}-${month}-${year}, ${hours}:${minutes}:${seconds}`;
 }
 
+const getGlobalValue = (key) => {
+  const item = globalVariables.value.find(v => v.name === key);
+  console.log("Global Variable found:", item);
+  return item ? item.value : '';
+};
+
 // -------------------------
 // Create Default Template
 // -------------------------
 const createDefaultTemplate = async (formId) => {
     try {
-        const logoUrl = siteSettingsDeatil.value?.agency_website_detail?.logo
-        ? config.CRM_API_URL + siteSettingsDeatil.value.agency_website_detail.logo
-        : '';
-        const siteName = siteSettingsDeatil.value?.agency_website_detail?.business_name
-        || 'Your Site Name';
+        const logoUrl = getGlobalValue("agency_logo")
+            ? config.CRM_API_URL + getGlobalValue("agency_logo")
+            : '';
 
+        const siteName = getGlobalValue("agency_name") || "Your Site Name";
         const defaultBody = `
             <div style="font-family: Arial, sans-serif; color: #333;">
                 ${logoUrl ? `<img src="${logoUrl}" alt="Site Logo" style="max-width: 150px;"/>` : ''}
@@ -450,12 +456,29 @@ const createDefaultTemplate = async (formId) => {
 };
 
 // -------------------------
+// GET GLOBAL VARIABLES
+// -------------------------
+const fetchGlobalVariables = async () => {
+    try {
+        const response = await WordpressService.getGlobalVariables({
+            website_domain: siteSettingsDeatil.value.website_domain,
+        });
+        if (response.status === 200 && response.data.success) {
+            globalVariables.value = response.data.global_variables || [];
+        }
+    } catch (error) {
+        console.error("Error fetching global variables:", error);
+    }
+};
+
+// -------------------------
 // Mounted
 // -------------------------
 onMounted(async () => {
     loading.value = true;
     await fetchDashboardData();
     await getSiteDeatils();
+    await fetchGlobalVariables();
     if (siteSettingsDeatil.value.website_domain) {
         await fetchForms();
     }

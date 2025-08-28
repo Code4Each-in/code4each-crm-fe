@@ -37,6 +37,11 @@ const WordpressService = {
   updateGlobalColors: (data) => {
     return requests(baseUrl).post(`/update-global-colors`, data)
   },
+  getGlobalVariables: (data) => {
+    return requests(baseUrl).get(`/global-variables`, {
+      params: data
+    },)
+  },
   Components: {
     getActiveComponents: (data) => {
       return requests(baseUrl).get(`/fetch-active-components-detail`, {
