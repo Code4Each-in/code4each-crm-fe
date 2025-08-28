@@ -258,7 +258,6 @@ const submitCustomFields = handleSubmit(async () => {
       store.updateFlashMeassge(true, `Form "${formName.value}" saved successfully.`, 'success');
       if (!formId.value) { 
         const newFormId = response.data.response.form_id;
-        console.log("New Form ID:", newFormId);
         await createDefaultTemplate(newFormId);
     }
 
@@ -417,7 +416,6 @@ function formatDate(dateString) {
 
 const getGlobalValue = (key) => {
   const item = globalVariables.value.find(v => v.name === key);
-  console.log("Global Variable found:", item);
   return item ? item.value : '';
 };
 
@@ -426,11 +424,15 @@ const getGlobalValue = (key) => {
 // -------------------------
 const createDefaultTemplate = async (formId) => {
     try {
-        const logoUrl = getGlobalValue("agency_logo")
-            ? config.CRM_API_URL + getGlobalValue("agency_logo")
+        const website_domain = siteSettingsDeatil.value.website_domain;
+        const logoUrl = getGlobalValue("logo")
+            ? website_domain.replace(/\/$/, '') + 
+              "/wp-content/themes/codeforeach" + 
+              getGlobalValue("logo")
             : '';
 
         const siteName = getGlobalValue("agency_name") || "Your Site Name";
+
         const defaultBody = `
             <div style="font-family: Arial, sans-serif; color: #333;">
                 ${logoUrl ? `<img src="${logoUrl}" alt="Site Logo" style="max-width: 150px;"/>` : ''}
@@ -441,7 +443,7 @@ const createDefaultTemplate = async (formId) => {
         `;
 
         const data = {
-            website_domain: siteSettingsDeatil.value.website_domain,
+            website_domain: website_domain,
             form_id: formId,
             subject: "Thank you for your submission!",
             body: defaultBody,
