@@ -5,7 +5,6 @@ import { useStore } from "@/stores/store";
 import { useAuth } from "@/service/useAuth";
 import WordpressService from "@/service/WordpressService";
 import { useForm } from "vee-validate";
-import config from "/config";
 const { handleSubmit } = useForm();
 
 import NavBar from "@/components/dashboard/layouts/navbar.vue";
@@ -53,6 +52,27 @@ const emailTemplate = ref({
   adminEmail: ""
 });
 const currentFormId = ref(null);
+
+const weekDays = ref([
+  { name: "Monday", closed: false, open: "", close: "" },
+  { name: "Tuesday", closed: false, open: "", close: "" },
+  { name: "Wednesday", closed: false, open: "", close: "" },
+  { name: "Thursday", closed: false, open: "", close: "" },
+  { name: "Friday", closed: false, open: "", close: "" },
+  { name: "Saturday", closed: false, open: "", close: "" },
+  { name: "Sunday", closed: false, open: "", close: "" },
+]);
+const selectedField = ref(null);
+
+function openCalendarSettings(field) {
+  selectedField.value = field;
+
+  if (field.calendarSettings) {
+    weekDays.value = JSON.parse(JSON.stringify(field.calendarSettings));
+  }
+  const modal = new bootstrap.Modal(document.getElementById("calendarSettingsModal"));
+  modal.show();
+}
 
 // Flash class
 const flashClass = computed(() => 
@@ -130,7 +150,12 @@ const openBuilder = (form = null) => {
             options: f.form_field_options ? JSON.parse(f.form_field_options) : (f.options || []),
             optionsString: f.form_field_options
                 ? JSON.parse(f.form_field_options).join(", ")
-                : (f.options ? f.options.join(", ") : "")
+                : (f.options ? f.options.join(", ") : ""),
+            calendarSettings: f.calendarSettings 
+            ? f.calendarSettings 
+            : (f.form_calendar_setting && f.form_field_type === "calendar"
+                ? JSON.parse(f.form_calendar_setting)
+                : []),
         }));
     } else {
         formId.value = null;
@@ -158,8 +183,19 @@ const addField = (type) => {
         optionsString: ["select", "radio", "checkbox"].includes(type) ? "Option 1" : "",
         value: "",
         required: false,
-        position: formFields.value.length + 1
-    };
+        position: formFields.value.length + 1,
+        calendarSettings: type === "calendar" 
+        ? [
+            { name: "Monday", closed: false, open: "", close: "" },
+            { name: "Tuesday", closed: false, open: "", close: "" },
+            { name: "Wednesday", closed: false, open: "", close: "" },
+            { name: "Thursday", closed: false, open: "", close: "" },
+            { name: "Friday", closed: false, open: "", close: "" },
+            { name: "Saturday", closed: false, open: "", close: "" },
+            { name: "Sunday", closed: false, open: "", close: "" }
+            ]
+        : null
+        };
     formFields.value.push(newField);
 };
 
@@ -254,8 +290,12 @@ const submitCustomFields = handleSubmit(async () => {
         required: field.required || false,
         position: field.position || 0,
         options: field.options || [],
+        calendarSettings: field.type === 'calendar' 
+        ? (field.calendarSettings || []) 
+        : null,
       })),
     };
+    console.log("Submitting form data:", formData);
 
     let response;
     if (formId.value) {
@@ -264,6 +304,7 @@ const submitCustomFields = handleSubmit(async () => {
         const siteName = getGlobalValue("agency_name") || "Your Site Name";
 
         const defaultBody = `
+            Hi,\n
             Thank you, {{user_name}}!\n
             We appreciate your submission to ${siteName}.\n
             We will get back to you shortly.
@@ -420,7 +461,7 @@ function formatDate(dateString) {
   if (!dateString) return "";
   
   // Treat DB string as UTC
-  const date = new Date(dateString + "Z"); // <-- add Z for UTC
+  const date = new Date(dateString + "Z"); 
 
   const day = String(date.getDate()).padStart(2, "0");
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -436,44 +477,6 @@ const getGlobalValue = (key) => {
   const item = globalVariables.value.find(v => v.name === key);
   return item ? item.value : '';
 };
-
-// -------------------------
-// Create Default Template
-// -------------------------
-// const createDefaultTemplate = async (formId) => {
-//     try {
-//         const website_domain = siteSettingsDeatil.value.website_domain;
-//         const logoUrl = getGlobalValue("logo")
-//             ? website_domain.replace(/\/$/, '') + 
-//               "/wp-content/themes/codeforeach" + 
-//               getGlobalValue("logo")
-//             : '';
-
-//         const siteName = getGlobalValue("agency_name") || "Your Site Name";
-
-//         const defaultBody = `
-//             <div style="font-family: Arial, sans-serif; color: #333;">
-//                 ${logoUrl ? `<img src="${logoUrl}" alt="Site Logo" style="max-width: 150px;"/>` : ''}
-//                 <h2>Thank you, {{user_name}}!</h2>
-//                 <p>We appreciate your submission to ${siteName}.</p>
-//                 <p>We will get back to you shortly.</p>
-//             </div>
-//         `;
-
-//         const data = {
-//             website_domain: website_domain,
-//             form_id: formId,
-//             subject: "Thank you for your submission!",
-//             body: defaultBody,
-//             secondary_email: ""
-//         };
-
-//         await WordpressService.FormBuilder.createEmailTemplate(data);
-
-//     } catch (error) {
-//         console.error("Error creating default template:", error);
-//     }
-// };
 
 // -------------------------
 // GET GLOBAL VARIABLES
@@ -550,6 +553,19 @@ const updateEmailTemplate = async () => {
 };
 
 // -------------------------
+// Save Calendar Settings
+// -------------------------
+function saveCalendarSettings() {
+  if (selectedField.value) {
+    selectedField.value.calendarSettings = JSON.parse(JSON.stringify(weekDays.value));
+  }
+
+  const modal = bootstrap.Modal.getInstance(document.getElementById("calendarSettingsModal"));
+  modal.hide();
+}
+
+
+// -------------------------
 // Mounted
 // -------------------------
 onMounted(async () => {
@@ -588,7 +604,7 @@ onMounted(async () => {
 
             <div v-else>
                 <div v-if="forms.length > 0" class="table-responsive card shadow-sm">
-                    <table class="table table-hover align-middle mb-0">
+                    <table class="table align-middle mb-0">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -622,7 +638,7 @@ onMounted(async () => {
                                             @click="openBuilder(form)" 
                                             data-bs-toggle="tooltip" 
                                             data-bs-placement="top" 
-                                            title="Edit">
+                                            title="Edit Form">
                                     <i class="fa fa-pencil"></i>
                                     </button>
 
@@ -631,7 +647,7 @@ onMounted(async () => {
                                             :disabled="deletingFormId === form.id || loading"
                                             data-bs-toggle="tooltip" 
                                             data-bs-placement="top" 
-                                            :title="deletingFormId === form.id ? 'Deleting...' : 'Delete'">
+                                            :title="deletingFormId === form.id ? 'Deleting...' : 'Delete Form'">
                                     <span v-if="deletingFormId === form.id" class="spinner-border spinner-border-sm"></span>
                                     <i class="fa fa-trash"></i>
                                     </button>
@@ -640,7 +656,7 @@ onMounted(async () => {
                                             @click="getFormSubmissions(form)"
                                             data-bs-toggle="tooltip" 
                                             data-bs-placement="top" 
-                                            title="View">
+                                            title="View Form Submissions">
                                         <i class="fa fa-eye"></i>
                                     </button>
 
@@ -649,7 +665,7 @@ onMounted(async () => {
                                             @click="getSettingEmailOptions(form)"
                                             data-bs-toggle="tooltip" 
                                             data-bs-placement="top" 
-                                            title="Edit Template">
+                                            title="Edit Email Template">
                                         <i class="fa fa-file-text"></i>
                                     </button>
                                 </td>
@@ -835,6 +851,13 @@ onMounted(async () => {
                             <strong>{{ (field.type || '').toUpperCase() }}</strong>
                             <div class="d-flex align-items-center gap-2">
                                 <div class="d-flex align-items-center gap-1">
+                                    <i 
+                                    v-if="field.type === 'calendar'" 
+                                    class="fa fa-cog text-secondary me-2" 
+                                    aria-hidden="true" 
+                                    style="font-size: 22px; cursor: pointer;"
+                                    @click="openCalendarSettings(field)"
+                                    ></i>
                                     <label class="mb-0"><strong>Position:</strong></label>
                                     <input type="number" v-model.number="field.position" class="form-control form-control-sm" style="width: 60px;" />
                                 </div>
@@ -861,6 +884,60 @@ onMounted(async () => {
                 </div>
             </div>
         </div>
+
+        <!-- Calendar Settings Modal -->
+        <div class="modal fade" id="calendarSettingsModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Calendar Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <table class="table table-bordered align-middle text-center">
+                    <thead class="table-light">
+                        <tr>
+                        <th style="width: 150px;">Day</th>
+                        <th style="width: 100px;">Closed</th>
+                        <th style="width: 180px;">Open Time</th>
+                        <th style="width: 180px;">Close Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(day, index) in weekDays" :key="index">
+                        <td class="fw-bold">{{ day.name }}</td>
+                        <td>
+                            <input type="checkbox" v-model="day.closed" />
+                        </td>
+                        <td>
+                            <input 
+                            type="time" 
+                            v-model="day.open" 
+                            class="form-control form-control-sm" 
+                            :disabled="day.closed" 
+                            />
+                        </td>
+                        <td>
+                            <input 
+                            type="time" 
+                            v-model="day.close" 
+                            class="form-control form-control-sm" 
+                            :disabled="day.closed" 
+                            />
+                        </td>
+                        </tr>
+                    </tbody>
+                    </table>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button class="btn btn-primary" @click="saveCalendarSettings">Save</button>
+                </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 </template>
@@ -884,11 +961,6 @@ onMounted(async () => {
 .modal-body {
     padding: 16px !important;
 }
-/* .table {
-    border-radius: 8px;
-    overflow: hidden;
-    font-size: 14px;   
-} */
 
 .table th,
 .table td {
@@ -964,31 +1036,26 @@ onMounted(async () => {
     border-radius: 6px;      
 }
 
-/* --- Active Button --- */
 .btn-active-status {
     background-color: #008000;
     color: #fff;
-    border: none;
+    border: 2px solid #008000;
 }
 .btn-active-status:hover {
     background-color: #fff;
     color: #008000;
-    border: 2px solid #008000;
 }
 
-/* --- Inactive Button --- */
 .btn-inactive-status {
     background-color: #dc3545;
     color: #fff;
-    border: none;
+    border: 2px solid #dc3545;
 }
 .btn-inactive-status:hover {
     background-color: #fff;
     color: #dc3545;
-    border: 2px solid #dc3545;
 }
 
-/* --- Note under buttons --- */
 .status-note {
     font-size: 12px;
     color: #6c757d;
