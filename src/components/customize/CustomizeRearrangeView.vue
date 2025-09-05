@@ -171,7 +171,7 @@ provide("dashBoardMethods", {
 
 const getSiteDeatils = async () => {
   if (!store.websiteId || store.websiteId === false) {
-    console.warn("websiteId is missing or invalid:", store.websiteId);
+    // console.warn("websiteId is missing or invalid:", store.websiteId);
     return;
   }
   try {
