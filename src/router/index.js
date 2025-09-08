@@ -16,6 +16,7 @@ import DashboardLayout from "../views/layouts/Dashboard.vue"
 import BlankLayout from "../views/layouts/Blank.vue"
 import PlansView from '../views/PlansView.vue'
 import FormBuilder from '../views/FormBuilder.vue'
+import SCOKeywords from '../views/SCOKeywords.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -119,6 +120,11 @@ const router = createRouter({
       name: 'form_builder',
       component: FormBuilder,
       meta: { requiresAuth: true, title: 'Form Builder', layout:DashboardLayout }
+    },
+    {
+      path: '/customize/sco-keywords',
+      name: 'scoKeywordsPage',
+      component: SCOKeywords
     },
   ]
 });

@@ -148,6 +148,18 @@
                 <span class="sidebar-link-title">Rearrange</span>
               </router-link>
             </li>
+            <li class="sidebar-list-item">
+              <router-link
+                :to="{ name: 'scoKeywordsPage' }"
+                class="sidebar-link text-muted"
+                :class="{
+                  active: currentRoute.includes('/customize/sco-keywords'),
+                }"
+              >
+                <i class="fa fa-search"></i>
+                <span class="sidebar-link-title">SCO Keywords</span>
+              </router-link>
+            </li>
           </ul>
         </li>
         <li class="sidebar-list-item"
