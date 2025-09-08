@@ -231,6 +231,12 @@ const WordpressService = {
     updateSettingEmailOptions: (data) => {
       return requests(baseUrl).post(`/update-setting-email-options`, data)
     },
+  },
+
+  SCOKeywords: {
+    saveSCOKeywords: (data) => {
+      return requests(baseUrl).post(`/save-sco-keywords`, data)
+    }
   }
 
 }

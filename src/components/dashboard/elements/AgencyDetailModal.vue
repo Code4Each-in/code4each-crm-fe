@@ -338,6 +338,21 @@ const previewTemplate = (url) => {
 const getTemplateById = (id)=> {
   return templates.value.find(template => template.id === id);
 }
+
+const categoriesWithTemplates = computed(() => {
+  if (!templates.value.length) return [];
+
+  return props.categories.filter(category => {
+    return templates.value.some(template => {
+      const templateCategories = template.category_id
+        .split(",")
+        .map(cat => cat.trim().toLowerCase());
+
+      return templateCategories.includes(category.name.toLowerCase());
+    });
+  });
+});
+
 </script>
 <template>
   <div class="modal fade" id="basicModal" tabindex="-1" aria-hidden="true">
@@ -596,12 +611,12 @@ const getTemplateById = (id)=> {
                           </button>
                         </li>
                         <!-- Loop through categories -->
-                          <li
-                            class="nav-item"
-                            role="presentation"
-                            v-for="(category, index) in categories"
-                            :key="category.id"
-                          >
+                        <li
+                          class="nav-item"
+                          role="presentation"
+                          v-for="(category, index) in categoriesWithTemplates"
+                          :key="category.id"
+                        >
                           <button
                             :class="[
                               'nav-link',
@@ -618,13 +633,14 @@ const getTemplateById = (id)=> {
                             :aria-controls="'pills-' + category.name.toLowerCase()"
                             :aria-selected="selectedCategories.includes(category.name.toLowerCase())"
                             @click="toggleCategory(category.name.toLowerCase())"
-                             :style="{ 'background-color' : selectedCategories.includes(category.name.toLowerCase()) ? '#1c2960' : '',
-                            'color' : selectedCategories.includes(category.name.toLowerCase()) ? 'white !important' : ''
-                              }"
+                            :style="{
+                              'background-color': selectedCategories.includes(category.name.toLowerCase()) ? '#1c2960' : '',
+                              'color': selectedCategories.includes(category.name.toLowerCase()) ? 'white !important' : ''
+                            }"
                           >
-                            {{ category.name }} 
-                          </button> 
-                          </li>
+                            {{ category.name }}
+                          </button>
+                        </li>
                     </ul>
                   </div>
                   <div class="tab-content border rounded-3 border-primary p-3 text-danger" id="pills-tabContent">
