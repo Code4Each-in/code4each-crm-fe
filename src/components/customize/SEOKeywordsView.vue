@@ -103,9 +103,9 @@ const removeKeyword = (index) => {
 const saveKeywords = async () => {
   try {
     saving.value = true;
-    const response = await WordpressService.SCOKeywords.saveSCOKeywords({
+    const response = await WordpressService.SEOKeywords.saveSEOKeywords({
       website_domain: siteSettingsDetail.value.website_domain,
-      sco_keywords: seoKeywords.value,
+      seo_keywords: seoKeywords.value,
     });
     if (response.status === 200 && response.data.success) {
       store.updateFlashMeassge(true, "Keywords saved successfully!", "success");
@@ -131,15 +131,15 @@ const fetchGlobalVariables = async () => {
         });
         if (response.status === 200 && response.data.success) {
             globalVariables.value = response.data.global_variables || [];
-            const scoKeywordsRow = globalVariables.value.find(
-                (item) => item.name === "c4e_sco_keywords"
+            const seoKeywordsRow = globalVariables.value.find(
+                (item) => item.name === "c4e_seo_keywords"
             );
 
-            if (scoKeywordsRow && scoKeywordsRow.value) {
+            if (seoKeywordsRow && seoKeywordsRow.value) {
                 try {
-                seoKeywords.value = JSON.parse(scoKeywordsRow.value); 
+                seoKeywords.value = JSON.parse(seoKeywordsRow.value); 
                 } catch (e) {
-                console.error("Invalid JSON in c4e_sco_keywords:", e);
+                console.error("Invalid JSON in c4e_seo_keywords:", e);
                 seoKeywords.value = [];
                 }
             }
@@ -192,7 +192,7 @@ onMounted(async () => {
   
       <SideBar :dashboardData="dashboardData" :toggled="isSidebarToggled" />
   
-        <div class="container sco-keywords-container mt-5">
+        <div class="container seo-keywords-container mt-5">
             <div v-if="pageLoading" class="loader-wrapper">
                 <div class="three-body">
                     <div class="three-body__dot"></div>
@@ -200,16 +200,16 @@ onMounted(async () => {
                     <div class="three-body__dot"></div>
                 </div>
             </div>
-            <div v-else class="section-sco-keywords">
+            <div v-else class="section-seo-keywords">
                 <div class="d-flex justify-content-end">
-                    <button class="btn btn-saveSco" @click="saveKeywords" :disabled="saving">
+                    <button class="btn btn-saveSeo" @click="saveKeywords" :disabled="saving">
                         <span v-if="saving">
                         <i class="fa fa-spinner fa-spin me-2"></i> Saving...
                         </span>
                         <span v-else>Save Keywords</span>
                     </button>
                 </div>
-                <h4 class="mb-3 heading">SCO Keywords</h4>
+                <h4 class="mb-3 heading">SEO Keywords</h4>
         
                 <!-- Input Field -->
                 <div class="keyword-input-wrapper mb-3">
@@ -243,7 +243,7 @@ onMounted(async () => {
   min-height: 100vh;
 }
 /* Container inside dashboard */
-.sco-keywords-container {
+.seo-keywords-container {
   background-color: #f8f9fa;
   border-radius: 10px;
   padding: 20px;
@@ -253,7 +253,7 @@ onMounted(async () => {
   overflow-y: auto; 
 }
 
-.section-sco-keywords {
+.section-seo-keywords {
     margin-left: 210px;
     margin-top: 43px;
 }
@@ -320,10 +320,10 @@ onMounted(async () => {
 
 /* Responsive adjustments inside sidebar layout */
 @media (max-width: 992px) {
-  .sco-keywords-container {
+  .seo-keywords-container {
     padding: 15px;
   }
-  .section-sco-keywords {
+  .section-seo-keywords {
     margin-left: 100px;
     margin-top: 43px;
   }
@@ -343,14 +343,14 @@ onMounted(async () => {
   border: 2px solid #721c24;
 }
 
-.btn-saveSco {
+.btn-saveSeo {
     color: #fff;
     background-color: #1d2b64;
     border: 2px solid #1d2b64;
     font-weight: 600;
 }
 
-.btn-saveSco:hover {
+.btn-saveSeo:hover {
     color: #1d2b64;
     background-color: #fff;
 }

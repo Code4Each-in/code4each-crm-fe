@@ -150,14 +150,14 @@
             </li>
             <li class="sidebar-list-item">
               <router-link
-                :to="{ name: 'scoKeywordsPage' }"
+                :to="{ name: 'seoKeywordsPage' }"
                 class="sidebar-link text-muted"
                 :class="{
-                  active: currentRoute.includes('/customize/sco-keywords'),
+                  active: currentRoute.includes('/customize/seo-keywords'),
                 }"
               >
                 <i class="fa fa-search"></i>
-                <span class="sidebar-link-title">SCO Keywords</span>
+                <span class="sidebar-link-title">SEO Keywords</span>
               </router-link>
             </li>
           </ul>
