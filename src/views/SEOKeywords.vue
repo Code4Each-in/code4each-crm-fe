@@ -1,5 +1,5 @@
 <script setup>
-import SCOKeywordsView from "../components/customize/SCOKeywordsView.vue";
+import SEOKeywordsView from "../components/customize/SEOKeywordsView.vue";
 import "@/assets/js/bootstrap.min-alpha1.js";
 import "@/assets/js/dashboard.js";
 import "@/assets/css/animate.min.css";
@@ -10,5 +10,5 @@ import "@/assets/js/cdn.jsdelivr.net_npm_bootstrap@5.0.2_dist_js_bootstrap.bundl
 import "@/assets/js/code.jquery.com_jquery-3.6.4.min.js";
 </script>
 <template>
-  <SCOKeywordsView />
+  <SEOKeywordsView />
 </template>

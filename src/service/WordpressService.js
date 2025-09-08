@@ -233,9 +233,9 @@ const WordpressService = {
     },
   },
 
-  SCOKeywords: {
-    saveSCOKeywords: (data) => {
-      return requests(baseUrl).post(`/save-sco-keywords`, data)
+  SEOKeywords: {
+    saveSEOKeywords: (data) => {
+      return requests(baseUrl).post(`/save-seo-keywords`, data)
     }
   }
 
