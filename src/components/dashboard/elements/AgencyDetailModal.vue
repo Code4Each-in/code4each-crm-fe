@@ -24,14 +24,15 @@ const startTime = ref(null);
 const timeSpent = ref(null);
 const values = ref({});
 const allErrors = ref({});
-const selectedOptionTemplate = ref("randomlySelectTemplate");
+// const selectedOptionTemplate = ref("randomlySelectTemplate");
+const selectedOptionTemplate = ref("selectTemplate");
 const templates = ref([]);
 const WebsiteCategories = ref([]);
 const selectedCategories = ref([]);
 const selectedTemplateId = ref(null);
 const selectedComponents = ref([]);
 
-const domainUrl = ref(null);
+const domainUrl = ref("https://github.com/");
 const { errors, resetForm, handleSubmit } = useForm();
 const showOthersCategoryName = ref(false);
 
@@ -160,10 +161,15 @@ watch(
 );
 
 const prevStep = () => {
-  if (selectedOptionTemplate.value === 'randomlySelectTemplate' && currentStep.value === 5) {
-    currentStep.value = 3;
+  // if (selectedOptionTemplate.value === 'randomlySelectTemplate' && currentStep.value === 5) {
+  //   currentStep.value = 3;
+  // } else {
+  //   currentStep.value--; 
+  // }
+   if (currentStep.value === 4) {
+    currentStep.value = 2; 
   } else {
-    currentStep.value--; 
+    currentStep.value--;
   }
   selectedTemplateId.value = null
   selectedComponents.value = []
@@ -181,15 +187,23 @@ const nextStep = async (step = false) => {
         abortEarly: false,
       });
     }
-    if (currentStep.value === 3) {
+    if (currentStep.value === 2) {
+      // Skip step 3 and go directly to step 4
+      selectedOptionTemplate.value = "selectTemplate"; // Default to selectTemplate
+      const categoryname = getCategoryNameById(values.value.businessCategory)
+      selectedCategories.value = [categoryname.toLowerCase()]
+      currentStep.value = 4;
+    } else if (currentStep.value === 3) {
+      // This entire block is no longer needed since step 3 is skipped
+      /*
       if (selectedOptionTemplate.value === "selectTemplate") {
         currentStep.value = 4; 
         const categoryname = getCategoryNameById(values.value.businessCategory)
         selectedCategories.value = [categoryname.toLowerCase()]
       } else if (selectedOptionTemplate.value === "randomlySelectTemplate") {
         submitAgencyDetailC();
-        // currentStep.value = 5; 
       }
+      */
     } else {
       currentStep.value++;
     }
@@ -407,23 +421,24 @@ const getTemplateById = (id)=> {
                     v-model="values.phone"
                   />
                   <div class="text-danger">{{ allErrors.phone }}</div>
-                  <label for="formFileLg" class="form-label"
-                    >Website Logo</label
-                  >
-                  <input
-                    type="file"
-                    name="logo"
-                    id="custom-file-upload"
-                    class="form-control input form-control-lg"
-                    accept=".jpg, .jpeg, .png"
-                    @change="onFileChange"
-                    ref="fileInputRef"
-                  />
-                  <i class="fa fa-upload" @click="triggerFileInput"></i>
-                  <div v-if="values.logo" class="file-name mt-1">
-                    {{ values.logo.name }}
+                  <div class="file-upload-wrapper">
+                    <label for="formFileLg" class="form-label">Website Logo</label>
+                    <input
+                      type="file"
+                      name="logo"
+                      id="custom-file-upload"
+                      class="form-control input form-control-lg"
+                      accept=".jpg, .jpeg, .png"
+                      @change="onFileChange"
+                      ref="fileInputRef"
+                    />
+                    <i class="fa fa-upload upload-icon" @click="triggerFileInput"></i>
+
+                    <div v-if="values.logo" class="file-name mt-1">
+                      {{ values.logo.name }}
+                    </div>
+                    <div class="text-danger">{{ allErrors.logo }}</div>
                   </div>
-                  <div class="text-danger">{{ allErrors.logo }}</div>
                   <label for="description" class="form-label"
                     >Description</label
                   >
@@ -515,7 +530,7 @@ const getTemplateById = (id)=> {
                   Next
                 </button>
               </div>
-              <div class="step step-3" v-if="currentStep === 3">
+              <!-- <div class="step step-3" v-if="currentStep === 3">
                 <div class="mb-3">
                   <h3>Choose an Option</h3>
                   <div class="templateSelect d-flex align-items-center">
@@ -557,7 +572,7 @@ const getTemplateById = (id)=> {
                 >
                   Next
                 </button>
-              </div>
+              </div> -->
               <div class="step step-4" v-if="currentStep === 4">
                 <div class="mb-3">
                   <h3>Start Selecting a Template</h3>
@@ -619,7 +634,12 @@ const getTemplateById = (id)=> {
                           <div class="col-lg-6" v-for="(template, index) in filteredTemplates" :key="index">
                             <div :class="{'Current-layout': selectedTemplateId === template.id}">
                               <i v-if="selectedTemplateId === template.id" class="fa fa-check" aria-hidden="true"></i>
-                              <div class="card-wrapper" :class="{'active': selectedTemplateId === template.id}">
+                              <div
+                                class="card-wrapper"
+                                :class="{ 'active': selectedTemplateId === template.id }"
+                                @click="selectTemplate(template.id)"
+                                style="cursor: pointer;"
+                              >
                               <div class="img-design">
                                 <img :src="config.CRM_API_URL +'/storage/'+ template.featured_image" />
                               </div>
@@ -683,33 +703,34 @@ const getTemplateById = (id)=> {
                 </div>
               </div>
               <div class="step step-7" v-if="currentStep === 7">
-                <div class="mb-3">
-                  <div class="Successfully">
-                    <h1>Congratulations!</h1>
-                    <p>Your site get ready in {{ timeSpent }} seconds....</p>
+                <div class="congrats-container">
+                  <div class="congrats-card shadow-sm">
+                    <div class="icon-wrapper">
+                      <i class="fa fa-check-circle success-icon" aria-hidden="true"></i>
+                    </div>
 
-                    <div class="face">
-                      <div class="eye"></div>
-                      <div class="eye right"></div>
-                      <div class="mouth happy"></div>
-                    </div>
-                    <p>
-                      Successfully created your Site
-                      <a class="wesbite-url">{{ domainUrl }}</a>
+                    <h2 class="congrats-title">Congratulations!</h2>
+                    <p class="congrats-subtext">
+                      Your website has been successfully created in
+                      <strong>{{ timeSpent }}</strong> seconds.
                     </p>
-                    <div class="buttons-share">
-                      <div class="button1">
-                        <button
-                          v-if="domainUrl"
-                          class="go-home"
-                          data-bs-dismiss="modal"
-                          aria-label="Close"
-                          @click="goToStepOneAndPreview(domainUrl)"
-                        >
-                          Preview
-                        </button>
-                      </div>
-                    </div>
+
+                    <p class="congrats-link">
+                      Your site is available at:<br />
+                      <a :href="domainUrl" target="_blank" class="domain-link">
+                        {{ domainUrl }}
+                      </a>
+                    </p>
+
+                    <button
+                      v-if="domainUrl"
+                      class="btn btn-success preview-btn mt-3"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                      @click="goToStepOneAndPreview(domainUrl)"
+                    >
+                      Preview Website
+                    </button>
                   </div>
                 </div>
               </div>

@@ -50,17 +50,24 @@
               class="col-sm-12 form-group mt-2"
               v-if="formData[field.field_name + '-meta2'] === 'form'"
             >
-              <label for="" class="form-label">Select Form</label>
-              <select
-                class="form-select"
-                :name="field.field_name + '-formId'"
-                v-model="formData[field.field_name + '-formId']"
-              >
-                <option disabled value="">-- Select a Form --</option>
-                <option v-for="form in activeForms" :key="form.id" :value="form.id">
-                  {{ form.name }}
-                </option>
-              </select>
+              <!-- If no forms exist -->
+              <div v-if="activeForms.length === 0" class="text-danger mb-2">
+                Please create a form first.
+              </div>
+              <!-- If forms exist -->
+              <div v-else>
+                <label for="" class="form-label">Select Form</label>
+                <select
+                  class="form-select"
+                  :name="field.field_name + '-formId'"
+                  v-model="formData[field.field_name + '-formId']"
+                >
+                  <option disabled value="">-- Select a Form --</option>
+                  <option v-for="form in activeForms" :key="form.id" :value="form.id">
+                    {{ form.name }}
+                  </option>
+                </select>
+              </div>
             </div>
           </div>
           <hr v-if="field.field_type === 'button'" />
