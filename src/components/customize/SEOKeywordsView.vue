@@ -82,19 +82,45 @@ const getSiteDeatils = async () => {
 // -------------------------
 // SEO Keywords (Vue logic)
 // -------------------------
-const addKeyword = () => {
-    const keyword = newKeyword.value.trim();
-    if (!keyword) return;
+const addKeyword = async () => {
+  const input = newKeyword.value.trim();
+  if (!input) return;
+
+  // Split ONLY by commas
+  const keywordsToAdd = input
+    .split(',')               // split on commas only
+    .map(k => k.trim())       // trim spaces
+    .filter(k => k.length > 0); // remove empty
+
+  let addedAny = false;
+  let duplicateFound = false;
+
+  keywordsToAdd.forEach(keyword => {
     if (seoKeywords.value.includes(keyword)) {
-        store.updateFlashMeassge(true, "This keyword is already taken!", 'error');
+      duplicateFound = true;
     } else {
-        seoKeywords.value.push(keyword);
+      seoKeywords.value.push(keyword);
+      addedAny = true;
     }
-    newKeyword.value = "";
+  });
+
+  if (addedAny) {
+    await saveKeywords();
+    store.updateFlashMeassge(true, "Keywords added successfully!", "success");
+  }
+
+  if (duplicateFound) {
+    store.updateFlashMeassge(true, "Some keywords were already added!", "error");
+  }
+
+  newKeyword.value = "";
 };
 
-const removeKeyword = (index) => {
+const removeKeyword = async (index) => {
+  const removedKeyword = seoKeywords.value[index]; // capture before removing
   seoKeywords.value.splice(index, 1);
+  await saveKeywords(); // auto-save after removing
+  store.updateFlashMeassge(true, `Keyword "${removedKeyword}" removed successfully!`, "success");
 };
 
 // -------------------------
@@ -201,18 +227,19 @@ onMounted(async () => {
                 </div>
             </div>
             <div v-else class="section-seo-keywords">
-                <div class="d-flex justify-content-end">
-                    <button class="btn btn-saveSeo" @click="saveKeywords" :disabled="saving">
-                        <span v-if="saving">
-                        <i class="fa fa-spinner fa-spin me-2"></i> Saving...
-                        </span>
-                        <span v-else>Save Keywords</span>
-                    </button>
+                <div class="d-flex justify-content-between seo-subheading">
+                  <h4 class="mb-3 heading">SEO Keywords</h4>
+                  <!-- Instruction Note -->
+                  <p class="instruction-note mb-3">
+                    <strong>NOTES:</strong> Type a keyword and press <strong>Enter</strong>. Changes save automatically.
+                    <span v-if="saving" class="saving-indicator ms-2">
+                      <i class="fa fa-spinner fa-spin"></i> Saving...
+                    </span>
+                  </p>
                 </div>
-                <h4 class="mb-3 heading">SEO Keywords</h4>
         
                 <!-- Input Field -->
-                <div class="keyword-input-wrapper mb-3">
+                <div class="keyword-input-wrapper mb-1">
                 <input
                     v-model="newKeyword"
                     @keyup.enter.prevent="addKeyword"
@@ -221,6 +248,7 @@ onMounted(async () => {
                     class="form-control keyword-input"
                 />
                 </div>
+
         
                 <!-- Keywords List -->
                 <div class="keywords-list d-flex flex-wrap gap-2">
@@ -362,6 +390,15 @@ onMounted(async () => {
     min-height: 240px;
 }
 
-</style>
+.instruction-note {
+  font-size: 15px;
+  color: #6c757d;
+  margin: 4px;
+}
 
-  
+.saving-indicator {
+  font-size: 20px;
+  color: rgb(29, 43, 100);
+}
+
+</style>
