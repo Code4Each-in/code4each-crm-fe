@@ -132,6 +132,7 @@ const submitAgencyDetailC = handleSubmit(async () => {
     console.error(error);
   }
   resetForm();
+  currentStep.value = 1;
 });
 
 
@@ -701,7 +702,7 @@ const categoriesWithTemplates = computed(() => {
                     type="submit"
                     class="btn btn-primary next-step"
                     :disabled="!selectedTemplateId"
-                    >Next
+                    >Generate Site
                     </button>
                   </div>
                 </div>
@@ -719,28 +720,31 @@ const categoriesWithTemplates = computed(() => {
                 </div>
               </div>
               <div class="step step-7" v-if="currentStep === 7">
-                <div class="congrats-container">
-                  <div class="congrats-card shadow-sm">
-                    <div class="icon-wrapper">
-                      <i class="fa fa-check-circle success-icon" aria-hidden="true"></i>
-                    </div>
+                <div class="congrats-content">
+                  <div class="icon-wrapper">
+                    <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                      <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                      <path class="checkmark__check" fill="none" d="M14 27l7 7 16-16"/>
+                    </svg>
+                  </div>
 
-                    <h2 class="congrats-title">Congratulations!</h2>
-                    <p class="congrats-subtext">
-                      Your website has been successfully created in
-                      <strong>{{ timeSpent }}</strong> seconds.
-                    </p>
+                  <h2 class="congrats-title">Congratulations!</h2>
+                  <p class="congrats-subtext">
+                    Your website has been successfully created in
+                    <strong>{{ timeSpent }}</strong> seconds.
+                  </p>
 
-                    <p class="congrats-link">
-                      Your site is available at:<br />
-                      <a :href="domainUrl" target="_blank" class="domain-link">
-                        {{ domainUrl }}
-                      </a>
-                    </p>
+                  <p class="congrats-link">
+                    Your site is available at:<br />
+                    <a :href="domainUrl" target="_blank" class="domain-link">
+                      {{ domainUrl }}
+                    </a>
+                  </p>
 
+                  <div class="button-wrapper">
                     <button
                       v-if="domainUrl"
-                      class="btn btn-success preview-btn mt-3"
+                      class="btn previewsite-btn"
                       data-bs-dismiss="modal"
                       aria-label="Close"
                       @click="goToStepOneAndPreview(domainUrl)"

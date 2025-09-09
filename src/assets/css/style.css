@@ -508,7 +508,8 @@ div#sidebar {
 
 .sidebar-link .sidebar-link-title {
     display: inline-block;
-    transition: all 0.3s
+    transition: all 0.3s;
+    font-size: 17px;
 }
 
 .sidebar-menu .sidebar-link.active {
@@ -3836,80 +3837,113 @@ p.r3.px-md-5.px-sm-1.confirm-text {
     border-radius: 0;
 }
 
-.congrats-container {
+.congrats-content {
     display: flex;
+    flex-direction: column;
     justify-content: center;
-    align-items: center;
-    padding: 2rem;
-}
-
-.congrats-card {
-  background-color: #ffffff;
-  padding: 3rem 3rem;
-  border-radius: 12px;
-  text-align: center;
-  max-width: 500px;
-  width: 100%;
-  border: 1px solid #e0e0e0;
-}
-
-.icon-wrapper {
-  margin-bottom: 1rem;
-}
-
-.success-icon {
-  color: #28a745;
-  font-size: 48px;
-}
-
-.congrats-title {
-  font-size: 28px;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.congrats-subtext {
-  font-size: 16px;
-  color: #333;
-  margin-bottom: 1rem;
-}
-
-.congrats-link {
-  font-size: 15px;
-  margin-bottom: 10px;
-  color: #444;
-}
-
-.domain-link {
-  color: #007bff;
-  font-weight: 600;
-  text-decoration: none;
-  word-break: break-word;
-}
-
-.domain-link:hover {
-  text-decoration: underline;
-}
-
-button.preview-btn {
-    position: absolute;
-    bottom: 11%;
-    left: 38%;
-    padding: 8px 30px;
+    align-items: center; /* everything centered */
+    text-align: center;
+    padding: 1rem;
+  }
+  
+  .icon-wrapper {
+    margin-bottom: 1rem;
+  }
+  
+  /* Animated Checkmark */
+  .checkmark {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: block;
+    stroke-width: 3;
+    stroke: #28a745;
+    stroke-miterlimit: 10;
+    box-shadow: inset 0px 0px 0px #28a745;
+    animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+  }
+  
+  .checkmark__circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 3;
+    stroke-miterlimit: 10;
+    stroke: #28a745;
+    fill: none;
+    animation: stroke .6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+  }
+  
+  .checkmark__check {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: stroke .3s cubic-bezier(0.65, 0, 0.45, 1) .8s forwards;
+    stroke: #28a745;
+  }
+  
+  @keyframes stroke {
+    100% { stroke-dashoffset: 0; }
+  }
+  
+  @keyframes scale {
+    0%, 100% { transform: none; }
+    50% { transform: scale3d(1.1, 1.1, 1); }
+  }
+  
+  @keyframes fill {
+    100% { box-shadow: inset 0px 0px 0px 30px #fff; }
+  }
+  
+  .congrats-title {
+    font-size: 28px;
+    font-weight: bold;
+    margin-top: 1rem;
+    margin-bottom: 12px;
+    color: #222;
+  }
+  
+  .congrats-subtext {
+    font-size: 20px;
+    color: #555;
+    margin-bottom: 1rem;
+  }
+  
+  .congrats-link {
+    font-size: 18px;
+    margin-bottom: 1.5rem;
+    color: #444;
+  }
+  
+  .domain-link {
+    color: #007bff;
+    font-weight: 600;
+    text-decoration: none;
+    word-break: break-word;
+  }
+  
+  .domain-link:hover {
+    text-decoration: underline;
+  }
+  
+  .button-wrapper {
+    display: flex;
+    justify-content: center; /* centers button */
+    width: 100%;
+  }
+  
+  button.previewsite-btn {
+    padding: 10px 28px;
     background: #1d2b64 !important;
     color: #fff !important;
     font-size: 15px;
-    border: 2px solid #1d2b64;
-    border-radius: 8px;
-    display: flex;
-    justify-content: center;
-    font-weight: 700;
-}
-
-button.preview-btn:hover {
-    background: #ffffff !important;
-    border: 2px solid #1d2b64;
-    color: #1d2b64 !important;
-    font-weight: 700;
-}
-
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  button.previewsite-btn:hover {
+    background: #16234a !important;
+  }
+  

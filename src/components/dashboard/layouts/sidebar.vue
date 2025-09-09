@@ -160,6 +160,17 @@
                 <span class="sidebar-link-title">SEO Keywords</span>
               </router-link>
             </li>
+            <li class="sidebar-list-item">
+              <a
+                href="#"
+                class="sidebar-link text-muted"
+                data-toggle="modal"
+                data-target="#selectOptionForRegenerate"
+              >
+                <i class="fa fa-retweet" aria-hidden="true"></i>
+                <span class="sidebar-link-title">Change Template</span>
+              </a>
+            </li>
           </ul>
         </li>
         <li class="sidebar-list-item"
@@ -198,13 +209,13 @@
           </button>
         </div>
       </div>
-      <div class="Regenerate" v-else>
+      <!-- <div class="Regenerate" v-else>
         <form class="text-start mb-2 mt-3">
           <div class="form-field mb-4">
             <button class="btn btn-outline-danger btn-danger " type="button" id="button-addon3" data-toggle="modal" data-target="#selectOptionForRegenerate"><i class="fa fa-retweet" aria-hidden="true"></i><span> Regenerate</span></button>
           </div>
         </form>
-      </div>
+      </div> -->
     </div>
   </div>
   <ChangeWebsiteModal
