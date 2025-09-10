@@ -171,6 +171,18 @@
                 <span class="sidebar-link-title">Change Template</span>
               </a>
             </li>
+            <li class="sidebar-list-item">
+              <router-link
+                :to="{ name: 'templatePages' }"
+                class="sidebar-link text-muted"
+                :class="{
+                  active: currentRoute.includes('/customize/template-pages'),
+                }"
+              >
+                <i class="fa fa-file-o" aria-hidden="true"></i>
+                <span class="sidebar-link-title">Pages</span>
+              </router-link>
+            </li>
           </ul>
         </li>
         <li class="sidebar-list-item"

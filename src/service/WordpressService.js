@@ -237,6 +237,23 @@ const WordpressService = {
     saveSEOKeywords: (data) => {
       return requests(baseUrl).post(`/save-seo-keywords`, data)
     }
+  },
+
+  TemplatePages: {
+    getTemplatePage: (data) => {
+      return requests(baseUrl).get('/get-template-pages', { params: data });
+    },
+    saveTemplatePage: (data) => {
+      return requests(baseUrl).post(`/add-template-pages`, data)
+    },
+    updateTemplatePage: (data) => {
+      console.log(data);
+      return requests(baseUrl).post(`/update-template-pages`, data)
+    },
+    deleteTemplatePage: (data) => {
+      return requests(baseUrl).delete(`/delete-template-pages`, { params: data });
+    }
+  
   }
 
 }
