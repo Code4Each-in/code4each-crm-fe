@@ -132,7 +132,6 @@ const submitAgencyDetailC = handleSubmit(async () => {
     console.error(error);
   }
   resetForm();
-  currentStep.value = 1;
 });
 
 
