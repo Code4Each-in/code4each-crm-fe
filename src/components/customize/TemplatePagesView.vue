@@ -132,11 +132,22 @@ watch(
 );
 
 const previewPage = (page) => {
-  if (page.guid) {
-    window.open(page.guid, "_blank");
-  } else {
-    alert("Page URL not available.");
+  if (!siteSettingsDetail.value?.website_domain) {
+    alert("Website domain not available.");
+    return;
   }
+
+  // If it's Home, use the root domain
+  const url = page.page_name.toLowerCase() === "home"
+    ? siteSettingsDetail.value.website_domain
+    : page.guid;
+
+  if (!url) {
+    alert("Page URL not available.");
+    return;
+  }
+
+  window.open(url, "_blank");
 };
 
 // Full URL computed
@@ -362,10 +373,7 @@ onMounted(async () => {
                       <td>
                         <!-- If home -->
                         <template v-if="page.page_name.toLowerCase() === 'home'">
-                          <span 
-                            class="badge bg-secondary disabled-btn"
-                            title="Home status cannot be changed"
-                          >
+                          <span>
                             {{ page.status === 'publish' ? 'Published' : 'Draft' }}
                           </span>
                         </template>
