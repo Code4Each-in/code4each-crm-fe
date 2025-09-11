@@ -19,11 +19,13 @@ const isSidebarToggled = ref(false);
 const dashboardData = ref({});
 const loading = ref(true);
 const siteSettingsDetail = ref([]);
-const templatePages = ref([]);
+const templatePages = ref(null);
 const editingPageId = ref(null);
+const statusUpdatingPageId = ref(null);
+const statusUpdatingNewStatus = ref("");
 
 // Loading states
-const isFetchingPages = ref(false);
+const isFetchingPages = ref(true);
 const isSaving = ref(false);
 const deletingPageId = ref(null);
 
@@ -100,7 +102,7 @@ const openPopup = () => {
   showPopup.value = true; 
   newPage.value = { title: "", slug: "" };
   slugEditedManually.value = false;
-  isSaving.value = false;   // reset saving state when opening
+  isSaving.value = false; 
 };
 const closePopup = () => { 
   showPopup.value = false;
@@ -209,7 +211,7 @@ const saveTemplatePage = async () => {
         if (response.status === 200 && response.data.success) {
             const createdPageName = response.data.response.page_name;
             store.updateFlashMeassge(true, `Page "${createdPageName}" has been created successfully.`, 'success');
-            closePopup();  // close immediately
+            closePopup();
         } 
     }
     await getTemplatePage();
@@ -221,11 +223,14 @@ const saveTemplatePage = async () => {
 };
 
 const editPage = (page) => {
-  newPage.value = { title: page.page_name, slug: page.page_slug };
+  newPage.value = { 
+    title: decodeHtml(page.page_name), 
+    slug: page.page_slug 
+  };
   slugEditedManually.value = true;
   editingPageId.value = page.page_id; 
   showPopup.value = true;
-  isSaving.value = false; // reset button state
+  isSaving.value = false;
 };
 
 const deletePage = async (page) => {
@@ -250,6 +255,49 @@ const deletePage = async (page) => {
     store.updateFlashMeassge(true, 'An error occurred while deleting page.', 'error');
   } finally {
     deletingPageId.value = null;
+  }
+};
+
+const decodeHtml = (html) => {
+  const txt = document.createElement("textarea");
+  txt.innerHTML = html;
+  return txt.value;
+};
+
+const confirmStatusChange = async (page) => {
+  if (page.page_name.toLowerCase() === 'home') return;
+
+  const newStatus = page.status === 'publish' ? 'draft' : 'publish';
+  const confirmed = confirm(
+    `Are you sure you want to change "${page.page_name}" status to ${newStatus}?`
+  );
+  if (!confirmed) return;
+
+  try {
+    statusUpdatingPageId.value = page.page_id;
+    statusUpdatingNewStatus.value = newStatus;
+    const response = await WordpressService.TemplatePages.updateTemplatePage({
+      page_id: page.page_id,
+      page_name: page.page_name,
+      page_slug: page.page_slug,
+      website_domain: siteSettingsDetail.value.website_domain,
+      status: newStatus,
+    });
+
+    if (response.status === 200 && response.data.success) {
+      const idx = templatePages.value.findIndex(p => p.page_id === page.page_id);
+      if (idx !== -1) templatePages.value[idx].status = newStatus;
+
+      store.updateFlashMeassge(true, `Page "${page.page_name}" status updated to ${newStatus}.`, 'success');
+    } else {
+      store.updateFlashMeassge(true, response.data.message || 'Failed to update status', 'error');
+    }
+  } catch (err) {
+    console.error("Error updating status:", err);
+    store.updateFlashMeassge(true, 'An error occurred while updating status.', 'error');
+  } finally {
+    statusUpdatingPageId.value = null; 
+    statusUpdatingNewStatus.value = "";
   }
 };
 
@@ -291,9 +339,8 @@ onMounted(async () => {
             </div>
 
             <!-- Loader while fetching -->
-            <div v-if="isFetchingPages" class="text-center my-4">
+            <div v-if="isFetchingPages" class="loader-wrapper text-center my-4">
               <div class="spinner-border text-primary"></div>
-              <p class="mt-2">Loading pages...</p>
             </div>
 
             <!-- Pages List in Table -->
@@ -303,6 +350,7 @@ onMounted(async () => {
                   <tr>
                       <th>#</th>
                       <th>Page Name</th>
+                      <th>Status</th>
                       <th>Preview Page</th>
                       <th class="text-center">Actions</th>
                   </tr>
@@ -310,10 +358,38 @@ onMounted(async () => {
                   <tbody>
                   <tr v-for="(page, index) in templatePages" :key="page.page_id || index">
                       <td>{{ index + 1 }}</td>
-                      <td>{{ page.page_name }}</td>
+                      <td v-html="page.page_name"></td>
+                      <td>
+                        <!-- If home -->
+                        <template v-if="page.page_name.toLowerCase() === 'home'">
+                          <span 
+                            class="badge bg-secondary disabled-btn"
+                            title="Home status cannot be changed"
+                          >
+                            {{ page.status === 'publish' ? 'Published' : 'Draft' }}
+                          </span>
+                        </template>
+
+                        <!-- If not home -->
+                        <template v-else>
+                          <span 
+                            class="badge"
+                            :class="page.status === 'publish' ? 'bg-success' : 'bg-secondary'"
+                            style="cursor: pointer; display: inline-flex; align-items: center; gap: 6px;"
+                            @click="confirmStatusChange(page)"
+                          >
+                            <span v-if="statusUpdatingPageId === page.page_id" class="spinner-border spinner-border-sm"></span>
+                            {{
+                              statusUpdatingPageId === page.page_id
+                                ? (statusUpdatingNewStatus === 'publish' ? 'Publishing...' : 'Drafting...')
+                                : (page.status === 'publish' ? 'Published' : 'Draft')
+                            }}
+                          </span>
+                        </template>
+                      </td>
                       <td>
                         <button 
-                            class="btn btn-sm btn-info"
+                            class="btn btn-previewPage"
                             @click="previewPage(page)"
                         >
                             Preview
@@ -321,6 +397,8 @@ onMounted(async () => {
                       </td>
                       <!-- Action Icons -->
                       <td class="text-center">
+                      <!-- If NOT home -->
+                      <template v-if="page.page_name.toLowerCase() !== 'home'">
                         <button 
                             class="btn btn-sm btn-outline-primary me-2"
                             @click="editPage(page)"
@@ -338,23 +416,46 @@ onMounted(async () => {
                             <span v-if="deletingPageId === page.page_id" class="spinner-border spinner-border-sm"></span>
                             <i v-else class="fa fa-trash"></i>
                         </button>
+                      </template>
+
+                      <!-- If home -->
+                      <template v-else>
+                        <button 
+                          class="btn btn-sm btn-outline-secondary me-2 disabled-btn"
+                          title="Home cannot be edited"
+                        >
+                          <i class="fa fa-pencil"></i>
+                        </button>
 
                         <button 
-                            class="btn btn-sm btn-outline-warning"
-                            @click="customizePage(page)"
-                            title="Customizer"
+                          class="btn btn-sm btn-outline-secondary me-2 disabled-btn"
+                          title="Home cannot be deleted"
                         >
-                            <i class="fa fa-cogs"></i>
+                          <i class="fa fa-trash"></i>
                         </button>
-                      </td>
+                      </template>
+
+                      <!-- Customizer still available -->
+                      <button 
+                          class="btn btn-sm btn-outline-warning"
+                          @click="customizePage(page)"
+                          title="Customizer"
+                      >
+                          <i class="fa fa-cogs"></i>
+                      </button>
+                    </td>
                   </tr>
                   </tbody>
               </table>
             </div>
 
             <!-- Empty State -->
-            <div v-else class="text-muted mt-3 text-center">
-            No template pages found.
+            <div v-else-if="templatePages && templatePages.length === 0" class="empty-state card shadow-sm text-center p-5">
+              <h5 class="mb-3">No Pages Found</h5>
+              <p class="text-muted mb-4">You haven’t created any pages yet. Click below to start!</p>
+              <button class="btn btn-primary" @click="openPopup">
+                <i class="bi bi-plus-circle"></i> Create Your First Page
+              </button>
             </div>
         </div>
 
@@ -527,4 +628,74 @@ onMounted(async () => {
 .table tbody tr:nth-child(even) {
     background-color: #f9f9f9;
 }
+
+.empty-state {
+  background: #fff;
+  border-radius: 12px;
+  margin-top: 19px;
+  margin-left: 200px;
+}
+
+.empty-state h5 {
+    font-weight: 600;
+    color: #333;
+}
+
+.loader-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 240px;
+}
+
+.disabled-btn {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: auto; 
+}
+
+.badge {
+  padding: 9px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.bg-success {
+  background-color: #28a745 !important;
+  border: 2px solid #28a745;
+  color: #fff;
+}
+
+.bg-success:hover {
+  background-color: #fff !important;
+  color: #28a745;
+}
+
+.bg-secondary {
+  background-color: #6c757d !important;
+  border: 2px solid #6c757d;
+  color: #fff;
+}
+
+.bg-secondary:hover {
+  background-color: #fff !important;
+  color: #6c757d;
+}
+
+.btn-previewPage {
+  padding: 4px 20px;
+  border-radius: 6px;
+  background-color: #2ecce5;
+  border: 2px solid #2ecce5;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.btn-previewPage:hover {
+  background-color: #fff;
+  color: #2ecce5;
+}
+
 </style>
