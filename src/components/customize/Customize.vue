@@ -3,6 +3,7 @@ import NavBar from "@/components/dashboard/layouts/navbar.vue";
 import SideBar from "@/components/dashboard/layouts/sidebar.vue";
 import { useAuth } from "@/service/useAuth";
 import { useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import { ref, onMounted, provide, watch } from "vue";
 import WordpressService from "@/service/WordpressService";
 import Loader from "@/components/common/Loader.vue";
@@ -61,6 +62,8 @@ const deleteComponentImageModal = ref(false);
 const positionForAddSection = ref(null);
 const templateId = ref(null);
 const selectedCategory = ref("");
+const route = useRoute();
+const pageId = ref(null);
 
 const fetchDashboardData = async () => {
   try {
@@ -86,6 +89,7 @@ const getActiveComponentsData = async () => {
   try {
     const response = await WordpressService.Components.getActiveComponents({
       website_url: siteSettingsDeatil.value?.website_domain,
+      page_id: pageId.value,
     });
 
     if (response.status === 200 && response.data.success) {
@@ -136,6 +140,9 @@ const openModal = async (compType, oldComponentUniqueeId, src) => {
 
 onMounted(async () => {
   fileInput.value = ref.fileInput;
+  if (route.query.page_id) {
+    pageId.value = parseInt(route.query.page_id);
+  }
   await getSiteDeatils();
   await fetchDashboardData();
   await getActiveComponentsData();
