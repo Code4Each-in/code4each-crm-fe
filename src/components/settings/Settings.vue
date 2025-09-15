@@ -251,7 +251,7 @@ const onFileChange = (event) => {
 };
 
 const goToCutomize = () => {
-  router.push("/customize");
+  router.push("/customize/template-pages");
 };
 
 const oncategoryChange = (event) => {

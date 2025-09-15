@@ -4,7 +4,7 @@ import SideBar from "@/components/dashboard/layouts/sidebar.vue";
 import { useAuth } from "@/service/useAuth";
 import { useRouter } from "vue-router";
 import { useRoute } from "vue-router";
-import { ref, onMounted, provide, watch } from "vue";
+import { ref, onMounted, provide, watch, computed } from "vue";
 import WordpressService from "@/service/WordpressService";
 import Loader from "@/components/common/Loader.vue";
 import EditSiteSettingsFormBuilder from "@/components/common/EditSiteSettingsFormBuilder.vue";
@@ -64,6 +64,9 @@ const templateId = ref(null);
 const selectedCategory = ref("");
 const route = useRoute();
 const pageId = ref(null);
+const templatePages = ref(null);
+const initialLoading = ref(true);
+const pageLoading = ref(false);
 
 const fetchDashboardData = async () => {
   try {
@@ -84,6 +87,11 @@ const fetchDashboardData = async () => {
     }
   }
 };
+
+const currentPage = computed(() => {
+  if (!templatePages.value || !pageId.value) return null;
+  return templatePages.value.find((p) => p.page_id === pageId.value) || null;
+});
 
 const getActiveComponentsData = async () => {
   try {
@@ -143,9 +151,18 @@ onMounted(async () => {
   if (route.query.page_id) {
     pageId.value = parseInt(route.query.page_id);
   }
-  await getSiteDeatils();
-  await fetchDashboardData();
-  await getActiveComponentsData();
+
+  try {
+    await fetchDashboardData();
+    await getSiteDeatils();
+    await getTemplatePage();
+
+    if (pageId.value) {
+      await getActiveComponentsData();
+    }
+  } finally {
+    initialLoading.value = false; 
+  }
 });
 
 watch(
@@ -156,6 +173,22 @@ watch(
     await getActiveComponentsData();
   }
 );
+
+watch(pageId, async (newPageId) => {
+  if (newPageId) {
+    router.push({
+      query: { ...route.query, page_id: newPageId }
+    });
+
+    pageLoading.value = true;
+    activeComponentsDetail.value = [];
+    try {
+      await getActiveComponentsData();
+    } finally {
+      pageLoading.value = false;
+    }
+  }
+});
 
 provide("dashBoardMethods", {
   fetchDashboardData,
@@ -440,6 +473,22 @@ const regenerateWebsite = async (id) => {
   loading.value = false;
 };
 
+// -------------------------
+// Fetch Template Pages
+// -------------------------
+const getTemplatePage = async () => {
+    try {
+        const response = await WordpressService.TemplatePages.getTemplatePage({
+            website_domain: siteSettingsDeatil.value.website_domain,
+        });
+
+        if (response.status === 200 && response.data.success) {
+            templatePages.value = response.data.response;
+        }
+    } catch (error) {
+        console.error(error);
+    }
+};
 
 const addSectionHandle = (position) => {
   positionForAddSection.value = position
@@ -449,6 +498,13 @@ const addSectionHandle = (position) => {
 const showloading = (value)=>{
   loading.value = value
 }
+
+const decodeHtml = (html) => {
+  const txt = document.createElement("textarea");
+  txt.innerHTML = html;
+  return txt.value;
+};
+
 </script>
 <template>
   <div class="page">
@@ -462,16 +518,40 @@ const showloading = (value)=>{
       :dashboardData="dashboardData"
       :toggled="isSidebarToggled"
     ></SideBar>
-    <section id="content-wrapper main-content side-content">
-      <div class="side-app">
-        <div class="main-container-components container">
-          <div id="wrapper" :class="loading ? 'fade' : ''">
-            <div
-              class="eidtor-site"
-              aria-hidden="true"
-              data-toggle="modal"
-              data-target="#exampleModalRight-components"
+     <section id="content-wrapper main-content side-content">
+      <Loader v-if="initialLoading" />
+
+      <template v-else>
+        <div v-if="currentPage" class="page-title mt-2">
+         <h2>{{ decodeHtml(currentPage.page_name) }} Customization</h2>
+
+          <div v-if="templatePages && templatePages.length > 0" class="mt-2 select-box-pages">
+            <select
+              id="templatePageSelect"
+              v-model="pageId"
+              class="form-select"
             >
+              <option
+                v-for="page in templatePages.filter(p => p.status === 'publish')"
+                :key="page.page_id"
+                :value="page.page_id"
+              >
+                {{ decodeHtml(page.page_name) }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="side-app">
+          <div class="main-container-components container">
+            <Loader v-if="pageLoading" />
+
+            <div v-else-if="!activeComponentsDetail || activeComponentsDetail.length === 0">
+              <p class="text-center my-4">No components assigned to this page</p>
+            </div>
+
+            <!-- Components list -->
+            <div v-else class="eidtor-site">
               <div
                 v-for="(compValue, index) in activeComponentsDetail"
                 :key="index"
@@ -479,23 +559,20 @@ const showloading = (value)=>{
                 <div
                   class="eidtor-img"
                   :class="oldComponent === compValue.id ? 'active' : ''"
-                  @click="
-                    openModal(compValue.type, compValue.id, compValue.preview)
-                  "
+                  @click="openModal(compValue.type, compValue.id, compValue.preview)"
                 >
                   <img :src="config.CRM_API_URL + compValue.preview" />
                 </div>
-                <div class="main-div1" @click="addSectionHandle(index+2)"><div class="edit-section">
-    
-                  </div><h1><i class="fa fa-plus"></i>  Add new section <i class="fa fa-plus"></i></h1>
-                <div class="edit-section1">
-
-                  </div></div>
+                <div class="main-div1" @click="addSectionHandle(index+2)">
+                  <div class="edit-section"></div>
+                  <h1><i class="fa fa-plus"></i> Add new section <i class="fa fa-plus"></i></h1>
+                  <div class="edit-section1"></div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </template>
     </section>
     <div class="right-side">
       <div class="sidebar-right py-3" id="sidebar-right">
@@ -959,5 +1036,24 @@ p {
 .upload_wrapper_inner_img_cont .upload__img-close {
   right: -10px;
   top: -10px;
+}
+
+.select-box-pages {
+    position: relative;
+    max-width: 20%;
+}
+
+.page-title {
+    margin-left: 230px;
+}
+
+select.form-select {
+    height: 46px !important;
+    padding: 4px 10px !important;
+    margin: 0px !important;
+}
+
+.form-select{
+  width: 83% !important;
 }
 </style>
