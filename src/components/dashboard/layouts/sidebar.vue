@@ -88,6 +88,21 @@
                 <span class="sidebar-link-title"> Components</span>
               </router-link>
             </li>
+            <li
+              class="sidebar-list-item"
+              :class="{ active: currentRoute === '/customize/customize-pages' }"
+            >
+              <router-link
+                :to="{ name: 'customize_customizepages' }"
+                class="sidebar-link text-muted"
+                :class="{
+                  active: currentRoute.includes('/customize/customize-pages'),
+                }"
+              >
+                <i class="fa fa-book"></i>
+                <span class="sidebar-link-title"> Customize Pages</span>
+              </router-link>
+            </li>
             <!-- <li class="sidebar-list-item">
               <router-link
                 :to="{ name: 'customize_colors' }"

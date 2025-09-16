@@ -18,6 +18,7 @@ import PlansView from '../views/PlansView.vue'
 import FormBuilder from '../views/FormBuilder.vue'
 import SEOKeywords from '../views/SEOKeywords.vue'
 import TemplatePages from '../views/TemplatePages.vue'
+import CustomizePages from '../views/CustomizePages.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -131,6 +132,11 @@ const router = createRouter({
       path: '/customize/template-pages',
       name: 'templatePages',
       component: TemplatePages
+    },
+    {
+      path: '/customize/customize-pages',
+      name: 'customize_customizepages',
+      component: CustomizePages
     },
   ]
 });
