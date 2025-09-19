@@ -315,7 +315,7 @@ const confirmStatusChange = async (page) => {
 const customizePage = (page) => {
   if (!page.page_id) return;
   router.push({
-    path: "/customize/components/",
+    path: "/customize/customize-pages/",
     query: { page_id: page.page_id }
   });
 };

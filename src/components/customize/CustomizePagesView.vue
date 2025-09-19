@@ -1,337 +1,369 @@
 <script setup>
+/* =========================
+   Imports
+========================= */
 import NavBar from "@/components/dashboard/layouts/navbar.vue";
 import SideBar from "@/components/dashboard/layouts/sidebar.vue";
-import { useAuth } from "@/service/useAuth";
-import { useRouter } from "vue-router";
-import { useRoute } from "vue-router";
-import { ref, onMounted, provide, watch, computed } from "vue";
-import WordpressService from "@/service/WordpressService";
 import Loader from "@/components/common/Loader.vue";
-import EditSiteSettingsFormBuilder from "@/components/common/EditSiteSettingsFormBuilder.vue";
-import EditSiteSettingsButtonFormBuilder from "@/components/common/EditSiteSettingsButtonFormBuilder.vue";
-import { useStore } from "@/stores/store";
-import config from "/config";
-import { openLinkInNewTab } from "@/util/helper";
-import { EventBus } from "@/EventBus";
-import DeleteModal from "@/components/common/DeleteModal.vue";
-import ConfirmModal from "@/components/common/ConfirmModal.vue";
-import SelectOptionForRegenerate from "@/components/common/SelectOptionForRegenerate.vue";
-import ProcessCompleteModal from "@/components/common/ProcessCompleteModal.vue";
 import FlashMessage from "@/components/common/FlashMessage.vue";
-import AddNewSection from "./elements/AddNewSection.vue";
-import { componentLibrary } from '@/components/library/library.js';
+import { componentLibrary } from "@/components/library/library.js";
 
+import { ref, computed, onMounted, provide, watch } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { useAuth } from "@/service/useAuth";
+import { useStore } from "@/stores/store";
+import WordpressService from "@/service/WordpressService";
+
+/* =========================
+   Router, Auth & Store
+========================= */
+const router = useRouter();
+const route = useRoute();
+const { logout } = useAuth();
+const store = useStore();
+
+/* =========================
+   Reactive State Variables
+========================= */
+const isSidebarToggled = ref(false);
+const initialLoading = ref(true);
+const loading = ref(true);
+const isSaving = ref(false);
+const saveTimeout = ref(null);
+
+const dashboardData = ref([]);
+const siteComponentFields = ref([]);
+const globalVariables = ref([]);
+const siteSettingsDetail = ref(null);
+const componentIdsByType = ref({});
+const headerMenus = ref([]);
+const footerMenus = ref([]);
+const pageId = ref(route.query.page_id ? parseInt(route.query.page_id) : null);
+const templatePages = ref([]);
+const selectedCategory = ref("");
+
+/* =========================
+   Component Registry
+========================= */
 const componentRegistry = componentLibrary;
 
+/* =========================
+   UI Methods
+========================= */
+const navBarToggle = (value) => (isSidebarToggled.value = value);
+
+/* =========================
+   Helper Functions
+========================= */
+// Decode HTML for rendering in template
+const decodeHtml = (html) => {
+  const txt = document.createElement("textarea");
+  txt.innerHTML = html;
+  return txt.value;
+};
+
+// Get fields for a specific component type safely
+const getFieldsByComponentType = (type) => {
+  const component = siteComponentFields.value.find((c) => c.type === type);
+  return component?.fields || [];
+};
+
+// Helper to get field value by name
+const getFieldValue = (fields, name, metaIndex = null) => {
+  const field = fields.find((f) => f.field_name === name);
+  if (!field) return "";
+  return metaIndex ? field[`meta${metaIndex}`] || "" : field.value || "";
+};
+
+/* =========================
+   Computed Properties
+========================= */
+// Hero block
 const heroBlockData = computed(() => {
-  const fields = siteSettingsFormFields.value;
-  const logo = globalVariables.value?.find(item => item.name === "logo");
+  const fields = getFieldsByComponentType("header");
+  if (!fields.length) return null;
 
-  if (!logo || !fields) return null;
+  const websiteDomain = siteSettingsDetail.value?.website_domain || "";
+  const logoField = globalVariables.value.find((item) => item.name === "logo");
+  const baseUrl = websiteDomain.replace(/\/$/, "") + "/wp-content/themes/codeforeach/";
 
-  // Ensure no double slash when concatenating URL parts
-  const baseUrl = "https://alphafour.speedysites.in/wp-content/themes/codeforeach/";
-  const logoPath = logo.value.startsWith("/") ? logo.value.slice(1) : logo.value;
-  const logoUrl = baseUrl + logoPath;
-
-  const data = {
-    logo: logoUrl,
-    menu: ["Home", "About", "Contact"],
-    title1: "",
-    title2: "",
-    description: "",
-    buttonText: "",
-    buttonUrl: "",
-    buttonTarget: "_self",
-    image: "",
+  return {
+    logo: logoField ? baseUrl + logoField.value.replace(/^\//, "") : "",
+    menu: headerMenus.value.map((m) => m.name),
+    "header-text1": getFieldValue(fields, "header-text1"),
+    "header-text2": getFieldValue(fields, "header-text2"),
+    "header-description1": getFieldValue(fields, "header-description1"),
+    "header-button1": getFieldValue(fields, "header-button1"),
+    buttonUrl: getFieldValue(fields, "header-button1", 1) || "#",
+    buttonTarget: getFieldValue(fields, "header-button1", 2) || "_self",
+    image: getFieldValue(fields, "header-img") ? "https://app.speedysites.in/storage/" + getFieldValue(fields, "header-img") : "",
   };
-
-  fields.forEach((field) => {
-    switch (field.field_name) {
-      case "header-text1":
-        data.title1 = field.value;
-        break;
-      case "header-text2":
-        data.title2 = field.value;
-        break;
-      case "header-description1":
-        data.description = field.value;
-        break;
-      case "header-button1":
-        data.buttonText = field.value;
-        data.buttonUrl = field.meta1 || "#";
-        data.buttonTarget = field.meta2 || "_self";
-        break;
-      case "header-img":
-        const crmBaseUrl = "https://app.speedysites.in/";
-        data.image = crmBaseUrl + "storage/" + field.value;
-        break;
-    }
-  });
-
-  return data;
 });
 
+// About block
 const aboutBlockData = computed(() => {
-  const data = {
-    text1: "About Highlight",
-    text2: "Our",
-    text3: "Best Services",
-    text4: "for You",
-    services: [
-      {
-        img: "/components/sections/ss_health_sections/health_abouts/health_about1/images/doctor.png",
-        title: "Best Doctors",
-      },
-      {
-        img: "/components/sections/ss_health_sections/health_abouts/health_about1/images/affordable.png",
-        title: "Affordable Care",
-      },
-      {
-        img: "/components/sections/ss_health_sections/health_abouts/health_about1/images/insurance.png",
-        title: "Insurance Partners",
-      },
-      {
-        img: "/components/sections/ss_health_sections/health_abouts/health_about1/images/support.png",
-        title: "24/7 Support",
-      },
-      {
-        img: "/components/sections/ss_health_sections/health_abouts/health_about1/images/alarm.png",
-        title: "Emergency Service",
-      },
-      {
-        img: "/components/sections/ss_health_sections/health_abouts/health_about1/images/telemedicine.png",
-        title: "Online Consultancy",
-      },
-    ],
-  };
+  const fields = getFieldsByComponentType("about_section");
+  if (!fields.length) return null;
 
-  return data;
+  const services = Array.from({ length: 6 }, (_, i) => ({
+    img: getFieldValue(fields, `about-img${i + 1}`),
+    [`about-text${i + 5}`]: getFieldValue(fields, `about-text${i + 5}`),
+  }));
+
+  return {
+    "about-text1": getFieldValue(fields, "about-text1"),
+    "about-text2": getFieldValue(fields, "about-text2"),
+    "about-text3": getFieldValue(fields, "about-text3"),
+    "about-text4": getFieldValue(fields, "about-text4"),
+    services,
+  };
 });
 
+// Service block
 const serviceBlockData = computed(() => {
-  const data = {
-    text1: "Neonal Medical Care - 35 Years of Trusted Experience",
-    description1: "Providing compassionate and comprehensive healthcare services with cutting-edge technology and expert medical professionals.",
-    services: [
-      {
-        img: "/components/sections/ss_health_sections/health_services/health_service1/images/1.jpg",
-        title: "Our Mission",
-        description: "To deliver patient-centered care with integrity, compassion, and excellence, improving health outcomes in our community.",
-      },
-      {
-        img: "/components/sections/ss_health_sections/health_services/health_service1/images/2.jpg",
-        title: "Our Vision",
-        description: "To be a leading healthcare provider known for innovative treatments, preventive care, and continuous improvement.",
-      },
-    ],
-  };
+  const fields = getFieldsByComponentType("service_section");
+  if (!fields.length) return null;
 
-  return data;
+  const services = Array.from({ length: 2 }, (_, i) => ({
+    img: getFieldValue(fields, `service-image${i + 1}`),
+    [`service-text${i + 2}`]: getFieldValue(fields, `service-text${i + 2}`),
+    [`service-description${i + 2}`]: getFieldValue(fields, `service-description${i + 2}`),
+  }));
+
+  return {
+    "service-text1": getFieldValue(fields, "service-text1"),
+    "service-description1": getFieldValue(fields, "service-description1"),
+    services,
+  };
 });
 
+// Footer block
 const footerBlockData = computed(() => {
-  const data = {
-    logo: "/images/logo.png",
-    description: "Default footer description goes here.",
-    buttonText: "Book Now",
-    phone: "+91 99999 99999",
-    address: "123 Street, City, State, Country",
-    contactHeading: "Contact",
-    menuHeading: "Quick Links",
-    socialHeading: "Follow Us",
-    menu: ["Home", "About", "Services", "Contact"],
+  const fields = getFieldsByComponentType("footer");
+  if (!fields.length) return null;
+
+  const logoField = globalVariables.value.find((item) => item.name === "logo");
+  return {
+    logo: logoField ? "https://alphafour.speedysites.in/wp-content/themes/codeforeach/" + logoField.value.replace(/^\//, "") : "",
+    "footer-description1": getFieldValue(fields, "footer-description1"),
+    "footer-button1": getFieldValue(fields, "footer-button1"),
+    phone: "8475937593",
+    address: "Test Test",
+    "footer-text1": getFieldValue(fields, "footer-text1"),
+    "footer-text2": getFieldValue(fields, "footer-text2"),
+    "footer-text3": getFieldValue(fields, "footer-text3"),
+    menu: footerMenus.value.map((m) => m.name),
     socialLinks: ["fa fa-facebook", "fa fa-instagram"],
     copyright: "© 2025 Your Agency. Site by SpeedySites.",
   };
-  return data;
 });
 
-const router = useRouter();
-const { logout } = useAuth();
-const isSidebarToggled = ref(false);
-const store = useStore();
-
-const navBarToggle = (value) => {
-  isSidebarToggled.value = value;
-};
-
-const loading = ref(true);
-const dashboardData = ref([]);
-const showEditComponentFieldModal = ref(false);
-const siteSettingsFormFields = ref([]);
-const siteSettingsDeatil = ref();
-const componentsFieldsUnderEdit = ref({
-  id: null,
-  type: null,
-});
-const fileInput = ref(null);
-const btnDisable = ref(false);
-const selectedCategory = ref("");
-const route = useRoute();
-const pageId = ref(null);
-const templatePages = ref(null);
-const initialLoading = ref(true);
-const pageLoading = ref(false);
-const globalVariables = ref([]);
-
-const fetchDashboardData = async () => {
-  try {
-    const response = await WordpressService.fetchDashboardData();
-    if (response.status === 200 && response.data.success) {
-      loading.value = false;
-      dashboardData.value = response.data;
-    }
-  } catch (error) {
-    if (error.response && error.response.status === 401) {
-      console.error("Authentication failed. Please log in.", error);
-      error.value = true;
-      loading.value = false;
-      localStorage.removeItem("access_token");
-      router.push("/login");
-    } else {
-      console.error("An error occurred:", error.message);
-    }
-  }
-};
-
-onMounted(async () => {
-  fileInput.value = ref.fileInput;
-  try {
-    await fetchDashboardData();
-    await getSiteDeatils();
-    if (siteSettingsDeatil.value.website_domain) {
-      await fetchGlobalVariables();
-      await handleEditComponentBtnClick();
-    }
-  } finally {
-    initialLoading.value = false; 
-  }
-});
-
-watch(
-  () => store.websiteId,
-  async (newWebsiteId, oldWebsiteId) => {
-    await getSiteDeatils();
-    await fetchDashboardData();
-  }
-);
-
-watch(pageId, async (newPageId) => {
-  if (newPageId) {
-    router.push({
-      query: { ...route.query, page_id: newPageId }
-    });
-
-    pageLoading.value = true;
-    activeComponentsDetail.value = [];
-    try {
-      await getActiveComponentsData();
-    } finally {
-      pageLoading.value = false;
-    }
-  }
-});
-
-provide("dashBoardMethods", {
-  fetchDashboardData,
-});
-
-const handleEditComponentBtnClick = async () => {
-  // Static values
-  const staticId = "COMP_SS_HEALTH_HEADER1_62";
-  const staticType = "header";
-
-  componentsFieldsUnderEdit.value.id = staticId;
-  componentsFieldsUnderEdit.value.type = staticType;
-
-  try {
-    const response = await WordpressService.ComponentsFormField.getComponentsFormField({
-      component_unique_id: staticId,
-      website_url: siteSettingsDeatil.value?.website_domain || "",
-    });
-
-    if (response.status === 200 && response.data.success) {
-      siteSettingsFormFields.value = response.data.data;
-      showEditComponentFieldModal.value = true;
-    } else {
-      console.warn("Failed to fetch component fields:", response.data.message);
-    }
-  } catch (error) {
-    console.error("An error occurred while fetching component fields:", error);
-  }
-};
-
-// -------------------------
-// GET GLOBAL VARIABLES
-// -------------------------
-const fetchGlobalVariables = async () => {
-    try {
-        const response = await WordpressService.getGlobalVariables({
-            website_domain: siteSettingsDeatil.value.website_domain,
-        });
-        if (response.status === 200 && response.data.success) {
-            globalVariables.value = response.data.global_variables || [];
-        }
-    } catch (error) {
-        console.error("Error fetching global variables:", error);
-    }
-};
-
-const getSiteDeatils = async () => {
-  if (!store.websiteId || store.websiteId === false) {
-    console.warn("websiteId is missing or invalid:", store.websiteId);
-    return;
-  }
-  try {
-    const response = await WordpressService.WebsiteSettings.getSiteDetail({
-      website_id: store.websiteId,
-    });
-    if (response.status === 200 && response.data.success) {
-      siteSettingsDeatil.value = response.data.settings_detail;
-      const responseCatName = siteSettingsDeatil.value.agency_website_detail.website_category_name;
-      if (responseCatName) {
-        selectedCategory.value = responseCatName.trim();
-      }
-    }
-  } catch (error) {
-    console.error("An error occurred:", error);
-  }
-};
-
+// All sections for editor rendering
 const sections = computed(() => [
-  { key: "hero", data: heroBlockData.value },
-  { key: "about", data: aboutBlockData.value },
-  { key: "service", data: serviceBlockData.value },
+  { key: "header", data: heroBlockData.value },
+  { key: "about_section", data: aboutBlockData.value },
+  { key: "service_section", data: serviceBlockData.value },
   { key: "footer", data: footerBlockData.value },
 ]);
 
+/* =========================
+   Data Fetching Functions
+========================= */
+const fetchDashboardData = async () => {
+  try {
+    const res = await WordpressService.fetchDashboardData();
+    if (res.status === 200 && res.data.success) {
+      dashboardData.value = res.data;
+      loading.value = false;
+    }
+  } catch (error) {
+    if (error.response?.status === 401) {
+      localStorage.removeItem("access_token");
+      router.push("/login");
+    } else console.error("Dashboard fetch error:", error);
+  }
+};
+
+const getSiteDetails = async () => {
+  if (!store.websiteId) return;
+  try {
+    const res = await WordpressService.WebsiteSettings.getSiteDetail({ website_id: store.websiteId });
+    if (res.status === 200 && res.data.success) {
+      siteSettingsDetail.value = res.data.settings_detail;
+      selectedCategory.value = siteSettingsDetail.value.agency_website_detail.website_category_name?.trim() || "";
+    }
+  } catch (error) {
+    console.error("Error fetching site details:", error);
+  }
+};
+
+const getActiveComponentIds = async () => {
+  try {
+    const res = await WordpressService.Components.getActiveComponents({
+      website_url: siteSettingsDetail.value?.website_domain,
+      page_id: pageId.value,
+    });
+    if (res.status === 200 && res.data.success) {
+      const map = {};
+      res.data.components_detail.forEach((comp) => (map[comp.type] = comp.id));
+      componentIdsByType.value = map;
+    }
+  } catch (error) {
+    console.error("Error fetching active components:", error);
+  }
+};
+
+const fetchGlobalVariables = async () => {
+  if (!siteSettingsDetail.value?.website_domain) return;
+  try {
+    const res = await WordpressService.getGlobalVariables({ website_domain: siteSettingsDetail.value.website_domain });
+    if (res.status === 200 && res.data.success) globalVariables.value = res.data.global_variables || [];
+  } catch (error) {
+    console.error("Error fetching global variables:", error);
+  }
+};
+
+const getMenus = async () => {
+  try {
+    const res = await WordpressService.Menus.getMenus({ website_url: siteSettingsDetail.value?.website_domain });
+    if (res.status === 200 && res.data.success) {
+      headerMenus.value = res.data.response.filter((m) => m.menu_type === "header");
+      footerMenus.value = res.data.response.filter((m) => m.menu_type === "footer");
+    }
+  } catch (error) {
+    console.error("Error fetching menus:", error);
+  }
+};
+
+const fetchCustomComponentsAndFieldsValue = async () => {
+  try {
+    const res = await WordpressService.CustomComponentsAndFieldValues.getCustomComponentsAndFieldValues({
+      website_domain: siteSettingsDetail.value.website_domain,
+      page_id: pageId.value,
+      component_ids: componentIdsByType.value,
+    });
+    if (res.status === 200 && res.data.success) siteComponentFields.value = res.data.data;
+  } catch (error) {
+    console.error("Error fetching component fields:", error);
+  }
+};
+
+/* =========================
+   Save Field with Debounce
+========================= */
+const saveCustomComponentsFieldValues = (field_name, value, type = "text", file) => {
+  if (!pageId.value) return;
+  isSaving.value = true;
+
+  if (saveTimeout.value) clearTimeout(saveTimeout.value);
+  if (typeof field_name === "object") {
+    const data = field_name;
+    value = data.value;
+    type = data.type || "text"; // default fallback
+    field_name = data.field_name;
+    file = data.file;
+  }
+console.log(file);
+  saveTimeout.value = setTimeout(async () => {
+    try {
+      // const res = await WordpressService.CustomComponentsAndFieldValues.saveCustomComponentsFieldValues({
+      //   website_url: siteSettingsDetail.value?.website_domain,
+      //   page_id: pageId.value,
+      //   field_name,
+      //   value,
+      //   type,
+      //   file
+      // });
+      let formData = new FormData();
+      formData.append("website_url", siteSettingsDetail.value?.website_domain);
+      formData.append("page_id", pageId.value);
+      formData.append("field_name", field_name);
+      formData.append("value", value);
+      formData.append("type", type);
+
+      if (file) {
+        formData.append("file", file); // actual file object
+      }
+
+      const res = await WordpressService.CustomComponentsAndFieldValues.saveCustomComponentsFieldValues(formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (res.status === 200 && res.data.success) {
+        store.updateFlashMeassge(true, `Changes are saved successfully!`, 'success');
+      }
+    } catch (error) {
+      console.error("Error saving field:", error);
+      store.updateFlashMeassge(true, `Error saving the changes`, 'error');
+    } finally {
+      isSaving.value = false;
+    }
+  }, 800);
+};
+
+/* =========================
+   Lifecycle Hooks
+========================= */
+onMounted(async () => {
+  try {
+    await fetchDashboardData();
+    await getSiteDetails();
+    await getActiveComponentIds();
+    await fetchGlobalVariables();
+    await getMenus();
+    await fetchCustomComponentsAndFieldsValue();
+  } finally {
+    initialLoading.value = false;
+  }
+});
+
+/* =========================
+   Watchers
+========================= */
+watch(() => store.websiteId, async () => {
+  await getSiteDetails();
+  await fetchDashboardData();
+});
+
+watch(pageId, (newId) => {
+  if (newId) router.push({ query: { ...route.query, page_id: newId } });
+});
+
+/* =========================
+   Provide Methods
+========================= */
+provide("dashBoardMethods", { fetchDashboardData });
 </script>
+
 <template>
   <div class="page">
-    <FlashMessage :visible="store.flashMeassge" v-if="store.flashMeassge" />
-    <NavBar
-      @logout="logout"
-      @nav-bar-toggle="navBarToggle"
-      :dashboardData="dashboardData?.user"
-    ></NavBar>
-    <SideBar
-      :dashboardData="dashboardData"
-      :toggled="isSidebarToggled"
-    ></SideBar>
-     <section id="content-wrapper main-content side-content">
+    <!-- Flash Message -->
+    <FlashMessage v-if="store.flashMeassge" :visible="store.flashMeassge" />
+
+    <!-- Navbar -->
+    <NavBar @logout="logout" @nav-bar-toggle="navBarToggle" :dashboardData="dashboardData?.user" />
+
+    <!-- Sidebar -->
+    <SideBar :dashboardData="dashboardData" :toggled="isSidebarToggled" />
+
+    <!-- Main Content -->
+    <section id="content-wrapper main-content side-content">
+       <!-- Saving Indicator -->
+       <div v-if="isSaving" class="saving-indicator">
+        <i class="fa fa-spinner fa-spin"></i> Saving...
+      </div>
+
+      <!-- Loader -->
       <Loader v-if="initialLoading" />
 
       <template v-else>
+        <!-- Page Title & Template Selector -->
         <div v-if="currentPage" class="page-title mt-2">
-         <h2>{{ decodeHtml(currentPage.page_name) }} Customization</h2>
-
-          <div v-if="templatePages && templatePages.length > 0" class="mt-2 select-box-pages">
-            <select
-              id="templatePageSelect"
-              v-model="pageId"
-              class="form-select"
-            >
+          <h2>{{ decodeHtml(currentPage.page_name) }} Customization</h2>
+          <div v-if="templatePages.length" class="mt-2 select-box-pages">
+            <select v-model="pageId" class="form-select">
               <option
                 v-for="page in templatePages.filter(p => p.status === 'publish')"
                 :key="page.page_id"
@@ -343,6 +375,7 @@ const sections = computed(() => [
           </div>
         </div>
 
+        <!-- Component Editor -->
         <div class="side-app">
           <div class="main-container-components container">
             <div class="eidtor-site">
@@ -353,17 +386,13 @@ const sections = computed(() => [
                     :is="componentRegistry[section.key]"
                     :data="section.data"
                     :isEditing="true"
+                    @field-updated="saveCustomComponentsFieldValues"
                   />
                 </div>
-                
-                <div
-                  v-if="index !== sections.length - 1"
-                  class="main-div1"
-                >
+                <!-- Add new section button -->
+                <div v-if="index !== sections.length - 1" class="main-div1">
                   <div class="edit-section"></div>
-                  <h1>
-                    <i class="fa fa-plus"></i> Add new section <i class="fa fa-plus"></i>
-                  </h1>
+                  <h1><i class="fa fa-plus"></i> Add new section <i class="fa fa-plus"></i></h1>
                   <div class="edit-section1"></div>
                 </div>
               </div>
@@ -372,24 +401,29 @@ const sections = computed(() => [
         </div>
       </template>
     </section>
-    <div class="three-bodyc" v-if="btnDisable">
-    <div class="three-body__dot"></div>
-    <div class="three-body__dot"></div>
-    <div class="three-body__dot"></div>
-    <Loader v-if="loading" />
-  </div>
   </div>
 </template>
-<style>
 
+<style scoped>
 .eidtor-site {
   max-width: 100% !important;
 }
-
 .main-container-components.container {
-    width: 80% !important;
-    position: absolute !important;
-    left: 17% !important;
+  width: 80% !important;
+  position: absolute !important;
+  left: 17% !important;
+}
+
+.saving-indicator {
+  position: absolute;
+  right: 20px;
+  color: #222831;
+  font-size: 24px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0px;
 }
 
 </style>

@@ -10,35 +10,35 @@
               <!-- Main Heading -->
               <div
                 class="editable heading-section"
-                :class="{ selected: selectedField === 'text1' }"
-                @click="selectField('text1')"
-                @mouseover="hoveredField = 'text1'"
+                :class="{ selected: selectedField === 'service-text1' }"
+                @click.stop="selectField('service-text1')"
+                @mouseover="hoveredField = 'service-text1'"
                 @mouseleave="hoveredField = null"
               >
-                <span v-if="hoveredField === 'text1'" class="edit-label">Text</span>
+                <span v-if="hoveredField === 'service-text1'" class="edit-label">Text</span>
                 <input
-                  v-if="selectedField === 'text1'"
-                  v-model="editableContent.text1"
-                  @blur="blurAndUpdate"
+                  v-if="selectedField === 'service-text1'"
+                  v-model="editableContent['service-text1']"
+                  @blur="blurAndUpdate('service-text1', editableContent['service-text1'])"
                 />
-                <h2 v-else class="service-heading">{{ editableContent.text1 }}</h2>
+                <h2 v-else class="service-heading">{{ editableContent['service-text1'] }}</h2>
               </div>
 
               <!-- Description -->
               <div
                 class="editable description-section"
-                :class="{ selected: selectedField === 'description1' }"
-                @click="selectField('description1')"
-                @mouseover="hoveredField = 'description1'"
+                :class="{ selected: selectedField === 'service-description1' }"
+                @click.stop="selectField('service-description1')"
+                @mouseover="hoveredField = 'service-description1'"
                 @mouseleave="hoveredField = null"
               >
-                <span v-if="hoveredField === 'description1'" class="edit-label">Text</span>
+                <span v-if="hoveredField === 'service-description1'" class="edit-label">Text</span>
                 <textarea
-                  v-if="selectedField === 'description1'"
-                  v-model="editableContent.description1"
-                  @blur="blurAndUpdate"
+                  v-if="selectedField === 'service-description1'"
+                  v-model="editableContent['service-description1']"
+                  @blur="blurAndUpdate('service-description1', editableContent['service-description1'])"
                 />
-                <p v-else class="service-description">{{ editableContent.description1 }}</p>
+                <p v-else class="service-description">{{ editableContent['service-description1']}}</p>
               </div>
             </div>
 
@@ -50,11 +50,11 @@
                 class="single-about"
               >
                 <div class="icon-title">
-                  <!-- Icon -->
+                  <!-- Icon / Image -->
                   <div
                     class="icon editable"
                     :class="{ selected: selectedField === 'service-img-' + i }"
-                    @click="selectField('service-img-' + i)"
+                    @click.stop="selectField('service-img-' + i)"
                     @mouseover="hoveredField = 'service-img-' + i"
                     @mouseleave="hoveredField = null"
                   >
@@ -63,26 +63,25 @@
                       v-if="selectedField === 'service-img-' + i"
                       type="file"
                       @change="(e) => handleServiceImageUpload(e, i)"
-                      @blur="selectedField = null"
                     />
                     <img v-else :src="service.img" alt="Service Icon" />
                   </div>
 
-                  <!-- Title -->
+                  <!-- Service Title -->
                   <div
                     class="editable"
                     :class="{ selected: selectedField === 'service-title-' + i }"
-                    @click="selectField('service-title-' + i)"
+                    @click.stop="selectField('service-title-' + i)"
                     @mouseover="hoveredField = 'service-title-' + i"
                     @mouseleave="hoveredField = null"
                   >
                     <span v-if="hoveredField === 'service-title-' + i" class="edit-label">Text</span>
                     <input
                       v-if="selectedField === 'service-title-' + i"
-                      v-model="editableContent.services[i].title"
-                      @blur="blurAndUpdate"
+                      v-model="editableContent.services[i]['service-text' + (i + 2)]"
+                      @blur="blurAndUpdate('service-text' + (i + 2), editableContent.services[i]['service-text' + (i + 2)])"
                     />
-                    <h4 class="title" v-else>{{ service.title }}</h4>
+                    <h4 class="title" v-else>{{ service['service-text' + (i + 2)] }}</h4>
                   </div>
                 </div>
 
@@ -90,17 +89,17 @@
                 <div
                   class="editable"
                   :class="{ selected: selectedField === 'service-description-' + i }"
-                  @click="selectField('service-description-' + i)"
+                  @click.stop="selectField('service-description-' + i)"
                   @mouseover="hoveredField = 'service-description-' + i"
                   @mouseleave="hoveredField = null"
                 >
                   <span v-if="hoveredField === 'service-description-' + i" class="edit-label">Text</span>
                   <textarea
                     v-if="selectedField === 'service-description-' + i"
-                    v-model="editableContent.services[i].description"
-                    @blur="blurAndUpdate"
+                    v-model="editableContent.services[i]['service-description' + (i + 2)]"
+                    @blur="blurAndUpdate('service-description' + (i + 2), editableContent.services[i]['service-description' + (i + 2)])"
                   />
-                  <p v-else>{{ service.description }}</p>
+                  <p v-else>{{ service['service-description' + (i + 2)] }}</p>
                 </div>
               </div>
             </div>
@@ -112,68 +111,45 @@
   </section>
 </template>
 
-  
-  <script setup>
-  import { ref, watch } from "vue";
-  
-  const props = defineProps({
-    data: {
-      type: Object,
-      default: () => ({
-        text1: "Neonal Medical Care - 35 Years of Trusted Experience",
-        description1: "Providing compassionate and comprehensive healthcare services with cutting-edge technology and expert medical professionals.",
-        services: [
-          {
-            img: "/components/sections/ss_health_sections/health_services/health_service1/images/1.jpg",
-            title: "Service 1",
-            description: "Description 1",
-          },
-          {
-            img: "/components/sections/ss_health_sections/health_services/health_service1/images/2.jpg",
-            title: "Service 2",
-            description: "Description 2",
-          },
-        ],
-      }),
-    },
-  });
-  
-  const emit = defineEmits(["update"]);
-  const editableContent = ref({ ...props.data });
-  
-  watch(
-    () => props.data,
-    (newVal) => {
-      editableContent.value = { ...newVal };
-    },
-    { immediate: true, deep: true }
-  );
-  
-  const selectedField = ref(null);
-  const hoveredField = ref(null);
-  
-  function selectField(field) {
-    selectedField.value = field;
-  }
-  
-  function blurAndUpdate() {
-    emit("update", editableContent.value);
-    selectedField.value = null;
-  }
-  
-  function handleServiceImageUpload(event, index) {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        editableContent.value.services[index].img = e.target.result;
-        emit("update", editableContent.value);
-        selectedField.value = null;
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-  </script>
+<script setup>
+import { ref, watch } from "vue";
+import { useEditable } from "../library";
+
+const props = defineProps({
+  data: {
+    type: Object,
+    default: () => ({
+      "service-text1": "Neonal Medical Care - 35 Years of Trusted Experience",
+      "service-description1": "Providing compassionate and comprehensive healthcare services with cutting-edge technology and expert medical professionals.",
+      services: [
+        { img: "/images/1.jpg", "service-text2": "Service 1", "service-description2": "Description 1" },
+        { img: "/images/2.jpg", "service-text3": "Service 2", "service-description3": "Description 2" },
+      ],
+    }),
+  },
+});
+
+const emit = defineEmits(["field-updated"]);
+const editableContent = ref({ ...props.data });
+
+watch(
+  () => props.data,
+  (newVal) => {
+    editableContent.value = { ...newVal };
+  },
+  { immediate: true, deep: true }
+);
+
+// Reusable editable functions
+const {
+  selectedField,
+  hoveredField,
+  selectField,
+  blurAndUpdate,
+  handleServiceImageUpload,
+} = useEditable(emit, editableContent);
+</script>
+
 
 <style scoped>
  /* Editable highlights */
