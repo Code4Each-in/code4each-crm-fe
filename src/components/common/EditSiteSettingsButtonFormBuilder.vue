@@ -4,9 +4,9 @@
       <form class="button-from mt-2">
         <div v-for="(field, index) in siteSettingsFormFieldsCopy" :key="index">
           <div class="color2" v-if="field.field_type === 'button'">
-            <button class="button btn-success">
+            <!-- <button class="button btn-success">
               {{ capitalizeAndReplaceChar(field.field_name, "-") }}
-            </button>
+            </button> -->
             <div class="row">
               <div class="col-sm-6 form-group">
                 <label for="" class="form-label">Label</label>

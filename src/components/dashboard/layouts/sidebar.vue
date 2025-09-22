@@ -73,7 +73,7 @@
             v-if="dashboardData?.agency_website_info?.length >= 1"
             id="cmsDropdown"
           >
-            <li
+            <!-- <li
               class="sidebar-list-item"
               :class="{ active: currentRoute === '/customize/components' }"
             >
@@ -102,7 +102,7 @@
                 <i class="fa fa-book"></i>
                 <span class="sidebar-link-title"> Customize Pages</span>
               </router-link>
-            </li>
+            </li> -->
             <!-- <li class="sidebar-list-item">
               <router-link
                 :to="{ name: 'customize_colors' }"
@@ -127,7 +127,7 @@
                 <span class="sidebar-link-title">Fonts</span>
               </router-link>
             </li> -->
-            <li class="sidebar-list-item">
+            <!-- <li class="sidebar-list-item">
               <router-link
                 :to="{ name: 'customize_social_links' }"
                 class="sidebar-link text-muted"
@@ -138,8 +138,8 @@
                 <i class="fa fa-bookmark"></i>
                 <span class="sidebar-link-title">Social Links</span>
               </router-link>
-            </li>
-            <li class="sidebar-list-item">
+            </li> -->
+            <!-- <li class="sidebar-list-item">
               <router-link
                 :to="{ name: 'menusPage' }"
                 class="sidebar-link text-muted"
@@ -150,17 +150,17 @@
                 <i class="fa fa-list-ul" aria-hidden="true"></i>
                 <span class="sidebar-link-title">Site Menus</span>
               </router-link>
-            </li>
+            </li> -->
             <li class="sidebar-list-item">
               <router-link
-                :to="{ name: 'rearrangePage' }"
+                :to="{ name: 'templatePages' }"
                 class="sidebar-link text-muted"
                 :class="{
-                  active: currentRoute.includes('/customize/rearrange'),
+                  active: currentRoute.includes('/customize/template-pages'),
                 }"
               >
-                <i class="fa fa-arrows"></i>
-                <span class="sidebar-link-title">Rearrange</span>
+                <i class="fa fa-file-o" aria-hidden="true"></i>
+                <span class="sidebar-link-title">Pages</span>
               </router-link>
             </li>
             <li class="sidebar-list-item">
@@ -176,6 +176,18 @@
               </router-link>
             </li>
             <li class="sidebar-list-item">
+              <router-link
+                :to="{ name: 'rearrangePage' }"
+                class="sidebar-link text-muted"
+                :class="{
+                  active: currentRoute.includes('/customize/rearrange'),
+                }"
+              >
+                <i class="fa fa-arrows"></i>
+                <span class="sidebar-link-title">Rearrange</span>
+              </router-link>
+            </li>
+            <!-- <li class="sidebar-list-item">
               <a
                 href="#"
                 class="sidebar-link text-muted"
@@ -185,19 +197,7 @@
                 <i class="fa fa-retweet" aria-hidden="true"></i>
                 <span class="sidebar-link-title">Change Template</span>
               </a>
-            </li>
-            <li class="sidebar-list-item">
-              <router-link
-                :to="{ name: 'templatePages' }"
-                class="sidebar-link text-muted"
-                :class="{
-                  active: currentRoute.includes('/customize/template-pages'),
-                }"
-              >
-                <i class="fa fa-file-o" aria-hidden="true"></i>
-                <span class="sidebar-link-title">Pages</span>
-              </router-link>
-            </li>
+            </li> -->
           </ul>
         </li>
         <li class="sidebar-list-item"

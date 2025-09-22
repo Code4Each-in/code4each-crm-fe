@@ -29,54 +29,29 @@
         />
       </div>
 
-       <!-- Multi Image Upload -->
-      <div v-else-if="type === 'image'" class="editor-sidebar__section">
-        <!-- Upload Button -->
+     <!-- Dynamic Single Image Upload -->
+      <div v-if="type === 'image'" class="editor-sidebar__section">
         <label class="editor-sidebar__upload-btn">
-          Upload Images
+          Upload Image
           <input
             type="file"
-            multiple
-            @change="(e) => $emit('image-upload', e, 'images')"
+            @change="handleFileUpload"
             hidden
           />
         </label>
 
-        <!-- Preview Grid -->
-        <div
-          v-if="(editableContent.images && editableContent.images.length) || editableContent.image"
-          class="editor-sidebar__image-grid"
-        >
-          <!-- Current Single Image (fallback) -->
-          <div v-if="editableContent.image" class="editor-sidebar__image-item">
-            <img :src="editableContent.image" class="editor-sidebar__preview" />
-            <button class="editor-sidebar__remove" @click="removeSingleImage">
-              ✖
-            </button>
-          </div>
-
-          <!-- Multiple Images -->
-          <div
-            v-for="(img, index) in editableContent.images || []"
-            :key="index"
-            class="editor-sidebar__image-item"
-          >
-            <img :src="img" class="editor-sidebar__preview" />
-            <button class="editor-sidebar__remove" @click="removeImage(index)">
-              ✖
-            </button>
+        <div class="editor-sidebar__image-grid">
+          <div class="editor-sidebar__image-item">
+            <img :src="editableContent['header-image']" class="editor-sidebar__preview" />
           </div>
         </div>
       </div>
 
       <!-- Button Editor -->
-      <div v-else-if="type === 'button'" class="editor-sidebar__section">
-        <label>Button Text:</label>
-        <input
-          v-model="editableContent['header-button1']"
-          @blur="updateField('header-button1')"
-        />
-      </div>
+      <ButtonEditor
+        v-if="type === 'button'"
+        :section-type="activeSectionTypeProp"
+      />
 
       <!-- Menu Editor -->
       <MenuEditor
@@ -85,46 +60,44 @@
         :menu="editableContent.menu"
         @update-field="updateMenu"
       />
+
+      <!-- Social Link Editor -->
+      <SocialLinksEditor v-if="type === 'social'" />
     </div>
   </div>
 </template>
 
 <script setup>
+import { computed } from 'vue';
+import ButtonEditor from "./ButtonEditor.vue";
 import MenuEditor from "./MenuEditor.vue";
+import SocialLinksEditor from "./SocialLinksEditor.vue";
+
+// Props
 const props = defineProps({
   type: String,
   isOpen: Boolean,
   editableContent: Object,
+  activeSectionType: String,
+  activeField: String,
 });
 
-const emit = defineEmits(["close", "update-field", "image-upload"]);
+// Computed for section type
+const activeSectionTypeProp = computed(() => props.activeSectionType);
 
+// Close sidebar
 function onClose() {
   emit("close");
 }
 
-function updateField(field) {
-  emit("update-field", {
-    field_name: field,
-    value: props.editableContent[field],
-  });
-}
+// Emit events
+const emit = defineEmits(["close", "update-field", "image-upload"]);
 
-function removeImage(index) {
-  props.editableContent.images.splice(index, 1);
-  emit("update-field", {
-    field_name: "images",
-    value: props.editableContent.images,
-  });
-}
-
-/* remove fallback single image */
-function removeSingleImage() {
-  props.editableContent.image = null;
-  emit("update-field", {
-    field_name: "image",
-    value: null,
-  });
+// Handle image upload
+function handleFileUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  emit("image-upload", event, props.activeField);
 }
 </script>
 

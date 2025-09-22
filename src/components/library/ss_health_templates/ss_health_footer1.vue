@@ -42,20 +42,19 @@
                 <div
                   class="appoinment-button editable"
                   :class="{ selected: selectedField === 'footer-button1' }"
-                  @click.stop="selectField('footer-button1')"
                   @mouseover="hoveredField = 'footer-button1'"
                   @mouseleave="hoveredField = null"
                   v-if="editableContent['footer-button1']"
                 >
-                  <span v-if="hoveredField === 'footer-button1'" class="edit-label">Text</span>
-                  <input
-                    v-if="selectedField === 'footer-button1'"
-                    v-model="editableContent['footer-button1']"
-                    @blur="blurAndUpdate"
-                  />
-                  <a v-else class="btn btn-outline-success btn-hover-success" href="#">
-                    {{ editableContent['footer-button1'] }}
-                  </a>
+                  <span v-if="hoveredField === 'footer-button1'" class="edit-label">Button</span>
+
+                  <!-- Button that opens the sidebar -->
+                  <button
+                    class="btn btn-outline-success btn-hover-success"
+                    @click.stop="selectField('footer-button1', 'button', 'footer')"
+                  >
+                    {{ editableContent['footer-button1'] }} <i class="fa fa-hospital-o"></i>
+                  </button>
                 </div>
               </div>
             </div>
@@ -79,15 +78,15 @@
                   />
                   <h4 v-else class="widget-title footer-title">{{ editableContent['footer-text1'] }}</h4>
                 </div>
-                <ul class="footer-list">
-                  <li><a href="#">{{ editableContent.phone }}</a></li>
+                <ul class="footer-list p-detail">
+                  <li><span href="#">{{ editableContent.phone }}</span></li>
                   <li><span>{{ editableContent.address }}</span></li>
                 </ul>
               </div>
             </div>
   
             <!-- Column 3: Menu -->
-            <div class="col-sm-6 col-md-6 col-lg-2 col-xl-2 m-b-40">
+            <div class="col-sm-6 col-md-6 col-lg-2 col-xl-2 m-b-40" v-if="editableContent.menu && editableContent.menu.length">
               <div class="single-footer-widget footer-menu">
                 <!-- Menu Heading -->
                 <div
@@ -114,7 +113,7 @@
             </div>
   
             <!-- Column 4: Social -->
-            <div class="col-sm-6 col-md-6 col-lg-3 col-xl-2 m-b-40">
+            <div class="col-sm-6 col-md-6 col-lg-3 col-xl-2 m-b-40" v-if="editableContent.socialLinks && editableContent.socialLinks.length">
               <div class="single-footer-widget single-footer-space-left">
                 <!-- Social Heading -->
                 <div
@@ -133,9 +132,22 @@
                   <h4 v-else class="widget-title footer-title">{{ editableContent['footer-text3'] }}</h4>
                 </div>
   
-                <ul class="footer-social">
-                  <li v-for="(icon, i) in editableContent.socialLinks" :key="i">
-                    <i :class="icon" aria-hidden="true"></i>
+                <!-- Social links container -->
+                <ul
+                  class="footer-social editable"
+                  :class="{ selected: selectedField === 'socialLinks' }"
+                  @click.stop="selectField('socialLinks', 'social')"
+                  @mouseover="hoveredField = 'socialLinks'"
+                  @mouseleave="hoveredField = null"
+                >
+                  <span v-if="hoveredField === 'socialLinks'" class="edit-label">
+                    Social Links
+                  </span>
+
+                  <li v-for="(link, i) in editableContent.socialLinks" :key="i">
+                    <a :href="link.url" target="_blank" rel="noopener">
+                      <i :class="link.icon" aria-hidden="true"></i>
+                    </a>
                   </li>
                 </ul>
               </div>
@@ -151,7 +163,7 @@
                 <div class="copyright-content">
                   <p class="mb-0">
                     © {{ new Date().getFullYear() }}
-                    <strong class="text-color-success">Your Agency</strong>
+                    <strong class="text-color-success">{{ editableContent.copyright }}</strong>
                   </p>
                 </div>
               </div>
@@ -171,6 +183,7 @@
         :isOpen="isSidebarOpen"
         :type="activeEditorType"
         :editableContent="editableContent"
+        :activeSectionType="activeSectionType"
         @close="closeSidebar"
         @update-field="(data) => blurAndUpdate(data.field_name, data.value, data.type, data.file)"
         @image-upload="handleImageUpload"
@@ -197,6 +210,7 @@
         "footer-text3": "Follow Us",
         menu: ["Home", "About", "Services", "Contact"],
         socialLinks: ["fa fa-facebook", "fa fa-instagram"],
+        copyright : "agency_name"
       }),
     },
   });
@@ -222,6 +236,7 @@
     selectField,
     blurAndUpdate,
     handleImageUpload,
+    activeSectionType,
   } = useEditable(emit, editableContent);
   </script>  
 
@@ -229,7 +244,7 @@
  /* Editable styling */
  .editable {
     cursor: pointer;
-    padding: 4px;
+    padding: 4px !important;
     position: relative;
     border: 2px dashed transparent;
     transition: border-color 0.2s ease;
@@ -245,7 +260,7 @@
   
   .edit-label {
     position: absolute;
-    top: -10px;
+    top: -15px;
     left: 5px;
     background-color: #00adb5;
     color: white;
@@ -310,8 +325,8 @@ ul.widget-list {
     content: "";
     position: absolute;
     border: 2px solid #00adb5;
-    width: 190px;
-    height: 115px;
+    width: 139px;
+    height: 94px;
     border-radius: 50%;
     -webkit-transform: rotate(-20deg);
     -ms-transform: rotate(-20deg);
@@ -323,8 +338,8 @@ ul.widget-list {
     content: "";
     position: absolute;
     border: 2px solid #00adb5;
-    width: 186px;
-    height: 120px;
+    width: 139px;
+    height: 100px;
     border-radius: 50%;
     -webkit-transform: rotate(-20deg);
     -ms-transform: rotate(-20deg);
@@ -403,7 +418,7 @@ a.text-color-success:hover {
     margin-bottom: 35px;
 }
 
-a.btn.btn-outline-success.btn-hover-success {
+.btn.btn-outline-success.btn-hover-success {
     color:#393E46;
     background-color: #FFFFFF;
     border: 2px solid #FFFFFF;
@@ -413,7 +428,7 @@ a.btn.btn-outline-success.btn-hover-success {
     font-weight: 500 !important;
 }
 
-a.btn.btn-outline-success.btn-hover-success:hover {
+.btn.btn-outline-success.btn-hover-success:hover {
     color:#FFFFFF;
     background-color: #393E46;
     border: 2px solid #FFFFFF;
@@ -577,5 +592,15 @@ span.name-tag {
   color: #fff; 
   font-size: 18px;  
   transition: color 0.3s ease;
+}
+.single-footer-widget {
+    margin-left: 39px;
+}
+.footer-logo img {
+    max-width: 31%;
+}
+.footer-list.p-detail {
+    color: #fff;
+    width: 173px;
 }
 </style>

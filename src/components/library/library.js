@@ -11,19 +11,26 @@ import FooterSection from "./ss_health_templates/ss_health_footer1.vue";
    Composable for editable fields
 ========================= */
 export function useEditable(emit, editableContent) {
-  const selectedField = ref(null);
+  const selectedField = ref('');
   const hoveredField = ref(null);
 
   const activeEditorType = ref(null);
   const isSidebarOpen = ref(false);
+  const activeSectionType = ref('');
 
-  function selectField(field, type = null) {
+  function selectField(field, type = null, sectionType = null) {
     selectedField.value = field;
+  
     if (type) {
-      activeEditorType.value = type;
+      activeEditorType.value = type; 
       isSidebarOpen.value = true;
     }
+  
+    if (sectionType) {
+      activeSectionType.value = sectionType; 
+    }
   }
+  
 
   function closeSidebar() {
     isSidebarOpen.value = false;
@@ -34,47 +41,34 @@ export function useEditable(emit, editableContent) {
   function blurAndUpdate(field, value = null, type = null, file =null) {
     const fieldValue = value !== null ? value : editableContent.value[field];
     emit("field-updated", { field_name: field, value: fieldValue, type, file});
-    selectedField.value = null;
+    if (!file && type !== 'image' && type !== 'logo') {
+      selectedField.value = null;
+      activeEditorType.value = null;
+    }
   }  
 
   function handleImageUpload(event, field_name = "image", type = null) {
     const files = event.target.files;
     if (!files || !files.length) return;
   
-    Array.from(files).forEach((file) => {
-      // Generate filename
-      const originalName = file.name.split(".")[0].replace(/\s+/g, "_");
-      const extension = file.name.split(".").pop();
-      const newFileName = `${originalName}.${extension}`;
+    const file = files[0];
+    const originalName = file.name.split(".")[0].replace(/\s+/g, "_");
+    const extension = file.name.split(".").pop();
+    const newFileName = `${originalName}.${extension}`;
   
-      const reader = new FileReader();
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (field_name === "logo") {
+        editableContent.value.logo = e.target.result;
+        blurAndUpdate("logo", newFileName, "logo", file);
+      } else {
+        editableContent.value[field_name] = e.target.result;
+        blurAndUpdate(field_name, newFileName, type || "image", file);
+      }
+    };
+    reader.readAsDataURL(file);
+  }
   
-      reader.onload = (e) => {
-        if (field_name === "logo") {
-          // Single logo
-          editableContent.value.logo = e.target.result;
-          blurAndUpdate("logo", newFileName, "logo", file);
-        } 
-        else if (field_name === "images") {
-          if (!Array.isArray(editableContent.value.images)) {
-            editableContent.value.images = [];
-          }
-          editableContent.value.images.push(e.target.result);
-          blurAndUpdate("images", newFileName, type || "image", file); 
-        } 
-        else if (field_name === "image") {
-          editableContent.value.image = e.target.result;
-          blurAndUpdate("image", newFileName, type || "image", file);
-        } 
-        else {
-          editableContent.value[field_name] = e.target.result;
-          blurAndUpdate(field_name, newFileName, type || "image", file); 
-        }
-      };
-  
-      reader.readAsDataURL(file);
-    });
-  }  
 
   const deselectField = (event) => {
     if (!selectedField.value) return;
@@ -97,7 +91,7 @@ export function useEditable(emit, editableContent) {
     window.removeEventListener("keyup", handleKeyUp);
   });
 
-  return { selectedField, hoveredField, activeEditorType, isSidebarOpen, closeSidebar, selectField, blurAndUpdate, handleImageUpload };
+  return { selectedField, hoveredField, activeEditorType, isSidebarOpen, closeSidebar, selectField, blurAndUpdate, handleImageUpload, activeSectionType };
 }
 
 /* =========================
