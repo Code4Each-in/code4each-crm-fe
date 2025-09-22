@@ -19,6 +19,7 @@ export function useEditable(emit, editableContent) {
   const activeSectionType = ref('');
 
   function selectField(field, type = null, sectionType = null) {
+    console.log('selectfield', field);
     selectedField.value = field;
   
     if (type) {
