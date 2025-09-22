@@ -189,8 +189,9 @@ watch(
   { immediate: true, deep: true }
 );
 
+const selectedField = ref(null)
 const {
-  selectedField,
+  // selectedField,
   hoveredField,
   activeEditorType,
   isSidebarOpen,
