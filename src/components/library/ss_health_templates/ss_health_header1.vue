@@ -191,7 +191,7 @@ watch(
 
 watch(selectedField, (val) => {
   console.log('Selected field changed:', val);
-})
+});
 
 const {
   selectedField,
