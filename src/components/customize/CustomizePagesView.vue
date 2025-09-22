@@ -42,6 +42,7 @@ const pageId = ref(route.query.page_id ? parseInt(route.query.page_id) : null);
 const templatePages = ref([]);
 const selectedCategory = ref("");
 
+
 /* =========================
    Component Registry
 ========================= */
@@ -96,7 +97,7 @@ const heroBlockData = computed(() => {
     "header-button1": getFieldValue(fields, "header-button1"),
     buttonUrl: getFieldValue(fields, "header-button1", 1) || "#",
     buttonTarget: getFieldValue(fields, "header-button1", 2) || "_self",
-    image: getFieldValue(fields, "header-img") ? "https://app.speedysites.in/storage/" + getFieldValue(fields, "header-img") : "",
+   "header-image": getFieldValue(fields, "header-img") || "",
   };
 });
 
@@ -143,18 +144,56 @@ const footerBlockData = computed(() => {
   if (!fields.length) return null;
 
   const logoField = globalVariables.value.find((item) => item.name === "logo");
+
+  // Map social link icons
+  const socialLinkIcons = {
+    whatsApp: "fa fa-whatsapp",
+    facebook: "fa fa-facebook",
+    youTube: "fa fa-youtube",
+    instagram: "fa fa-instagram",
+    x: "fa fa-twitter",
+  };
+
+  // Map social links dynamically from globalVariables
+  const socialLinks = globalVariables.value
+    .filter((item) => socialLinkIcons[item.name] && item.value)
+    .map((item) => ({
+      url: item.value,
+      icon: socialLinkIcons[item.name],
+    }));
+
+  // Helper to get global variable by name
+  const getGlobalVar = (name, fallback = "") => {
+    const item = globalVariables.value.find((v) => v.name === name);
+    return item ? item.value : fallback;
+  };
+
+  // Build full address
+  const fullAddress = [
+    getGlobalVar("address"),
+    getGlobalVar("city"),
+    getGlobalVar("state"),
+    getGlobalVar("country"),
+    getGlobalVar("pincode")
+  ]
+    .filter(Boolean) // remove empty parts
+    .join(", ");
+
   return {
-    logo: logoField ? "https://alphafour.speedysites.in/wp-content/themes/codeforeach/" + logoField.value.replace(/^\//, "") : "",
+    logo: logoField
+      ? "https://alphafour.speedysites.in/wp-content/themes/codeforeach/" +
+        logoField.value.replace(/^\//, "")
+      : "",
     "footer-description1": getFieldValue(fields, "footer-description1"),
     "footer-button1": getFieldValue(fields, "footer-button1"),
-    phone: "8475937593",
-    address: "Test Test",
+    phone: getGlobalVar("phone", "8475937593"),
+    address: fullAddress || "Test Test",
     "footer-text1": getFieldValue(fields, "footer-text1"),
     "footer-text2": getFieldValue(fields, "footer-text2"),
     "footer-text3": getFieldValue(fields, "footer-text3"),
     menu: footerMenus.value.map((m) => m.name),
-    socialLinks: ["fa fa-facebook", "fa fa-instagram"],
-    copyright: "© 2025 Your Agency. Site by SpeedySites.",
+    socialLinks,
+    copyright: getGlobalVar("agency_name", "Your Agency"),
   };
 });
 
@@ -263,17 +302,9 @@ const saveCustomComponentsFieldValues = (field_name, value, type = "text", file)
     field_name = data.field_name;
     file = data.file;
   }
-console.log(file);
+
   saveTimeout.value = setTimeout(async () => {
     try {
-      // const res = await WordpressService.CustomComponentsAndFieldValues.saveCustomComponentsFieldValues({
-      //   website_url: siteSettingsDetail.value?.website_domain,
-      //   page_id: pageId.value,
-      //   field_name,
-      //   value,
-      //   type,
-      //   file
-      // });
       let formData = new FormData();
       formData.append("website_url", siteSettingsDetail.value?.website_domain);
       formData.append("page_id", pageId.value);

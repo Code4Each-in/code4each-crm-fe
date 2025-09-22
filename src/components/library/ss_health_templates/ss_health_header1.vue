@@ -107,18 +107,19 @@
             <div
               class="editable"
               :class="{ selected: selectedField === 'header-button1' }"
-              @click.stop="selectField('header-button1')"
               @mouseover="hoveredField = 'header-button1'"
               @mouseleave="hoveredField = null"
               v-if="editableContent['header-button1']"
             >
-              <span v-if="hoveredField === 'header-button1'" class="edit-label">Text</span>
-              <input
-                v-if="selectedField === 'header-button1'"
-                v-model="editableContent['header-button1']"
-                @blur="blurAndUpdate('header-button1')"
-              />
-              <a v-else class="btn hero-btn" href="#">{{ editableContent['header-button1'] }}</a>
+              <span v-if="hoveredField === 'header-button1'" class="edit-label">Button</span>
+
+              <!-- Button that opens the sidebar -->
+              <button
+                class="btn hero-btn"
+                @click.stop="selectField('header-button1', 'button', 'header')"
+              >
+                {{ editableContent['header-button1'] }}
+              </button>
             </div>
           </div>
 
@@ -127,15 +128,14 @@
           <div class="col-lg-6">
             <div
               class="hero-image-wrapper editable"
-              :class="{ selected: selectedField === 'image' }"
-              @click.stop="selectField('image', 'image')" 
-              @mouseover="hoveredField = 'image'"
+              :class="{ selected: selectedField === 'header-image' }"
+              @click.stop="selectField('header-image', 'image', 'header')" 
+              @mouseover="hoveredField = 'header-image'"
               @mouseleave="hoveredField = null"
             >
-              <span v-if="hoveredField === 'image'" class="edit-label">Image</span>
-              <!-- Show first image or fallback -->
+              <span v-if="hoveredField === 'header-image'" class="edit-label">Image</span>
               <img
-                :src="(editableContent.images && editableContent.images[0]) || editableContent.image"
+                :src="editableContent[selectedField === 'header-image' ? 'header-image' : 'header-image'] || '/images/hero.png'"
                 alt="Hero Image"
                 class="hero-img"
               />
@@ -148,9 +148,11 @@
       :isOpen="isSidebarOpen"
       :type="activeEditorType"
       :editableContent="editableContent"
+      :activeSectionType="activeSectionType"
+      :activeField="selectedField"
       @close="closeSidebar"
       @update-field="(data) => blurAndUpdate(data.field_name, data.value, data.type, data.file)"
-      @image-upload="(e, field) => handleImageUpload(e, field, 'header')"
+      @image-upload="(e) => handleImageUpload(e, selectedField || 'header-image', 'header')"
     />
   </header>
 </template>
@@ -170,8 +172,7 @@ const props = defineProps({
       'header-text2': "Your Header Text 2",
       'header-description1': "Your description goes here.",
       'header-button1': "Click Here",
-      image: "/images/hero.png",
-      images: []     
+      'header-image': "/images/hero.png",
     }),
   },
 });
@@ -197,6 +198,7 @@ const {
   selectField,
   blurAndUpdate,
   handleImageUpload,
+  activeSectionType,
 } = useEditable(emit, editableContent);
 
 </script>
