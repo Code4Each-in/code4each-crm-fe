@@ -50,7 +50,7 @@ export function useEditable(emit, editableContent) {
   function handleImageUpload(event, field_name = "image", type = null) {
     const files = event.target.files;
     if (!files || !files.length) return;
-  
+    console.log('asdasdad',field_name);
     const file = files[0];
     const originalName = file.name.split(".")[0].replace(/\s+/g, "_");
     const extension = file.name.split(".").pop();
