@@ -34,6 +34,8 @@ export function useEditable(emit, editableContent) {
   
 
   function closeSidebar() {
+    console.log('closeSidebar', type);
+
     isSidebarOpen.value = false;
     activeEditorType.value = null;
     selectedField.value = null;
@@ -42,6 +44,8 @@ export function useEditable(emit, editableContent) {
   function blurAndUpdate(field, value = null, type = null, file =null) {
     const fieldValue = value !== null ? value : editableContent.value[field];
     emit("field-updated", { field_name: field, value: fieldValue, type, file});
+
+    console.log('blurandupdate', type);
     if (!file && type !== 'image' && type !== 'logo') {
       selectedField.value = null;
       activeEditorType.value = null;
