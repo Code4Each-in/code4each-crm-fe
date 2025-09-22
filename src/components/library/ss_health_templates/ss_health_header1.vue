@@ -189,6 +189,10 @@ watch(
   { immediate: true, deep: true }
 );
 
+watch(selectedField, (val) => {
+  console.log('Selected field changed:', val);
+})
+
 const {
   selectedField,
   hoveredField,
