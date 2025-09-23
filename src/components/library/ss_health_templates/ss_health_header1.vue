@@ -152,7 +152,7 @@
       :activeField="selectedField"
       @close="closeSidebar"
       @update-field="(data) => blurAndUpdate(data.field_name, data.value, data.type, data.file)"
-      @image-upload="(e) => handleImageUpload(e, selectedField || 'header-image', 'header')"
+      @image-upload="(e, field) => handleImageUpload(e, field, 'header')"
     />
   </header>
 </template>
@@ -201,9 +201,6 @@ const {
   activeSectionType,
 } = useEditable(emit, editableContent);
 
-watch(selectedField, (val) => {
-  console.log('Selected field changed:', val);
-});
 </script>
 
   <style scoped>

@@ -53,18 +53,17 @@
                   <!-- Icon / Image -->
                   <div
                     class="icon editable"
-                    :class="{ selected: selectedField === 'service-img-' + i }"
-                    @click.stop="selectField('service-img-' + i)"
-                    @mouseover="hoveredField = 'service-img-' + i"
+                    :class="{ selected: selectedField === 'service-image' + (i + 1) }"
+                    @click.stop="selectField('service-image' + (i + 1), 'image', 'service_section')"
+                    @mouseover="hoveredField = 'service-image' + (i + 1)"
                     @mouseleave="hoveredField = null"
                   >
-                    <span v-if="hoveredField === 'service-img-' + i" class="edit-label">Image</span>
-                    <input
-                      v-if="selectedField === 'service-img-' + i"
-                      type="file"
-                      @change="(e) => handleServiceImageUpload(e, i)"
+                    <span v-if="hoveredField === 'service-image' + (i + 1)" class="edit-label">Image</span>
+                    <img
+                      :src="service['service-image' + (i + 1)] || ''"
+                      alt="Service Image"
+                      class="service-image"
                     />
-                    <img v-else :src="service.img" alt="Service Icon" />
                   </div>
 
                   <!-- Service Title -->
@@ -108,12 +107,23 @@
         </div>
       </div>
     </div>
+    <SidebarEditor
+      :isOpen="isSidebarOpen"
+      :type="activeEditorType"
+      :editableContent="editableContent"
+      :activeSectionType="activeSectionType"
+      :activeField="selectedField"
+      @close="closeSidebar"
+      @update-field="(data) => blurAndUpdate(data.field_name, data.value, data.type, data.file)"
+      @image-upload="(e, field) => handleImageUpload(e, field, 'about_section')"
+    />
   </section>
 </template>
 
 <script setup>
 import { ref, watch } from "vue";
 import { useEditable } from "../library";
+import SidebarEditor from "../SidebarEditor.vue";
 
 const props = defineProps({
   data: {
@@ -122,8 +132,8 @@ const props = defineProps({
       "service-text1": "Neonal Medical Care - 35 Years of Trusted Experience",
       "service-description1": "Providing compassionate and comprehensive healthcare services with cutting-edge technology and expert medical professionals.",
       services: [
-        { img: "/images/1.jpg", "service-text2": "Service 1", "service-description2": "Description 1" },
-        { img: "/images/2.jpg", "service-text3": "Service 2", "service-description3": "Description 2" },
+        { "service-image1": "/images/1.jpg", "service-text2": "Service 1", "service-description2": "Description 1" },
+        { "service-image2": "/images/2.jpg", "service-text3": "Service 2", "service-description3": "Description 2" },
       ],
     }),
   },
@@ -144,10 +154,15 @@ watch(
 const {
   selectedField,
   hoveredField,
+  activeEditorType,
+  isSidebarOpen,
+  closeSidebar,
   selectField,
   blurAndUpdate,
-  handleServiceImageUpload,
+  handleImageUpload,
+  activeSectionType,
 } = useEditable(emit, editableContent);
+
 </script>
 
 
@@ -388,6 +403,10 @@ const {
         padding: 50px 30px 22px 30px;
         height: 280px;
     }
+}
+img.service-image {
+    width: 65%;
+    margin: 10px;
 }
 
 /*service   css  end */

@@ -35,14 +35,14 @@
           Upload Image
           <input
             type="file"
-            @change="handleFileUpload"
+            @change="(e) => $emit('image-upload', e, props.activeField)"
             hidden
           />
         </label>
 
         <div class="editor-sidebar__image-grid">
           <div class="editor-sidebar__image-item">
-            <img :src="editableContent['header-image']" class="editor-sidebar__preview" />
+            <img :src="activeImage" class="editor-sidebar__preview" />
           </div>
         </div>
       </div>
@@ -68,7 +68,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import ButtonEditor from "./ButtonEditor.vue";
 import MenuEditor from "./MenuEditor.vue";
 import SocialLinksEditor from "./SocialLinksEditor.vue";
@@ -84,6 +84,18 @@ const props = defineProps({
 
 // Computed for section type
 const activeSectionTypeProp = computed(() => props.activeSectionType);
+const activeImage = computed(() => {
+  // Top-level field (if it exists)
+  if (props.editableContent[props.activeField]) return props.editableContent[props.activeField];
+
+  // Search inside services array
+  const services = props.editableContent.services || [];
+  for (const service of services) {
+    if (service[props.activeField]) return service[props.activeField];
+  }
+
+  return ""; 
+});
 
 // Close sidebar
 function onClose() {
@@ -93,12 +105,6 @@ function onClose() {
 // Emit events
 const emit = defineEmits(["close", "update-field", "image-upload"]);
 
-// Handle image upload
-function handleFileUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  emit("image-upload", event, props.activeField);
-}
 </script>
 
 <style>

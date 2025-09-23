@@ -107,7 +107,7 @@ const aboutBlockData = computed(() => {
   if (!fields.length) return null;
 
   const services = Array.from({ length: 6 }, (_, i) => ({
-    img: getFieldValue(fields, `about-img${i + 1}`),
+    [`about-image${i + 1}`]: getFieldValue(fields, `about-img${i + 1}`),
     [`about-text${i + 5}`]: getFieldValue(fields, `about-text${i + 5}`),
   }));
 
@@ -126,7 +126,7 @@ const serviceBlockData = computed(() => {
   if (!fields.length) return null;
 
   const services = Array.from({ length: 2 }, (_, i) => ({
-    img: getFieldValue(fields, `service-image${i + 1}`),
+    [`service-image${i + 1}`]: getFieldValue(fields, `service-image${i + 1}`),
     [`service-text${i + 2}`]: getFieldValue(fields, `service-text${i + 2}`),
     [`service-description${i + 2}`]: getFieldValue(fields, `service-description${i + 2}`),
   }));

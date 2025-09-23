@@ -91,39 +91,48 @@
         <!-- Service Image -->
         <div
           class="single-service-thumb editable"
-          :class="{ selected: selectedField === 'service-img-' + i }"
-          @click.stop="selectField('service-img-' + i)"
-          @mouseover="hoveredField = 'service-img-' + i"
+          :class="{ selected: selectedField === 'about-image' + (i + 1) }"
+          @click.stop="selectField('about-image' + (i + 1), 'image', 'about_section')"
+          @mouseover="hoveredField = 'about-image' + (i + 1)"
           @mouseleave="hoveredField = null"
         >
-          <span v-if="hoveredField === 'service-img-' + i" class="edit-label">Image</span>
-          <input
-            v-if="selectedField === 'service-img-' + i"
-            type="file"
-            @change="(e) => handleServiceImageUpload(e, i)"
+          <span v-if="hoveredField === 'about-image' + (i + 1)" class="edit-label">Image</span>
+          <img
+            :src="service['about-image' + (i + 1)] || '/images/default-service.png'"
+            alt="About Image"
+            class="about-image"
           />
-          <img v-else :src="service.img" :alt="service['about-text' + (i + 5)]" />
         </div>
 
-        <!-- Service Title -->
+        <!-- Service Text -->
         <div
           class="single-service-title editable"
-          :class="{ selected: selectedField === 'service-title-' + i }"
-          @click.stop="selectField('service-title-' + i)"
-          @mouseover="hoveredField = 'service-title-' + i"
+          :class="{ selected: selectedField === 'about-text' + (i + 5) }"
+          @click.stop="selectField('about-text' + (i + 5))"
+          @mouseover="hoveredField = 'about-text' + (i + 5)"
           @mouseleave="hoveredField = null"
         >
-          <span v-if="hoveredField === 'service-title-' + i" class="edit-label">Text</span>
+          <span v-if="hoveredField === 'about-text' + (i + 5)" class="edit-label">Text</span>
           <input
-            v-if="selectedField === 'service-title-' + i"
-            v-model="editableContent.services[i]['about-text' + (i + 5)]"
-            @blur="blurAndUpdate('about-text' + (i + 5), editableContent.services[i]['about-text' + (i + 5)])"
+            v-if="selectedField === 'about-text' + (i + 5)"
+            v-model="service['about-text' + (i + 5)]"
+            @blur="blurAndUpdate('about-text' + (i + 5), service['about-text' + (i + 5)])"
           />
-          <h2 v-else class="title">{{ editableContent.services[i]['about-text' + (i + 5)] }}</h2>
+          <h2 v-else class="title">{{ service['about-text' + (i + 5)] }}</h2>
         </div>
       </div>
     </div>
   </div>
+  <SidebarEditor
+    :isOpen="isSidebarOpen"
+    :type="activeEditorType"
+    :editableContent="editableContent"
+    :activeSectionType="activeSectionType"
+    :activeField="selectedField"
+    @close="closeSidebar"
+    @update-field="(data) => blurAndUpdate(data.field_name, data.value, data.type, data.file)"
+    @image-upload="(e, field) => handleImageUpload(e, field, 'about_section')"
+  />
 </section>
 
 </template>
@@ -131,6 +140,7 @@
 <script setup>
 import { ref, watch } from "vue";
 import { useEditable } from "../library";
+import SidebarEditor from "../SidebarEditor.vue";
 
 const props = defineProps({
   data: {
@@ -141,12 +151,12 @@ const props = defineProps({
       "about-text3": "Best Services",
       "about-text4": "for You",
       services: [
-        { img: "/images/doctor.png", "about-text5": "Best Doctors" },
-        { img: "/images/affordable.png", "about-text6": "Affordable Care" },
-        { img: "/images/insurance.png", "about-text7": "Insurance Partners" },
-        { img: "/images/support.png", "about-text8": "24/7 Support" },
-        { img: "/images/alarm.png", "about-text9": "Emergency Service" },
-        { img: "/images/telemedicine.png", "about-text10": "Online Consultancy" },
+        { "about-image1": "/images/doctor.png", "about-text5": "Best Doctors" },
+        { "about-image2": "/images/affordable.png", "about-text6": "Affordable Care" },
+        { "about-image3": "/images/insurance.png", "about-text7": "Insurance Partners" },
+        { "about-image4": "/images/support.png", "about-text8": "24/7 Support" },
+        { "about-image5": "/images/alarm.png", "about-text9": "Emergency Service" },
+        { "about-image6": "/images/telemedicine.png", "about-text10": "Online Consultancy" },
       ],
     }),
   },
@@ -166,11 +176,15 @@ watch(
 const {
   selectedField,
   hoveredField,
+  activeEditorType,
+  isSidebarOpen,
+  closeSidebar,
   selectField,
   blurAndUpdate,
   handleImageUpload,
-  handleServiceImageUpload,
+  activeSectionType,
 } = useEditable(emit, editableContent);
+
 </script>
 
     <style scoped>
@@ -293,10 +307,11 @@ const {
     /* Title */
     .single-service .single-service-title .title {
       font-size: 18px;
-      font-weight: 800;
+      font-weight: 600;
       color: #F9FAFB;
       margin: 0 0 0 20px;
       transition: all 0.3s ease;
+      line-height: 23px;
     }
     .single-service:hover .single-service-title .title {
       color: #00adb5;

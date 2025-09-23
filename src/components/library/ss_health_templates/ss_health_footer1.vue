@@ -53,7 +53,7 @@
                     class="btn btn-outline-success btn-hover-success"
                     @click.stop="selectField('footer-button1', 'button', 'footer')"
                   >
-                    {{ editableContent['footer-button1'] }} <i class="fa fa-hospital-o"></i>
+                    {{ editableContent['footer-button1'] }} 
                   </button>
                 </div>
               </div>
@@ -104,9 +104,19 @@
                   />
                   <h4 v-else class="widget-title footer-title">{{ editableContent['footer-text2'] }}</h4>
                 </div>
-                <ul class="footer-list">
-                  <li v-for="(item, i) in editableContent.menu" :key="i">
-                    <a href="#">{{ item }}</a>
+                <ul
+                  class="footer-list editable"
+                  :class="{ selected: selectedField === 'menu' }"
+                  @click.stop="selectField('menu', 'menus')"
+                  @mouseover="hoveredField = 'menu'"
+                  @mouseleave="hoveredField = null"
+                >
+                  <span v-if="hoveredField === 'menu'" class="edit-label">Menus</span>
+                  <li
+                    v-for="(item, i) in editableContent.menu"
+                    :key="i"
+                  >
+                    <span class="footer-menus">{{ item }}</span>
                   </li>
                 </ul>
               </div>
@@ -602,5 +612,9 @@ span.name-tag {
 .footer-list.p-detail {
     color: #fff;
     width: 173px;
+}
+.footer-menus {
+    color: #fff;
+    display: flex;
 }
 </style>
