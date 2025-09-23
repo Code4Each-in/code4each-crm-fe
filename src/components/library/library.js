@@ -19,7 +19,6 @@ export function useEditable(emit, editableContent) {
   const activeSectionType = ref('');
 
   function selectField(field, type = null, sectionType = null) {
-    console.log('selectfield', field);
     selectedField.value = field;
   
     if (type) {
@@ -34,8 +33,6 @@ export function useEditable(emit, editableContent) {
   
 
   function closeSidebar() {
-    console.log('closeSidebar', type);
-
     isSidebarOpen.value = false;
     activeEditorType.value = null;
     selectedField.value = null;
@@ -45,8 +42,7 @@ export function useEditable(emit, editableContent) {
     const fieldValue = value !== null ? value : editableContent.value[field];
     emit("field-updated", { field_name: field, value: fieldValue, type, file});
 
-    console.log('blurandupdate', type);
-    if (!file && type !== 'image' && type !== 'logo') {
+    if (!file && type !== 'about_section' && type !== 'logo' && type !== 'header' && type !=='service_section' && type !== 'footer') {
       selectedField.value = null;
       activeEditorType.value = null;
     }
@@ -55,7 +51,7 @@ export function useEditable(emit, editableContent) {
   function handleImageUpload(event, field_name = "image", type = null) {
     const files = event.target.files;
     if (!files || !files.length) return;
-    console.log('asdasdad',field_name);
+
     const file = files[0];
     const originalName = file.name.split(".")[0].replace(/\s+/g, "_");
     const extension = file.name.split(".").pop();
@@ -76,6 +72,7 @@ export function useEditable(emit, editableContent) {
   
 
   const deselectField = (event) => {
+    if (isSidebarOpen.value) return;
     if (!selectedField.value) return;
     const editableElements = document.querySelectorAll(".editable");
     let clickedInside = false;
