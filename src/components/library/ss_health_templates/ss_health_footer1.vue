@@ -33,7 +33,7 @@
                   <textarea
                     v-if="selectedField === 'footer-description1'"
                     v-model="editableContent['footer-description1']"
-                    @blur="blurAndUpdate"
+                    @blur="blurAndUpdate('footer-description1')"
                   />
                   <p v-else class="footer-desc desc-content m-b-35">{{ editableContent['footer-description1'] }}</p>
                 </div>
@@ -74,7 +74,7 @@
                   <input
                     v-if="selectedField === 'footer-text1'"
                     v-model="editableContent['footer-text1']"
-                    @blur="blurAndUpdate"
+                    @blur="blurAndUpdate('footer-text1')"
                   />
                   <h4 v-else class="widget-title footer-title">{{ editableContent['footer-text1'] }}</h4>
                 </div>
@@ -100,7 +100,7 @@
                   <input
                     v-if="selectedField === 'footer-text2'"
                     v-model="editableContent['footer-text2']"
-                    @blur="blurAndUpdate"
+                    @blur="blurAndUpdate('footer-text2')"
                   />
                   <h4 v-else class="widget-title footer-title">{{ editableContent['footer-text2'] }}</h4>
                 </div>
@@ -137,7 +137,7 @@
                   <input
                     v-if="selectedField === 'footer-text3'"
                     v-model="editableContent['footer-text3']"
-                    @blur="blurAndUpdate"
+                    @blur="blurAndUpdate('footer-text3')"
                   />
                   <h4 v-else class="widget-title footer-title">{{ editableContent['footer-text3'] }}</h4>
                 </div>
@@ -616,5 +616,6 @@ span.name-tag {
 .footer-menus {
     color: #fff;
     display: flex;
+    width: 100px;
 }
 </style>

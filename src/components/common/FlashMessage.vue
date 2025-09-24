@@ -33,7 +33,6 @@ const handlePageClick = () => {
 };
 
 onMounted(() => {
-  console.log("flash message");
   // isAnimating.value = true;
   handlePageClick();
 });

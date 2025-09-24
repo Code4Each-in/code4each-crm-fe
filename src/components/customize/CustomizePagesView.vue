@@ -298,7 +298,7 @@ const saveCustomComponentsFieldValues = (field_name, value, type = "text", file)
   if (typeof field_name === "object") {
     const data = field_name;
     value = data.value;
-    type = data.type || "text"; // default fallback
+    type = data.type || "text"; 
     field_name = data.field_name;
     file = data.file;
   }
@@ -313,7 +313,7 @@ const saveCustomComponentsFieldValues = (field_name, value, type = "text", file)
       formData.append("type", type);
 
       if (file) {
-        formData.append("file", file); // actual file object
+        formData.append("file", file);
       }
 
       const res = await WordpressService.CustomComponentsAndFieldValues.saveCustomComponentsFieldValues(formData, {
@@ -334,6 +334,28 @@ const saveCustomComponentsFieldValues = (field_name, value, type = "text", file)
   }, 800);
 };
 
+// -------------------------
+// Fetch Template Pages
+// -------------------------
+const getTemplatePage = async () => {
+    try {
+        const response = await WordpressService.TemplatePages.getTemplatePage({
+            website_domain: siteSettingsDetail.value.website_domain,
+        });
+
+        if (response.status === 200 && response.data.success) {
+            templatePages.value = response.data.response;
+        }
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const currentPage = computed(() => {
+  if (!pageId.value || !templatePages.value.length) return null;
+  return templatePages.value.find(p => p.page_id === pageId.value) || null;
+});
+
 /* =========================
    Lifecycle Hooks
 ========================= */
@@ -345,6 +367,7 @@ onMounted(async () => {
     await fetchGlobalVariables();
     await getMenus();
     await fetchCustomComponentsAndFieldsValue();
+    await getTemplatePage();
   } finally {
     initialLoading.value = false;
   }
@@ -392,18 +415,10 @@ provide("dashBoardMethods", { fetchDashboardData });
       <template v-else>
         <!-- Page Title & Template Selector -->
         <div v-if="currentPage" class="page-title mt-2">
-          <h2>{{ decodeHtml(currentPage.page_name) }} Customization</h2>
-          <div v-if="templatePages.length" class="mt-2 select-box-pages">
-            <select v-model="pageId" class="form-select">
-              <option
-                v-for="page in templatePages.filter(p => p.status === 'publish')"
-                :key="page.page_id"
-                :value="page.page_id"
-              >
-                {{ decodeHtml(page.page_name) }}
-              </option>
-            </select>
-          </div>
+          <h2>{{ decodeHtml(currentPage.page_name) }} Page Customization</h2>
+          <button class="back-btn" @click="router.push('/customize/template-pages')">
+            <i class="fa fa-arrow-left"></i> Back To Pages
+          </button>
         </div>
 
         <!-- Component Editor -->
@@ -455,6 +470,37 @@ provide("dashBoardMethods", { fetchDashboardData });
   align-items: center;
   gap: 8px;
   padding: 0px;
+}
+
+.page-title {
+  margin-left: 256px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.back-btn {
+  background: #1d2b64;
+  color: #fff;
+  border: 1px solid #1d2b64;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s ease;
+  margin-right: 57px;
+}
+
+.back-btn:hover {
+  background: transparent;
+  color: #1d2b64;
+}
+
+.side-app {
+    padding-top: 12px;
 }
 
 </style>
