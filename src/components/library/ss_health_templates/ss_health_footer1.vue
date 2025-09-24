@@ -494,14 +494,6 @@ span.text-color-success{
     transition: all 0.3s ease 0s;
 }
 
-.single-footer-widget.single-footer-space-left {
-    padding-left: 20px;
-}
-
-.single-footer-widget.single-footer-space-left {
-    padding-left: 20px;
-}
-
 .footer-bottom {
     border-top: 1px solid #222831;
 }

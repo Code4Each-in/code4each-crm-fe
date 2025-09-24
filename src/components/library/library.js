@@ -21,16 +21,22 @@ export function useEditable(emit, editableContent) {
   function selectField(field, type = null, sectionType = null) {
     selectedField.value = field;
   
-    if (type) {
-      activeEditorType.value = type; 
+    const sidebarTypes = ["logo", "image", "button", "menus", "social"];
+  
+    if (type && sidebarTypes.includes(type)) {
+      // open sidebar only for these types
+      activeEditorType.value = type;
       isSidebarOpen.value = true;
+    } else {
+      // close sidebar for text fields or unknown types
+      activeEditorType.value = null;
+      isSidebarOpen.value = false;
     }
   
     if (sectionType) {
-      activeSectionType.value = sectionType; 
+      activeSectionType.value = sectionType;
     }
   }
-  
 
   function closeSidebar() {
     isSidebarOpen.value = false;
