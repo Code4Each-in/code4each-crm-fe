@@ -225,7 +225,6 @@ const {
       margin-bottom: 10px;
   }
 .about-bg {
-    background-image: url('../images/about-bg.jpg');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;

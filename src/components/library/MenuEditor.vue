@@ -1,168 +1,175 @@
 <template>
-    <div class="editor-sidebar__section">
-      <label>Menu Items:</label>
-      <div class="ifYqM">
-        <div class="accordion accordion-flush" id="accordionFlushExample">
-          <div
-            v-for="(item, index) in outeritems"
-            :key="item.id"
-            class="accordion-item"
-          >
-            <h2 class="accordion-header" :id="'heading' + item.id">
-              <button
-                class="accordion-button"
-                :class="{ collapsed: !item.open }"
-                type="button"
-                @click="toggleItemOuter(index, item.value)"
-                :aria-expanded="item.open ? 'true' : 'false'"
-                :aria-controls="'collapse' + item.id"
-              >
-                {{ item.name }}
-              </button>
-            </h2>
-            <div
-              :id="'collapse' + item.id"
-              class="accordion-collapse collapse"
-              :class="{ show: item.open }"
-              :aria-labelledby="'heading' + item.id"
-              data-bs-parent="#accordionExample"
+  <div class="editor-sidebar__section">
+    <label class="editor-sidebar__title">Menu Items:</label>
+    <div class="ifYqM">
+      <div class="accordion accordion-flush" id="accordionFlushExample">
+        <div
+          v-for="(item, index) in outeritems"
+          :key="item.id"
+          class="accordion-item"
+        >
+          <h2 class="accordion-header" :id="'heading' + item.id">
+            <button
+              class="accordion-button"
+              :class="{ collapsed: !item.open }"
+              type="button"
+              @click="toggleItemOuter(index, item.value)"
+              :aria-expanded="item.open ? 'true' : 'false'"
+              :aria-controls="'collapse' + item.id"
             >
-              <div class="accordion-body">
-                <button
-                  type="button"
-                  class="accordion-button1"
-                  @click="showForm = !showForm"
-                >
-                  <i class="fa fa-plus" aria-hidden="true"></i> Add button
-                </button>
-              </div>
-  
-              <!-- Add Menu Form -->
-              <form id="multi-step-form" enctype="multipart/form-data">
-                <div
-                  v-if="showForm"
-                  class="row row-cols-lg-auto g-3 align-items-center"
-                >
-                  <div class="col-12">
-                    <label for="businessCategory" class="form-label">Menu Type*</label>
-                    <select
-                      class="form-select select-category"
-                      v-model="values.menu_value_type"
-                    >
-                      <option value="">Select Type</option>
-                      <option value="internal">Internal</option>
-                      <option value="external">External</option>
-                    </select>
-                    <div class="text-danger">{{ allErrors.menu_value_type }}</div>
-                  </div>
-                  <div v-if="values.menu_value_type" class="col-12">
-                    <label for="name" class="form-label">Menu Name*</label>
-                    <input type="text" class="form-control" v-model="values.name" />
-                    <div class="text-danger">{{ allErrors.name }}</div>
-                  </div>
-                  <div v-if="values.menu_value_type === 'internal'" class="col-12">
-                    <label class="form-label">Section*</label>
-                    <select class="form-select" v-model="values.type">
-                      <option value="">Select Section</option>
-                      <option v-for="option in sections" :key="option.value" :value="option.value">
-                        {{ option.label }}
-                      </option>
-                    </select>
-                    <div class="text-danger">{{ allErrors.type }}</div>
-                  </div>
-                  <div v-if="values.menu_value_type === 'external'" class="col-12">
-                    <label class="form-label">External Link*</label>
-                    <input type="text" class="form-control" v-model="values.external" />
-                    <div class="text-danger">{{ allErrors.external }}</div>
-                  </div>
-                  <div class="col-12">
-                    <button
-                      class="btn speedy-btn"
-                      type="button"
-                      :disabled="!values.menu_value_type || submitLoading"
-                      @click="handleSubmitAddMenu(item.value)"
-                    >
-                      Submit
-                    </button>
-                  </div>
-                </div>
-              </form>
-  
-              <!-- Draggable Menu Items -->
-              <VueDraggableNext
-                :list="dataAPi"
-                @end="(itemValue) => handleChange(itemValue, item.value)"
-                class="menus-div"
+              {{ item.name }}
+            </button>
+          </h2>
+          <div
+            :id="'collapse' + item.id"
+            class="accordion-collapse collapse"
+            :class="{ show: item.open }"
+            :aria-labelledby="'heading' + item.id"
+            data-bs-parent="#accordionExample"
+          >
+            <div class="accordion-body">
+              <button
+                type="button"
+                class="accordion-button1"
+                @click="showForm = !showForm"
               >
-                <div v-for="(itemi, idx) in dataAPi" :key="itemi.id">
-                  <div v-if="itemi.menu_type == item.value" class="accordion-item">
-                    <h2 class="accordion-header sub-headingOne">
-                      <button
-                        class="accordion-button sub-headingOne-btn"
-                        :class="{ collapsed: !itemi.open }"
-                        type="button"
-                        @click="toggleItem(idx, itemi)"
-                      >
-                        {{ itemi.name }}
-                      </button>
-                    </h2>
-                    <div class="accordion-collapse collapse" :class="{ show: itemi.open }">
-                      <div class="accordion-body">
-                        <!-- Edit Menu Form -->
-                        <form class="row row-cols-lg-auto g-3 align-items-center">
-                          <div class="col-12">
-                            <label class="form-label">Menu Type*</label>
-                            <select class="form-select" v-model="eachValues.menu_value_type">
-                              <option value="">Select Type</option>
-                              <option value="internal">Internal</option>
-                              <option value="external">External</option>
-                            </select>
-                            <div class="text-danger">{{ allErrorsEach.menu_value_type }}</div>
-                          </div>
-                          <div v-if="eachValues.menu_value_type" class="col-12">
-                            <label class="form-label">Menu Name*</label>
-                            <input type="text" class="form-control" v-model="eachValues.name" />
-                            <div class="text-danger">{{ allErrorsEach.name }}</div>
-                          </div>
-                          <div v-if="eachValues.menu_value_type === 'internal'" class="col-12">
-                            <label class="form-label">Section*</label>
-                            <select class="form-select" v-model="eachValues.type">
-                              <option value="">Select Section</option>
-                              <option v-for="option in sections" :key="option.value" :value="option.value">
-                                {{ option.label }}
-                              </option>
-                            </select>
-                            <div class="text-danger">{{ allErrorsEach.type }}</div>
-                          </div>
-                          <div v-if="eachValues.menu_value_type === 'external'" class="col-12">
-                            <label class="form-label">External Link*</label>
-                            <input type="text" class="form-control" v-model="eachValues.external" />
-                            <div class="text-danger">{{ allErrorsEach.external }}</div>
-                          </div>
-                          <div class="col-12 d-flex align-items-center gap-2">
-                            <i class="fa fa-trash" style="cursor:pointer" @click="showDeletePopup(itemi.id)"></i>
-                            <button class="btn speedy-btn" :disabled="!eachValues.menu_value_type || submitLoading" @click="editMenu()">
-                              Submit
-                            </button>
-                          </div>
-                        </form>
-                      </div>
+                <i class="fa fa-plus" aria-hidden="true"></i> Add button
+              </button>
+            </div>
+
+            <!-- Add Menu Form -->
+            <form id="multi-step-form" enctype="multipart/form-data">
+              <div
+                v-if="showForm"
+                class="row row-cols-lg-auto g-3 align-items-center"
+              >
+                <div class="col-12">
+                  <label for="businessCategory" class="form-label">Menu Type*</label>
+                  <select
+                    class="form-select select-category"
+                    v-model="values.menu_value_type"
+                  >
+                    <option value="">Select Type</option>
+                    <option value="internal">Internal</option>
+                    <option value="external">External</option>
+                  </select>
+                  <div class="text-danger">{{ allErrors.menu_value_type }}</div>
+                </div>
+                <div v-if="values.menu_value_type" class="col-12">
+                  <label for="name" class="form-label">Menu Name*</label>
+                  <input type="text" class="form-control" v-model="values.name" />
+                  <div class="text-danger">{{ allErrors.name }}</div>
+                </div>
+                <div v-if="values.menu_value_type === 'internal'" class="col-12">
+                  <label class="form-label">Section*</label>
+                  <select class="form-select" v-model="values.type">
+                    <option value="">Select Section</option>
+                    <option v-for="option in sections" :key="option.value" :value="option.value">
+                      {{ option.label }}
+                    </option>
+                  </select>
+                  <div class="text-danger">{{ allErrors.type }}</div>
+                </div>
+                <div v-if="values.menu_value_type === 'external'" class="col-12">
+                  <label class="form-label">External Link*</label>
+                  <input type="text" class="form-control" v-model="values.external" />
+                  <div class="text-danger">{{ allErrors.external }}</div>
+                </div>
+                <div class="col-12">
+                  <button
+                    class="btn speedy-btn"
+                    type="button"
+                    :disabled="!values.menu_value_type || submitLoading"
+                    @click="handleSubmitAddMenu(item.value)"
+                  >
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            <!-- Draggable Menu Items -->
+            <VueDraggableNext
+              :list="dataAPi"
+              @end="(itemValue) => handleChange(itemValue, item.value)"
+              class="menus-div"
+            >
+              <div v-for="(itemi, idx) in dataAPi" :key="itemi.id">
+                <div v-if="itemi.menu_type == item.value" class="accordion-item">
+                  <h2 class="accordion-header sub-headingOne">
+                    <button
+                      class="accordion-button sub-headingOne-btn"
+                      :class="{ collapsed: !itemi.open }"
+                      type="button"
+                      @click="toggleItem(idx, itemi)"
+                    >
+                      {{ itemi.name }}
+                    </button>
+                  </h2>
+                  <div class="accordion-collapse collapse" :class="{ show: itemi.open }">
+                    <div class="accordion-body">
+                      <!-- Edit Menu Form -->
+                      <form class="row row-cols-lg-auto g-3 align-items-center">
+                        <div class="col-12">
+                          <label class="form-label">Menu Type*</label>
+                          <select class="form-select" v-model="eachValues.menu_value_type">
+                            <option value="">Select Type</option>
+                            <option value="internal">Internal</option>
+                            <option value="external">External</option>
+                          </select>
+                          <div class="text-danger">{{ allErrorsEach.menu_value_type }}</div>
+                        </div>
+                        <div v-if="eachValues.menu_value_type" class="col-12">
+                          <label class="form-label">Menu Name*</label>
+                          <input type="text" class="form-control" v-model="eachValues.name" />
+                          <div class="text-danger">{{ allErrorsEach.name }}</div>
+                        </div>
+                        <div v-if="eachValues.menu_value_type === 'internal'" class="col-12">
+                          <label class="form-label">Section*</label>
+                          <select class="form-select" v-model="eachValues.type">
+                            <option value="">Select Section</option>
+                            <option v-for="option in sections" :key="option.value" :value="option.value">
+                              {{ option.label }}
+                            </option>
+                          </select>
+                          <div class="text-danger">{{ allErrorsEach.type }}</div>
+                        </div>
+                        <div v-if="eachValues.menu_value_type === 'external'" class="col-12">
+                          <label class="form-label">External Link*</label>
+                          <input type="text" class="form-control" v-model="eachValues.external" />
+                          <div class="text-danger">{{ allErrorsEach.external }}</div>
+                        </div>
+                        <div class="col-12 d-flex justify-content-end">
+                          <i class="fa fa-trash" style="cursor: pointer;color: #d50f0f;font-size: 22px;margin: 10px;" @click="showDeletePopup(itemi.id)"></i>
+                          <button class="btn speedy-btn" :disabled="!eachValues.menu_value_type || submitLoading" @click="editMenu()">
+                            Submit
+                          </button>
+                        </div>
+                      </form>
                     </div>
                   </div>
                 </div>
-              </VueDraggableNext>
-            </div>
+              </div>
+            </VueDraggableNext>
           </div>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Delete Confirmation Popup -->
+  <div v-if="confirmDelete" class="delete-popup">
+    <p style="color: #666a6b; font-size: 20px;">Are you sure you want to delete this menu?</p>
+    <div class="menu-btns">
+      <button class="btn deletemenu-btn" @click="deleteMenu">Delete</button>
+      <button class="btn cancel-btn" @click="hideDeletePopup">Cancel</button>
+    </div>
+  </div>
 </template>
-  
+
 <script setup>
-import { useRouter } from "vue-router";
 import {
   ref,
-  defineProps,
   onMounted,
   watch,
   computed,
@@ -173,12 +180,8 @@ import { VueDraggableNext } from "vue-draggable-next";
 import { useForm } from "vee-validate";
 import * as yup from "yup";
 
-const router = useRouter();
-const activeComponentsDetail = ref([]);
 const store = useStore();
-const buttonStates = ref();
 const loading = ref(true);
-const dashboardData = ref([]);
 const siteSettingsDeatil = ref();
 const menuUnderDelete = ref(null);
 const selectedCategory = ref("");
@@ -256,7 +259,6 @@ const submitAddMenu = handleSubmit(async () => {
     });
     if (response.status === 200 && response.data.success) {
       store.updateFlashMeassge(true, "Menus Added sucessfully");
-      await fetchDashboardData();
       await getMenus();
       values.value = {
         type: "",
@@ -298,7 +300,6 @@ const editMenu = handleSubmit(async () => {
     });
     if (response.status === 200 && response.data.success) {
       store.updateFlashMeassge(true, "Menus Updated sucessfully");
-      await fetchDashboardData();
       await getMenus();
     }
   } catch (validationErrors) {
@@ -313,8 +314,34 @@ const editMenu = handleSubmit(async () => {
 });
 
 const showDeletePopup = (id) => {
+  console.log(id);
   menuUnderDelete.value = id;
   confirmDelete.value = true;
+};
+
+const hideDeletePopup = () => {
+  menuUnderDelete.value = null;
+  confirmDelete.value = false;
+};
+
+const deleteMenu = async () => {
+  try {
+    let data = {};
+    data.id = menuUnderDelete.value;
+
+    const response = await WordpressService.Menus.deleteMenu({
+      website_url: siteSettingsDeatil.value?.website_domain,
+      menu_data: data,
+    });
+
+    if (response.status === 200 && response.data.success) {
+      store.updateFlashMeassge(true, "Menu Deleted Successfully");
+      await getMenus();
+    }
+  } catch (error) {
+    console.error("Error while deleting menu:", error);
+  }
+  hideDeletePopup();
 };
 
 const handleChange = async (newList, menu_type) => {
@@ -355,25 +382,6 @@ const toggleItem = (index, eachVal) => {
 const toggleItemOuter = (index, menu_type) => {
   showForm.value = false;
   outeritems.value[index].open = !outeritems.value[index].open;
-  // values.value.menu_type = menu_type;
-};
-
-const fetchDashboardData = async () => {
-  try {
-    const response = await WordpressService.fetchDashboardData();
-    if (response.status === 200 && response.data.success) {
-      dashboardData.value = response.data;
-    }
-  } catch (error) {
-    if (error.response && error.response.status === 401) {
-      console.error("Authentication failed. Please log in.", error);
-      error.value = true;
-      localStorage.removeItem("access_token");
-      router.push("/login");
-    } else {
-      console.error("An error occurred:", error.message);
-    }
-  }
 };
 
 const getMenus = async () => {
@@ -399,31 +407,8 @@ const getMenus = async () => {
   }
 };
 
-const getActiveComponentsData = async () => {
-  try {
-    const response = await WordpressService.Components.getActiveComponents({
-      website_url: siteSettingsDeatil.value?.website_domain,
-    });
-
-    if (response.status === 200 && response.data.success) {
-      activeComponentsDetail.value = response.data.components_detail;
-      let firstActiveComponent = activeComponentsDetail.value[0];
-      activeComponentsDetail.value.forEach((image) => {
-        activeComponentsDetail.dragging = false;
-      });
-      buttonStates.value = new Array(activeComponentsDetail.value.length).fill(
-        false
-      );
-    }
-  } catch (error) {
-    console.error("An error occurred:", error);
-  }
-};
-
 onMounted(async () => {
   await getSiteDeatils();
-  await fetchDashboardData();
-  await getActiveComponentsData();
   await getMenus();
   loading.value = false;
 });
@@ -432,10 +417,7 @@ watch(
   () => store.websiteId,
   async (newWebsiteId, oldWebsiteId) => {
     await getSiteDeatils();
-    await fetchDashboardData();
     await getMenus();
-    await getActiveComponentsData();
-
     loading.value = false;
   }
 );
@@ -460,6 +442,66 @@ const getSiteDeatils = async () => {
     console.error("An error occurred:", error);
   }
 };
-
 </script>
+
+<style scoped>
+.row-cols-lg-auto label.form-label {
+  font-size: 16px;
+  font-weight: 600;
+  padding: 13px 0px 15px;
+  margin-bottom: 0rem;
+  color: #3c3939;
+}
+.speedy-btn {
+  background: #1d2b64;
+  color: #fff;
+  border: 2px solid #1d2b64;
+  padding: 8px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  display: flex;
+  justify-content: center;
+  margin: 0px;
+  align-items: center;
+  gap: 10px;
+  float: right;
+}
+.delete-popup {
+  position: absolute;
+  top: 49%;
+  left: 49%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  padding: 34px 34px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  width: 90%;
+}
+.deletemenu-btn {
+  background: #1d2b64;
+  padding: 4px 10px;
+  color: #fff;
+  border: 1px solid #1d2b64;
+}
+.deletemenu-btn:hover {
+  background: #fff;
+  color: #1d2b64;
+}
+.cancel-btn {
+  background: #fff;
+  padding: 4px 10px;
+  color: #1d2b64;
+  border: 1px solid #1d2b64;
+}
+.cancel-btn:hover {
+  background: #1d2b64;
+  color: #fff;
+}
+.menu-btns {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+</style>
   
