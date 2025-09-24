@@ -149,7 +149,7 @@ const footerBlockData = computed(() => {
   const socialLinkIcons = {
     whatsApp: "fa fa-whatsapp",
     facebook: "fa fa-facebook",
-    youTube: "fa fa-youtube",
+    youTube: "fa fa-youtube-play",
     instagram: "fa fa-instagram",
     x: "fa fa-twitter",
   };
@@ -414,7 +414,7 @@ provide("dashBoardMethods", { fetchDashboardData });
 
       <template v-else>
         <!-- Page Title & Template Selector -->
-        <div v-if="currentPage" class="page-title mt-2">
+        <div v-if="currentPage" class="page-title">
           <h2>{{ decodeHtml(currentPage.page_name) }} Page Customization</h2>
           <button class="back-btn" @click="router.push('/customize/template-pages')">
             <i class="fa fa-arrow-left"></i> Back To Pages
@@ -425,7 +425,17 @@ provide("dashBoardMethods", { fetchDashboardData });
         <div class="side-app">
           <div class="main-container-components container">
             <div class="eidtor-site">
-              <div v-for="(section, index) in sections" :key="section.key">
+
+              <!-- No components fallback -->
+              <div v-if="!sections.some(section => section.data)">
+                <div class="no-components">
+                  <i class="fa fa-info-circle"></i>
+                  No components are assigned for this page yet.
+                </div>
+              </div>
+
+              <!-- Render sections -->
+              <div v-else v-for="(section, index) in sections" :key="section.key">
                 <div class="eidtor-img">
                   <component
                     v-if="section.data"
@@ -438,10 +448,13 @@ provide("dashBoardMethods", { fetchDashboardData });
                 <!-- Add new section button -->
                 <div v-if="index !== sections.length - 1" class="main-div1">
                   <div class="edit-section"></div>
-                  <h1><i class="fa fa-plus"></i> Add new section <i class="fa fa-plus"></i></h1>
+                  <h1>
+                    <i class="fa fa-plus"></i> Add new section <i class="fa fa-plus"></i>
+                  </h1>
                   <div class="edit-section1"></div>
                 </div>
               </div>
+
             </div>
           </div>
         </div>
@@ -474,6 +487,7 @@ provide("dashBoardMethods", { fetchDashboardData });
 
 .page-title {
   margin-left: 256px;
+  margin-top: 37px !important;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -501,6 +515,21 @@ provide("dashBoardMethods", { fetchDashboardData });
 
 .side-app {
     padding-top: 12px;
+}
+
+.no-components {
+  /* margin: 40px auto; */
+  text-align: center;
+  font-size: 20px;
+  color: #555;
+  padding: 20px;
+  border: 1px dashed #ccc;
+  border-radius: 6px;
+  background: #f9f9f9;
+}
+.no-components i {
+  margin-right: 8px;
+  color: #1d2b64;
 }
 
 </style>
