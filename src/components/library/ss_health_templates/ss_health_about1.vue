@@ -1,5 +1,5 @@
 <template>
-  <section class="about-section section-margin" id="about">
+  <section class="about-sections section-margin" id="about">
   <div class="custom-large-container container">
     <!-- Title -->
     <div class="row m-b-n30">

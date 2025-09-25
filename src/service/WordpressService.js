@@ -259,16 +259,15 @@ const WordpressService = {
       return requests(baseUrl).get('/get-custom-components-and-fieldvalues', { params: data });
     },
     saveCustomComponentsFieldValues: (data) => {
-      console.log(data);
-
       if (data instanceof FormData) {
         return requests(baseUrl).post(`/add-custom-components-field-values`, data, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       }
-    
-      // Otherwise -> send as JSON
       return requests(baseUrl).post(`/add-custom-components-field-values`, data)
+    },
+    deleteCustomComponent: (data) => {
+      return requests(baseUrl).delete(`/delete-custom-components`, { params: data });
     }
   }
 
