@@ -41,7 +41,7 @@ const footerMenus = ref([]);
 const pageId = ref(route.query.page_id ? parseInt(route.query.page_id) : null);
 const templatePages = ref([]);
 const selectedCategory = ref("");
-
+const isDeleting = ref(false);
 
 /* =========================
    Component Registry
@@ -197,13 +197,26 @@ const footerBlockData = computed(() => {
   };
 });
 
+const componentOrder = ["header", "about_section", "service_section", "footer"];
 // All sections for editor rendering
-const sections = computed(() => [
-  { key: "header", data: heroBlockData.value },
-  { key: "about_section", data: aboutBlockData.value },
-  { key: "service_section", data: serviceBlockData.value },
-  { key: "footer", data: footerBlockData.value },
-]);
+const sections = computed(() => {
+  const map = {
+    header: heroBlockData.value,
+    about_section: aboutBlockData.value,
+    service_section: serviceBlockData.value,
+    footer: footerBlockData.value,
+  };
+
+  // keep only those with real data (filter out null/empty)
+  return componentOrder
+    .map((key) => ({ key, data: map[key] ?? null }))
+    .filter((sec) => {
+      // keep if data is truthy and not an empty object
+      if (!sec.data) return false;
+      if (typeof sec.data === "object" && Object.keys(sec.data).length === 0) return false;
+      return true;
+    });
+});
 
 /* =========================
    Data Fetching Functions
@@ -356,6 +369,39 @@ const currentPage = computed(() => {
   return templatePages.value.find(p => p.page_id === pageId.value) || null;
 });
 
+const deleteCustomComponent = async (type) => {
+  const compId = componentIdsByType.value[type]; 
+  if (!compId) {
+    console.error("Component ID not found for type:", type);
+    return;
+  }
+
+  if (!confirm("Are you sure you want to delete this component?")) return;
+
+  try {
+    isDeleting.value = true;
+    const res = await WordpressService.CustomComponentsAndFieldValues.deleteCustomComponent({
+      component_unique_id: compId,
+      website_domain: siteSettingsDetail.value?.website_domain,
+    });
+
+    if (res.status === 200 && res.data.success) {
+      store.updateFlashMeassge(true, "Component deleted successfully!", "success");
+
+      await getActiveComponentIds();
+      await fetchCustomComponentsAndFieldsValue();
+
+    } else {
+      store.updateFlashMeassge(true, "Failed to delete component.", "error");
+    }
+  } catch (error) {
+    console.error("Error deleting component:", error);
+    store.updateFlashMeassge(true, "Error deleting component.", "error");
+  } finally {
+    isDeleting.value = false; 
+  }
+};
+
 /* =========================
    Lifecycle Hooks
 ========================= */
@@ -404,6 +450,13 @@ provide("dashBoardMethods", { fetchDashboardData });
 
     <!-- Main Content -->
     <section id="content-wrapper main-content side-content">
+      <div v-if="isDeleting" class="delete-loader-overlay">
+        <div class="three-body">
+          <div class="three-body__dot"></div>
+          <div class="three-body__dot"></div>
+          <div class="three-body__dot"></div>
+        </div>
+      </div>
        <!-- Saving Indicator -->
        <div v-if="isSaving" class="saving-indicator">
         <i class="fa fa-spinner fa-spin"></i> Saving...
@@ -435,8 +488,27 @@ provide("dashBoardMethods", { fetchDashboardData });
               </div>
 
               <!-- Render sections -->
-              <div v-else v-for="(section, index) in sections" :key="section.key">
+              <div v-else v-for="(section, index) in sections" :key="section.key" class="component-wrapper">
                 <div class="eidtor-img">
+                  <!-- Action tab -->
+                  <div class="component-actions">
+                    <!-- Replace button: show for all -->
+                    <button class="replace-btn" @click="replaceComponent(section.key)" title="Replace">
+                      <i class="fa fa-exchange"></i>
+                    </button>
+
+                    <!-- Delete button: hide for header/footer -->
+                    <button
+                      v-if="!['header', 'footer'].includes(section.key)"
+                      class="delete-btn"
+                      @click="deleteCustomComponent(section.key)"
+                      title="Delete"
+                    >
+                      <i class="fa fa-trash"></i>
+                    </button>
+                  </div>
+
+                  <!-- Component -->
                   <component
                     v-if="section.data"
                     :is="componentRegistry[section.key]"
@@ -445,6 +517,7 @@ provide("dashBoardMethods", { fetchDashboardData });
                     @field-updated="saveCustomComponentsFieldValues"
                   />
                 </div>
+
                 <!-- Add new section button -->
                 <div v-if="index !== sections.length - 1" class="main-div1">
                   <div class="edit-section"></div>
@@ -454,7 +527,6 @@ provide("dashBoardMethods", { fetchDashboardData });
                   <div class="edit-section1"></div>
                 </div>
               </div>
-
             </div>
           </div>
         </div>
@@ -466,6 +538,7 @@ provide("dashBoardMethods", { fetchDashboardData });
 <style scoped>
 .eidtor-site {
   max-width: 100% !important;
+  padding: 35px 35px;
 }
 .main-container-components.container {
   width: 80% !important;
@@ -530,6 +603,63 @@ provide("dashBoardMethods", { fetchDashboardData });
 .no-components i {
   margin-right: 8px;
   color: #1d2b64;
+}
+.component-wrapper {
+  position: relative;
+  /* margin-bottom: 30px; */
+}
+
+.component-actions {
+  position: absolute;
+  top: -15px;
+  right: -1px;
+  display: flex;
+  gap: 3px;
+  background: rgb(29 43 100);
+  padding: 0px 3px;
+  /* border-radius: 6px; */
+  z-index: 10;
+}
+
+.component-actions button {
+  color: #fff;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.component-actions button:hover {
+  color: #ffcc00;
+}
+
+.eidtor-img {
+  border: 1px dashed #959292;
+  border-radius: 5px;
+  padding: 5px 10px;
+  position: relative;
+  box-shadow: 0 3px 4px #00000029, 0 5px 20px #0000003b;
+  margin-bottom: 10px;
+  margin-top: 0;
+  cursor: pointer;
+  padding: 20px 20px;
+}
+
+/* Show action buttons only on hover */
+.eidtor-img .component-actions {
+  opacity: 0;           /* hide by default */
+  pointer-events: none;  /* prevent clicking */
+  transition: opacity 0.3s ease;
+}
+
+.eidtor-img:hover .component-actions {
+  opacity: 1;           /* show on hover */
+  pointer-events: auto;  /* allow clicking */
 }
 
 </style>

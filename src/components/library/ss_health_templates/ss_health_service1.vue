@@ -228,7 +228,7 @@ const {
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
-    padding: 50px 0px 0px;
+    padding: 16px 0px 0px;
 }
 .about-wrapper {
     display: -webkit-box;
@@ -366,14 +366,13 @@ const {
         padding: 25px 50px 19px 60px;
         height: 350px;
     }
-       .about-bg {
-        background-image: url(../images/about-bg.jpg);
-        background-size: cover;
-        background-position: center center;
-        background-repeat: no-repeat;
-        padding: 30px 0px 0;
-        height: 110vh;
-        margin-bottom: 0px;
+    .about-bg {
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      padding: 30px 0px 0;
+      height: 110vh;
+      margin-bottom: 0px;
     }
     .content-left-side .title {
         color: #F9FAFB;
