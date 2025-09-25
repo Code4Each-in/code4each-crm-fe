@@ -42,6 +42,7 @@ const pageId = ref(route.query.page_id ? parseInt(route.query.page_id) : null);
 const templatePages = ref([]);
 const selectedCategory = ref("");
 const isDeleting = ref(false);
+const adminEmail = ref("")
 
 /* =========================
    Component Registry
@@ -71,7 +72,9 @@ const getFieldsByComponentType = (type) => {
 
 // Helper to get field value by name
 const getFieldValue = (fields, name, metaIndex = null) => {
-  const field = fields.find((f) => f.field_name === name);
+  const field = fields.find(
+    (f) => f.field_name === name || f.name === name 
+  );
   if (!field) return "";
   return metaIndex ? field[`meta${metaIndex}`] || "" : field.value || "";
 };
@@ -88,6 +91,40 @@ const heroBlockData = computed(() => {
   const logoField = globalVariables.value.find((item) => item.name === "logo");
   const baseUrl = websiteDomain.replace(/\/$/, "") + "/wp-content/themes/codeforeach/";
 
+  // Helper to get global variable by name
+  const getGlobalVar = (name, fallback = "") => {
+    const item = globalVariables.value.find((v) => v.name === name);
+    return item ? item.value : fallback;
+  };
+
+  // Map social link icons
+  const socialLinkIcons = {
+    whatsApp: "fa fa-whatsapp",
+    facebook: "fa fa-facebook",
+    youTube: "fa fa-youtube-play",
+    instagram: "fa fa-instagram",
+    x: "fa fa-twitter",
+  };
+
+  // Map social links dynamically from globalVariables
+  const socialLinks = globalVariables.value
+    .filter((item) => socialLinkIcons[item.name] && item.value)
+    .map((item) => ({
+      url: item.value,
+      icon: socialLinkIcons[item.name],
+    }));
+
+  // Build full address
+  const fullAddress = [
+    getGlobalVar("address"),
+    getGlobalVar("city"),
+    getGlobalVar("state"),
+    getGlobalVar("country"),
+    getGlobalVar("pincode")
+  ]
+    .filter(Boolean) 
+    .join(", ");
+
   return {
     logo: logoField ? baseUrl + logoField.value.replace(/^\//, "") : "",
     menu: headerMenus.value.map((m) => m.name),
@@ -97,7 +134,11 @@ const heroBlockData = computed(() => {
     "header-button1": getFieldValue(fields, "header-button1"),
     buttonUrl: getFieldValue(fields, "header-button1", 1) || "#",
     buttonTarget: getFieldValue(fields, "header-button1", 2) || "_self",
-   "header-image": getFieldValue(fields, "header-img") || "",
+    "header-image": getFieldValue(fields, "header-img") || "",
+    address: fullAddress,
+    phone: getGlobalVar("phone", ""),
+    socialLinks,
+    email: adminEmail.value,
   };
 });
 
@@ -145,7 +186,7 @@ const footerBlockData = computed(() => {
 
   const logoField = globalVariables.value.find((item) => item.name === "logo");
 
-  // Map social link icons
+  // Social link icons mapping
   const socialLinkIcons = {
     whatsApp: "fa fa-whatsapp",
     facebook: "fa fa-facebook",
@@ -154,7 +195,7 @@ const footerBlockData = computed(() => {
     x: "fa fa-twitter",
   };
 
-  // Map social links dynamically from globalVariables
+  // Map social links dynamically
   const socialLinks = globalVariables.value
     .filter((item) => socialLinkIcons[item.name] && item.value)
     .map((item) => ({
@@ -174,30 +215,38 @@ const footerBlockData = computed(() => {
     getGlobalVar("city"),
     getGlobalVar("state"),
     getGlobalVar("country"),
-    getGlobalVar("pincode")
+    getGlobalVar("pincode"),
   ]
     .filter(Boolean) // remove empty parts
     .join(", ");
+
+  // Dynamically build footer images
+  const footerimages = {};
+  for (let i = 1; i <= 6; i++) {
+    const field = fields.find((f) => f.field_name === `footer-image${i}`);
+    footerimages[`footer-image${i}`] = field?.value || field?.default_value || `/images/service-image${i}.png`;
+  }
 
   return {
     logo: logoField
       ? "https://alphafour.speedysites.in/wp-content/themes/codeforeach/" +
         logoField.value.replace(/^\//, "")
-      : "",
+      : "/images/logo.png",
     "footer-description1": getFieldValue(fields, "footer-description1"),
     "footer-button1": getFieldValue(fields, "footer-button1"),
-    phone: getGlobalVar("phone", "8475937593"),
-    address: fullAddress || "Test Test",
+    phone: getGlobalVar("phone", "+91 99999 99999"),
+    address: fullAddress || "123 Street, City, State, Country",
     "footer-text1": getFieldValue(fields, "footer-text1"),
     "footer-text2": getFieldValue(fields, "footer-text2"),
     "footer-text3": getFieldValue(fields, "footer-text3"),
     menu: footerMenus.value.map((m) => m.name),
     socialLinks,
     copyright: getGlobalVar("agency_name", "Your Agency"),
+    email: adminEmail.value || "default@gmail.com",
+    ...footerimages, 
   };
 });
 
-const componentOrder = ["header", "about_section", "service_section", "footer"];
 // All sections for editor rendering
 const sections = computed(() => {
   const map = {
@@ -207,15 +256,14 @@ const sections = computed(() => {
     footer: footerBlockData.value,
   };
 
-  // keep only those with real data (filter out null/empty)
-  return componentOrder
-    .map((key) => ({ key, data: map[key] ?? null }))
-    .filter((sec) => {
-      // keep if data is truthy and not an empty object
-      if (!sec.data) return false;
-      if (typeof sec.data === "object" && Object.keys(sec.data).length === 0) return false;
-      return true;
-    });
+  return Object.keys(componentIdsByType.value).map((type) => {
+    const id = componentIdsByType.value[type]; 
+    const data = map[type] ?? null;
+
+    if (!data) return null;
+    if (typeof data === "object" && Object.keys(data).length === 0) return null;
+    return { key: id, type, data }; 
+  }).filter(Boolean); 
 });
 
 /* =========================
@@ -269,7 +317,7 @@ const fetchGlobalVariables = async () => {
   if (!siteSettingsDetail.value?.website_domain) return;
   try {
     const res = await WordpressService.getGlobalVariables({ website_domain: siteSettingsDetail.value.website_domain });
-    if (res.status === 200 && res.data.success) globalVariables.value = res.data.global_variables || [];
+    if (res.status === 200 && res.data.success) globalVariables.value = res.data.global_variables || []; adminEmail.value = res.data.admin_email || "";
   } catch (error) {
     console.error("Error fetching global variables:", error);
   }
@@ -499,7 +547,7 @@ provide("dashBoardMethods", { fetchDashboardData });
 
                     <!-- Delete button: hide for header/footer -->
                     <button
-                      v-if="!['header', 'footer'].includes(section.key)"
+                      v-if="!['header', 'footer'].includes(section.type)"
                       class="delete-btn"
                       @click="deleteCustomComponent(section.key)"
                       title="Delete"
