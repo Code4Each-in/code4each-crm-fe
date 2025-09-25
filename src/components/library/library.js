@@ -2,10 +2,14 @@
    Imports
 ========================= */
 import { ref, onUnmounted } from "vue";
-import HeroSection from "./ss_health_templates/ss_health_header1.vue";
-import AboutSection from "./ss_health_templates/ss_health_about1.vue";
-import ServiceSection from "./ss_health_templates/ss_health_service1.vue";
-import FooterSection from "./ss_health_templates/ss_health_footer1.vue";
+import COMP_SS_HEALTH_HEADER1_62 from "./ss_health_templates/ss_health_header1.vue";
+import COMP_SS_HEALTH_ABOUT1_63 from "./ss_health_templates/ss_health_about1.vue";
+import COMP_SS_HEALTH_SERVICE1_64 from "./ss_health_templates/ss_health_service1.vue";
+import COMP_SS_HEALTH_FOOTER1_65 from "./ss_health_templates/ss_health_footer1.vue";
+import COMP_SS_EDUCATION_HEADER1_69 from "./ss_education_templates/ss_education_header1.vue";
+// import COMP_SS_EDUCATION_ABOUT1_70 from "./ss_education_templates/ss_education_about1.vue";
+// import COMP_SS_EDUCATION_SERVICE1_71 from "./ss_health_templates/ss_health_service1.vue";
+import COMP_SS_EDUCATION_FOOTER1_72 from "./ss_education_templates/ss_education_footer1.vue";
 
 /* =========================
    Composable for editable fields
@@ -107,8 +111,12 @@ export function useEditable(emit, editableContent) {
    Export at the very end
 ========================= */
 export const componentLibrary = {
-  header: HeroSection,
-  about_section: AboutSection,
-  service_section: ServiceSection,
-  footer: FooterSection,
+  COMP_SS_HEALTH_HEADER1_62: COMP_SS_HEALTH_HEADER1_62,
+  COMP_SS_HEALTH_ABOUT1_63: COMP_SS_HEALTH_ABOUT1_63,
+  COMP_SS_HEALTH_SERVICE1_64: COMP_SS_HEALTH_SERVICE1_64,
+  COMP_SS_HEALTH_FOOTER1_65: COMP_SS_HEALTH_FOOTER1_65,
+  COMP_SS_EDUCATION_HEADER1_69: COMP_SS_EDUCATION_HEADER1_69,
+  // COMP_SS_EDUCATION_ABOUT1_70: COMP_SS_EDUCATION_ABOUT1_70,
+  // COMP_SS_EDUCATION_SERVICE1_71: COMP_SS_EDUCATION_SERVICE1_71,
+  COMP_SS_EDUCATION_FOOTER1_72: COMP_SS_EDUCATION_FOOTER1_72,
 };
