@@ -268,6 +268,12 @@ const WordpressService = {
     },
     deleteCustomComponent: (data) => {
       return requests(baseUrl).delete(`/delete-custom-components`, { params: data });
+    },
+    getComponentsByType: (data) => {
+      return requests(baseUrl).get('/get-custom-components-by-type', { params: data });
+    },
+    replaceCustomComponent: (data) => {
+      return requests(baseUrl).post(`/replace-custom-component`, data)
     }
   }
 
