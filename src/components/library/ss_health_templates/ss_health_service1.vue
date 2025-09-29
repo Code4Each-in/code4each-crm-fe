@@ -115,7 +115,7 @@
       :activeField="selectedField"
       @close="closeSidebar"
       @update-field="(data) => blurAndUpdate(data.field_name, data.value, data.type, data.file)"
-      @image-upload="(e, field) => handleImageUpload(e, field, 'about_section')"
+      @image-upload="(e, field) => handleImageUpload(e, field, 'service_section')"
     />
   </section>
 </template>
@@ -130,10 +130,10 @@ const props = defineProps({
     type: Object,
     default: () => ({
       "service-text1": "Neonal Medical Care - 35 Years of Trusted Experience",
-      "service-description1": "Providing compassionate and comprehensive healthcare services with cutting-edge technology and expert medical professionals.",
+      // "service-description1": "Providing compassionate and comprehensive healthcare services with cutting-edge technology and expert medical professionals.",
       services: [
-        { "service-image1": "/images/1.jpg", "service-text2": "Service 1", "service-description2": "Description 1" },
-        { "service-image2": "/images/2.jpg", "service-text3": "Service 2", "service-description3": "Description 2" },
+        { "service-image1": "/images/1.jpg", "service-text2": "Service 1", "service-description1": "Description 1" },
+        { "service-image2": "/images/2.jpg", "service-text3": "Service 2", "service-description2": "Description 2" },
       ],
     }),
   },

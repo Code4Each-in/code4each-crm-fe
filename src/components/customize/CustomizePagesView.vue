@@ -43,6 +43,15 @@ const templatePages = ref([]);
 const selectedCategory = ref("");
 const isDeleting = ref(false);
 const adminEmail = ref("")
+const showReplacePopup = ref(false);
+const replaceComponentType = ref("");
+const replaceComponentOptions = ref([]); 
+const currentReplacingKey = ref(null);
+const selectedReplacementId = ref(null);
+const componentUniqueIdsByType = ref({});
+const actionLoading = ref(false);
+const replaceLoading = ref(false);
+const usedComponentIds = computed(() => Object.values(componentUniqueIdsByType.value));
 
 /* =========================
    Component Registry
@@ -150,6 +159,7 @@ const aboutBlockData = computed(() => {
   const services = Array.from({ length: 6 }, (_, i) => ({
     [`about-image${i + 1}`]: getFieldValue(fields, `about-img${i + 1}`),
     [`about-text${i + 5}`]: getFieldValue(fields, `about-text${i + 5}`),
+    [`about-service${i + 1}`]: getFieldValue(fields, `about-service${i + 1}`), 
   }));
 
   return {
@@ -157,6 +167,10 @@ const aboutBlockData = computed(() => {
     "about-text2": getFieldValue(fields, "about-text2"),
     "about-text3": getFieldValue(fields, "about-text3"),
     "about-text4": getFieldValue(fields, "about-text4"),
+    "about-description1": getFieldValue(fields, "about-description1"),
+    "about-button1": getFieldValue(fields, "about-button1"),
+    buttonUrl: getFieldValue(fields, "about-button1", 1) || "#",
+    buttonTarget: getFieldValue(fields, "about-button1", 2) || "_self",
     services,
   };
 });
@@ -166,15 +180,14 @@ const serviceBlockData = computed(() => {
   const fields = getFieldsByComponentType("service_section");
   if (!fields.length) return null;
 
-  const services = Array.from({ length: 2 }, (_, i) => ({
+  const services = Array.from({ length: 4 }, (_, i) => ({
     [`service-image${i + 1}`]: getFieldValue(fields, `service-image${i + 1}`),
     [`service-text${i + 2}`]: getFieldValue(fields, `service-text${i + 2}`),
-    [`service-description${i + 2}`]: getFieldValue(fields, `service-description${i + 2}`),
+    [`service-description${i + 1}`]: getFieldValue(fields, `service-description${i + 1}`),
+    [`service-button${i + 1}`]: getFieldValue(fields, `service-button${i + 1}`),
   }));
-
   return {
     "service-text1": getFieldValue(fields, "service-text1"),
-    "service-description1": getFieldValue(fields, "service-description1"),
     services,
   };
 });
@@ -305,8 +318,10 @@ const getActiveComponentIds = async () => {
     });
     if (res.status === 200 && res.data.success) {
       const map = {};
-      res.data.components_detail.forEach((comp) => (map[comp.type] = comp.id));
+      const uniqueMap = {};
+      res.data.components_detail.forEach((comp) => {map[comp.type] = comp.id;  uniqueMap[comp.type] = comp.id});
       componentIdsByType.value = map;
+      componentUniqueIdsByType.value = uniqueMap;
     }
   } catch (error) {
     console.error("Error fetching active components:", error);
@@ -427,7 +442,7 @@ const deleteCustomComponent = async (type) => {
   if (!confirm("Are you sure you want to delete this component?")) return;
 
   try {
-    isDeleting.value = true;
+    actionLoading.value = true;
     const res = await WordpressService.CustomComponentsAndFieldValues.deleteCustomComponent({
       component_unique_id: compId,
       website_domain: siteSettingsDetail.value?.website_domain,
@@ -446,7 +461,84 @@ const deleteCustomComponent = async (type) => {
     console.error("Error deleting component:", error);
     store.updateFlashMeassge(true, "Error deleting component.", "error");
   } finally {
-    isDeleting.value = false; 
+    actionLoading.value = false;
+  }
+};
+
+const getComponentsByType = async (type) => {
+  try {
+    const res = await WordpressService.CustomComponentsAndFieldValues.getComponentsByType({ type });
+    if (res.status === 200 && res.data.success) {
+      const baseUrl = import.meta.env.VITE_CRM_API_URL; // get from VITE env
+      replaceComponentOptions.value = (res.data.component || []).map(comp => ({
+        id: comp.id, 
+        unique_id: comp.component_unique_id, 
+        type: comp.type,
+        preview_url: `${baseUrl}${comp.preview}`,
+        data: comp.data || {}
+      }));
+    }
+  } catch (error) {
+    console.error("Error fetching components by type:", error);
+  }
+};
+
+
+const replaceComponent = async (componentKey) => {
+  currentReplacingKey.value = componentKey;
+
+  const section = sections.value.find(s => s.key === componentKey);
+  if (!section) return;
+
+  replaceComponentType.value = section.type;
+  showReplacePopup.value = true;
+  replaceLoading.value = true;
+  // Fetch replacements
+  await getComponentsByType(section.type);
+  replaceLoading.value = false;
+};
+
+const selectReplacement = (unique_id) => {
+  selectedReplacementId.value = unique_id;
+};
+
+// Send replacement to API
+const replaceCustomComponent = async () => {
+  if (!selectedReplacementId.value || !currentReplacingKey.value) return;
+
+  showReplacePopup.value = false;
+
+  const type = replaceComponentType.value;
+  const newComponentId = selectedReplacementId.value;
+  const oldComponentUniqueId = currentReplacingKey.value;
+
+  try {
+    actionLoading.value = true;
+    const res = await WordpressService.CustomComponentsAndFieldValues.replaceCustomComponent({
+      website_domain: siteSettingsDetail.value.website_domain,
+      old_component_id: oldComponentUniqueId,
+      new_component_id: newComponentId,
+      type,
+      page_id: pageId.value,
+    });
+
+    if (res.status === 200 && res.data.success) {
+      // Close popup
+      selectedReplacementId.value = null;
+      currentReplacingKey.value = null;
+
+      // Refresh the components
+      await getActiveComponentIds();
+      await fetchCustomComponentsAndFieldsValue();
+      store.updateFlashMeassge(true, "Component replaced successfully!", "success");
+    } else {
+      store.updateFlashMeassge(true, "Failed to replace component.", "error");
+    }
+  } catch (error) {
+    console.error("Error replacing component:", error);
+    store.updateFlashMeassge(true, "Error replacing component.", "error");
+  } finally {
+    actionLoading.value = false;
   }
 };
 
@@ -466,6 +558,11 @@ onMounted(async () => {
     initialLoading.value = false;
   }
 });
+
+const closeReplacePopup = () => {
+  showReplacePopup.value = false;
+  selectedReplacementId.value = null;
+};
 
 /* =========================
    Watchers
@@ -511,7 +608,7 @@ provide("dashBoardMethods", { fetchDashboardData });
       </div>
 
       <!-- Loader -->
-      <Loader v-if="initialLoading" />
+      <Loader v-if="initialLoading || actionLoading" />
 
       <template v-else>
         <!-- Page Title & Template Selector -->
@@ -580,6 +677,38 @@ provide("dashBoardMethods", { fetchDashboardData });
         </div>
       </template>
     </section>
+    <!-- Replace Component Popup -->
+    <div v-if="showReplacePopup" class="replace-popup-overlay">
+      <div class="replace-popup">
+        <button class="close-btn" @click="closeReplacePopup" title="Close">&times;</button>
+        <h3>Select a component to replace</h3>
+
+        <!-- Loader overlay inside popup -->
+        <Loader v-if="replaceLoading" />
+
+        <div class="components-grid" v-else>
+          <div
+            v-for="comp in replaceComponentOptions"
+            :key="comp.id"
+            class="component-item"
+            :class="{ selected: selectedReplacementId === comp.unique_id, disabled: usedComponentIds.includes(comp.unique_id) }"
+            @click="!usedComponentIds.includes(comp.unique_id) && selectReplacement(comp.unique_id)"
+          >
+            <img :src="comp.preview_url" :alt="comp.component_unique_id" />
+            <div v-if="selectedReplacementId === comp.unique_id" class="tick-overlay">
+              <i class="fa fa-check"></i>
+            </div>
+            <div v-if="usedComponentIds.includes(comp.unique_id)" class="used-overlay">
+              Already in use
+            </div>
+          </div>
+        </div>
+
+        <div v-if="selectedReplacementId && !actionLoading" class="save-replacement-btn">
+          <button @click="replaceCustomComponent">Save</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -708,6 +837,154 @@ provide("dashBoardMethods", { fetchDashboardData });
 .eidtor-img:hover .component-actions {
   opacity: 1;           /* show on hover */
   pointer-events: auto;  /* allow clicking */
+}
+
+.replace-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.replace-popup {
+  background: #fff;
+  padding: 30px 20px 20px;
+  border-radius: 10px;
+  width: 1028px;
+  height: 500px;
+  overflow-y: auto;
+  position: relative;
+  text-align: center;
+}
+
+.replace-popup h3 {
+  margin-top: 0;
+  margin-bottom: 25px;
+  font-size: 24px;
+}
+
+.replace-popup ul {
+  list-style: none;
+  padding: 0;
+}
+
+.replace-popup li {
+  margin-bottom: 10px;
+}
+
+.replace-popup button {
+  padding: 1px 10px;
+  border: 1px solid #1d2b64;
+  background: #1d2b64;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.replace-popup button:hover {
+  background: #fff;
+  color: #1d2b64;
+}
+
+.components-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  /* justify-content: center; */
+}
+
+.component-item {
+  cursor: pointer;
+  position: relative;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 8px;
+  /* width: 160px; */
+  height: 168px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background-color: #f8f8f8;
+}
+
+.component-item img {
+  width: 100%;
+  height: 120px;                /* taller images */
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.component-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+}
+
+.close-btn:hover {
+  background: #c0392b;
+}
+
+.tick-overlay {
+  position: absolute;
+  top: -12px;
+  right: -7px;
+  background: #1d2b64;
+  color: #fff;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  z-index: 2;
+}
+
+.save-replacement-btn {
+  margin-top: 12px;
+  text-align: end;
+}
+
+.save-replacement-btn button {
+  padding: 8px 20px;
+  border: none;
+  background: #1d2b64;
+  border: 1px solid #1d2b64;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.save-replacement-btn button:hover {
+  background: #fff;
+  color: #1d2b64;
+}
+
+.component-item.disabled {
+  opacity: 0.5;
+  pointer-events: none; /* disables clicks */
+}
+
+.used-overlay {
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+  width: 100%;
+  background: rgba(255, 0, 0, 0.7);
+  color: white;
+  font-size: 12px;
+  text-align: center;
+  border-radius: 4px;
+  padding: 2px 0;
 }
 
 </style>
