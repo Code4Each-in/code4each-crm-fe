@@ -432,8 +432,8 @@ const currentPage = computed(() => {
   return templatePages.value.find(p => p.page_id === pageId.value) || null;
 });
 
-const deleteCustomComponent = async (type) => {
-  const compId = componentIdsByType.value[type]; 
+const deleteCustomComponent = async (componentUniqueId) => {
+  const compId = componentUniqueId; 
   if (!compId) {
     console.error("Component ID not found for type:", type);
     return;
@@ -905,15 +905,15 @@ provide("dashBoardMethods", { fetchDashboardData });
   border: 1px solid #ccc;
   padding: 10px;
   border-radius: 8px;
-  /* width: 160px; */
+  max-width: 25%;
   height: 168px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   background-color: #f8f8f8;
 }
 
 .component-item img {
-  width: 100%;
-  height: 120px;                /* taller images */
+  max-width: 96%;
+  height: 120px;
   object-fit: cover;
   border-radius: 4px;
 }
@@ -955,13 +955,16 @@ provide("dashBoardMethods", { fetchDashboardData });
 }
 
 .save-replacement-btn button {
-  padding: 8px 20px;
+  padding: 4px 21px;
   border: none;
   background: #1d2b64;
   border: 1px solid #1d2b64;
   color: #fff;
   cursor: pointer;
   border-radius: 4px;
+  position: fixed;
+  left: 79%;
+  top: 88%;
 }
 
 .save-replacement-btn button:hover {
