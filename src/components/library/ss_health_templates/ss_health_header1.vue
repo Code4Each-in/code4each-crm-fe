@@ -64,7 +64,7 @@
               <input
                 v-if="selectedField === 'header-text1'"
                 v-model="editableContent['header-text1']"
-                @blur="blurAndUpdate('header-text1')"
+                @blur="blurAndUpdate('header-text1', null, null, null, componentId)"
               />
               <h2 v-else class="hero-title1">{{ editableContent['header-text1'] }}</h2>
             </div>
@@ -81,7 +81,7 @@
               <input
                 v-if="selectedField === 'header-text2'"
                 v-model="editableContent['header-text2']"
-                @blur="blurAndUpdate('header-text2')"
+                @blur="blurAndUpdate('header-text2', null, null, null, componentId)"
               />
               <h1 v-else class="hero-title2">{{ editableContent['header-text2'] }}</h1>
             </div>
@@ -98,7 +98,7 @@
               <textarea
                 v-if="selectedField === 'header-description1'"
                 v-model="editableContent['header-description1']"
-                @blur="blurAndUpdate('header-description1')"
+                @blur="blurAndUpdate('header-description1', null, null, null, componentId)"
               ></textarea>
               <p v-else class="hero-description">{{ editableContent['header-description1'] }}</p>
             </div>
@@ -116,7 +116,7 @@
               <!-- Button that opens the sidebar -->
               <button
                 class="btn hero-btn"
-                @click.stop="selectField('header-button1', 'button', 'header')"
+                @click.stop="selectField('header-button1', 'button', 'header', componentId)"
               >
                 {{ editableContent['header-button1'] }}
               </button>
@@ -129,7 +129,7 @@
             <div
               class="hero-image-wrapper editable"
               :class="{ selected: selectedField === 'header-image' }"
-              @click.stop="selectField('header-image', 'image', 'header')" 
+              @click.stop="selectField('header-image', 'image', 'header', componentId)" 
               @mouseover="hoveredField = 'header-image'"
               @mouseleave="hoveredField = null"
             >
@@ -150,9 +150,10 @@
       :editableContent="editableContent"
       :activeSectionType="activeSectionType"
       :activeField="selectedField"
+      :activeComponentId="activeComponentId"
       @close="closeSidebar"
-      @update-field="(data) => blurAndUpdate(data.field_name, data.value, data.type, data.file)"
-      @image-upload="(e, field) => handleImageUpload(e, field, 'header')"
+      @update-field="(data) => blurAndUpdate(data.field_name, data.value, data.type, data.file, componentId)"
+      @image-upload="(e, field) => handleImageUpload(e, field, 'header', componentId)"
     />
   </header>
 </template>
@@ -180,6 +181,7 @@ const props = defineProps({
 // parent listens to "field-updated"
 const emit = defineEmits(["field-updated"]);
 const editableContent = ref({ ...props.data });
+const componentId = 'COMP_SS_HEALTH_HEADER1_62';
 
 watch(
   () => props.data,
@@ -199,6 +201,7 @@ const {
   blurAndUpdate,
   handleImageUpload,
   activeSectionType,
+  activeComponentId,
 } = useEditable(emit, editableContent);
 
 </script>

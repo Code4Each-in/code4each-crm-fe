@@ -18,7 +18,7 @@
               <input
                 v-if="selectedField === 'about-text1'"
                 v-model="editableContent['about-text1']"
-                @blur="blurAndUpdate('about-text1')"
+                @blur="blurAndUpdate('about-text1', null, null, null, componentId)"
               />
               <span v-else style="color:#f7a582">{{ editableContent['about-text1'] }}</span>
             </span>
@@ -35,7 +35,7 @@
               <input
                 v-if="selectedField === 'about-text2'"
                 v-model="editableContent['about-text2']"
-                @blur="blurAndUpdate('about-text2')"
+                @blur="blurAndUpdate('about-text2', null, null, null, componentId)"
               />
               <span v-else>{{ editableContent['about-text2'] }}</span>
             </span>
@@ -54,7 +54,7 @@
               <input
                 v-if="selectedField === 'about-text3'"
                 v-model="editableContent['about-text3']"
-                @blur="blurAndUpdate('about-text3')"
+                @blur="blurAndUpdate('about-text3', null, null, null, componentId)"
               />
               <span v-else>{{ editableContent['about-text3'] }}</span>
             </span>
@@ -71,7 +71,7 @@
               <input
                 v-if="selectedField === 'about-text4'"
                 v-model="editableContent['about-text4']"
-                @blur="blurAndUpdate('about-text4')"
+                @blur="blurAndUpdate('about-text4', null, null, null, componentId)"
               />
               <span v-else>{{ editableContent['about-text4'] }}</span>
             </span>
@@ -92,7 +92,7 @@
         <div
           class="single-service-thumb editable"
           :class="{ selected: selectedField === 'about-image' + (i + 1) }"
-          @click.stop="selectField('about-image' + (i + 1), 'image', 'about_section')"
+          @click.stop="selectField('about-image' + (i + 1), 'image', 'about_section', componentId)"
           @mouseover="hoveredField = 'about-image' + (i + 1)"
           @mouseleave="hoveredField = null"
         >
@@ -116,7 +116,7 @@
           <input
             v-if="selectedField === 'about-text' + (i + 5)"
             v-model="service['about-text' + (i + 5)]"
-            @blur="blurAndUpdate('about-text' + (i + 5), service['about-text' + (i + 5)])"
+            @blur="blurAndUpdate('about-text' + (i + 5), service['about-text' + (i + 5)], null, null, componentId)"
           />
           <h2 v-else class="title">{{ service['about-text' + (i + 5)] }}</h2>
         </div>
@@ -130,8 +130,8 @@
     :activeSectionType="activeSectionType"
     :activeField="selectedField"
     @close="closeSidebar"
-    @update-field="(data) => blurAndUpdate(data.field_name, data.value, data.type, data.file)"
-    @image-upload="(e, field) => handleImageUpload(e, field, 'about_section')"
+    @update-field="(data) => blurAndUpdate(data.field_name, data.value, data.type, data.file, componentId)"
+    @image-upload="(e, field) => handleImageUpload(e, field, 'about_section', componentId)"
   />
 </section>
 
@@ -164,6 +164,7 @@ const props = defineProps({
 
 const emit = defineEmits(["field-updated"]);
 const editableContent = ref({ ...props.data });
+const componentId = 'COMP_SS_HEALTH_ABOUT1_63';
 
 watch(
   () => props.data,

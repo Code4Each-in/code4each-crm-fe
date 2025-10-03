@@ -42,6 +42,7 @@ import { EventBus } from "@/EventBus";
 // Props
 const props = defineProps({
   sectionType: String, 
+  activeComponentId: String, 
 });
 
 const router = useRouter();
@@ -75,7 +76,7 @@ onMounted(async () => {
   try {
     await withLoader(async () => {
       await getSiteDetails();
-      await getActiveComponentIds();
+      // await getActiveComponentIds();
       await fetchCustomComponentsAndFieldsValue();
     });
   } finally {
@@ -109,30 +110,8 @@ const getSiteDetails = async () => {
   }
 };
 
-const getActiveComponentIds = async () => {
-  if (!props.sectionType) return null;
-  try {
-    const res = await WordpressService.Components.getActiveComponents({
-      website_url: siteSettingsDetail.value?.website_domain,
-      page_id: pageId.value,
-    });
-
-    if (res.status === 200 && res.data.success) {
-      const map = {};
-      res.data.components_detail.forEach((comp) => {
-        map[comp.type] = comp.id;
-      });
-      componentIdsByType.value = map;
-      return map[props.sectionType] || null;
-    }
-  } catch (error) {
-    console.error("Error fetching active components:", error);
-    return null;
-  }
-};
-
 const fetchCustomComponentsAndFieldsValue = async () => {
-  const activeComponentId = await getActiveComponentIds();
+  const activeComponentId = props.activeComponentId;
   if (!activeComponentId) {
     siteSettingsFormFields.value = [];
     return;
@@ -182,7 +161,7 @@ const submitCustomFields = async (data) => {
       return acc;
     }, []);
 
-    const activeComponentId = componentIdsByType.value[props.sectionType];
+    const activeComponentId = props.activeComponentId;
 
     const response = await WordpressService.ComponentsFormField.updateComponentsFormField({
       website_url: siteSettingsDetail.value?.website_domain,

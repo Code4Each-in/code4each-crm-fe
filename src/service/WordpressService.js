@@ -274,7 +274,13 @@ const WordpressService = {
     },
     replaceCustomComponent: (data) => {
       return requests(baseUrl).post(`/replace-custom-component`, data)
-    }
+    },
+    getComponentForNewSection: (data) => {
+      return requests(baseUrl).get('/get-custom-components-for-new-section', { params: data });
+    },
+    addNewSection: (data) => {
+      return requests(baseUrl).post(`/add-new-custom-component-section`, data)
+    },
   }
 
 }
