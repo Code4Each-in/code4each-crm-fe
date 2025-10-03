@@ -51,6 +51,7 @@
       <ButtonEditor
         v-if="type === 'button'"
         :section-type="activeSectionTypeProp"
+        :active-componentId="activeComponentIdProp"
       />
 
       <!-- Menu Editor -->
@@ -80,10 +81,12 @@ const props = defineProps({
   editableContent: Object,
   activeSectionType: String,
   activeField: String,
+  activeComponentId: String,
 });
 
 // Computed for section type
 const activeSectionTypeProp = computed(() => props.activeSectionType);
+const activeComponentIdProp = computed(() => props.activeComponentId);
 const activeImage = computed(() => {
   // Top-level field (if it exists)
   if (props.editableContent[props.activeField]) return props.editableContent[props.activeField];

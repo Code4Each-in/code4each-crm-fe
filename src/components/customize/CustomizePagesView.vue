@@ -52,6 +52,12 @@ const componentUniqueIdsByType = ref({});
 const actionLoading = ref(false);
 const replaceLoading = ref(false);
 const usedComponentIds = computed(() => Object.values(componentUniqueIdsByType.value));
+const showAddSectionPopup = ref(false);
+const addSectionOptions = ref([]);
+const selectedAddSectionId = ref(null);
+const addSectionType = ref("");
+const activeComponents = ref([]); 
+const componentuniqueId = ref(null);
 
 /* =========================
    Component Registry
@@ -74,10 +80,11 @@ const decodeHtml = (html) => {
 };
 
 // Get fields for a specific component type safely
-const getFieldsByComponentType = (type) => {
-  const component = siteComponentFields.value.find((c) => c.type === type);
+const getFieldsByComponentType = (type, componentuniqueId) => {
+  const component = siteComponentFields.value.find((c) => c.type === type && c.component_unique_id === componentuniqueId);
   return component?.fields || [];
 };
+
 
 // Helper to get field value by name
 const getFieldValue = (fields, name, metaIndex = null) => {
@@ -92,8 +99,8 @@ const getFieldValue = (fields, name, metaIndex = null) => {
    Computed Properties
 ========================= */
 // Hero block
-const heroBlockData = computed(() => {
-  const fields = getFieldsByComponentType("header");
+const heroBlockData = (componentuniqueId) => {
+  const fields = getFieldsByComponentType("header", componentuniqueId);
   if (!fields.length) return null;
 
   const websiteDomain = siteSettingsDetail.value?.website_domain || "";
@@ -149,11 +156,11 @@ const heroBlockData = computed(() => {
     socialLinks,
     email: adminEmail.value,
   };
-});
+};
 
 // About block
-const aboutBlockData = computed(() => {
-  const fields = getFieldsByComponentType("about_section");
+const aboutBlockData = (componentuniqueId) => {
+  const fields = getFieldsByComponentType("about_section", componentuniqueId);
   if (!fields.length) return null;
 
   const services = Array.from({ length: 6 }, (_, i) => ({
@@ -173,11 +180,11 @@ const aboutBlockData = computed(() => {
     buttonTarget: getFieldValue(fields, "about-button1", 2) || "_self",
     services,
   };
-});
+};
 
 // Service block
-const serviceBlockData = computed(() => {
-  const fields = getFieldsByComponentType("service_section");
+const serviceBlockData = (componentuniqueId) => {
+  const fields = getFieldsByComponentType("service_section", componentuniqueId);
   if (!fields.length) return null;
 
   const services = Array.from({ length: 4 }, (_, i) => ({
@@ -190,11 +197,11 @@ const serviceBlockData = computed(() => {
     "service-text1": getFieldValue(fields, "service-text1"),
     services,
   };
-});
+};
 
 // Footer block
-const footerBlockData = computed(() => {
-  const fields = getFieldsByComponentType("footer");
+const footerBlockData = (componentuniqueId) => {
+  const fields = getFieldsByComponentType("footer", componentuniqueId);
   if (!fields.length) return null;
 
   const logoField = globalVariables.value.find((item) => item.name === "logo");
@@ -258,25 +265,26 @@ const footerBlockData = computed(() => {
     email: adminEmail.value || "default@gmail.com",
     ...footerimages, 
   };
-});
+};
 
 // All sections for editor rendering
 const sections = computed(() => {
-  const map = {
-    header: heroBlockData.value,
-    about_section: aboutBlockData.value,
-    service_section: serviceBlockData.value,
-    footer: footerBlockData.value,
-  };
+  return Object.entries(componentIdsByType.value).flatMap(([type, ids]) => {
+    return (Array.isArray(ids) ? ids : [ids])
+      .map((id) => {
+        let data = null;
 
-  return Object.keys(componentIdsByType.value).map((type) => {
-    const id = componentIdsByType.value[type]; 
-    const data = map[type] ?? null;
+        if (type === "header") data = heroBlockData(id);
+        else if (type === "about_section") data = aboutBlockData(id);
+        else if (type === "service_section") data = serviceBlockData(id);
+        else if (type === "footer") data = footerBlockData(id);
 
-    if (!data) return null;
-    if (typeof data === "object" && Object.keys(data).length === 0) return null;
-    return { key: id, type, data }; 
-  }).filter(Boolean); 
+        if (!data || Object.keys(data).length === 0) return null;
+
+        return { key: id, type, data };
+      })
+      .filter(Boolean);
+  });
 });
 
 /* =========================
@@ -317,9 +325,17 @@ const getActiveComponentIds = async () => {
       page_id: pageId.value,
     });
     if (res.status === 200 && res.data.success) {
+      activeComponents.value = res.data.components_detail;
+      console.log(activeComponents.value);
       const map = {};
       const uniqueMap = {};
-      res.data.components_detail.forEach((comp) => {map[comp.type] = comp.id;  uniqueMap[comp.type] = comp.id});
+      res.data.components_detail.forEach((comp) => {
+        if (!map[comp.type]) map[comp.type] = [];
+        map[comp.type].push(comp.id);
+
+        if (!uniqueMap[comp.type]) uniqueMap[comp.type] = [];
+        uniqueMap[comp.type].push(comp.id);
+      });
       componentIdsByType.value = map;
       componentUniqueIdsByType.value = uniqueMap;
     }
@@ -352,10 +368,11 @@ const getMenus = async () => {
 
 const fetchCustomComponentsAndFieldsValue = async () => {
   try {
+    const componentIds = activeComponents.value.map(c => c.id);
     const res = await WordpressService.CustomComponentsAndFieldValues.getCustomComponentsAndFieldValues({
       website_domain: siteSettingsDetail.value.website_domain,
       page_id: pageId.value,
-      component_ids: componentIdsByType.value,
+      component_ids: componentIds,
     });
     if (res.status === 200 && res.data.success) siteComponentFields.value = res.data.data;
   } catch (error) {
@@ -366,9 +383,10 @@ const fetchCustomComponentsAndFieldsValue = async () => {
 /* =========================
    Save Field with Debounce
 ========================= */
-const saveCustomComponentsFieldValues = (field_name, value, type = "text", file) => {
+const saveCustomComponentsFieldValues = (field_name, value, type = "text", file, componentId) => {
   if (!pageId.value) return;
   isSaving.value = true;
+  console.log("Component ID:", componentId);  
 
   if (saveTimeout.value) clearTimeout(saveTimeout.value);
   if (typeof field_name === "object") {
@@ -377,6 +395,7 @@ const saveCustomComponentsFieldValues = (field_name, value, type = "text", file)
     type = data.type || "text"; 
     field_name = data.field_name;
     file = data.file;
+    componentId = data.componentId;
   }
 
   saveTimeout.value = setTimeout(async () => {
@@ -387,7 +406,7 @@ const saveCustomComponentsFieldValues = (field_name, value, type = "text", file)
       formData.append("field_name", field_name);
       formData.append("value", value);
       formData.append("type", type);
-
+      formData.append("component_id", componentId);
       if (file) {
         formData.append("file", file);
       }
@@ -565,6 +584,89 @@ const closeReplacePopup = () => {
 };
 
 /* =========================
+   Add Section Popup Logic
+========================= */
+const alwaysTypesToAdd = ["about_section", "service_section"];
+
+const openAddSectionPopup = async (sectionKey) => {
+  showAddSectionPopup.value = true;
+  addSectionType.value = "custom";
+  currentReplacingKey.value = sectionKey;
+
+  // Exclude already used IDs
+  const excludeIds = alwaysTypesToAdd
+  .map(t => componentIdsByType.value[t])
+  .filter(Boolean)
+  .flat(); 
+
+  try {
+    const res = await WordpressService.CustomComponentsAndFieldValues.getComponentForNewSection({
+      type: alwaysTypesToAdd,
+      exclude_ids: excludeIds,
+    });
+
+    if (res.status === 200 && res.data.success) {
+      const baseUrl = import.meta.env.VITE_CRM_API_URL;
+      addSectionOptions.value = (res.data.component || []).map(comp => ({
+        id: comp.id,
+        unique_id: comp.component_unique_id,
+        type: comp.type,
+        preview_url: `${baseUrl}${comp.preview}`,
+        data: comp.data || {},
+      }));
+    }
+  } catch (error) {
+    console.error("Error fetching components for add section:", error);
+  }
+};
+
+const selectAddSection = (unique_id) => {
+  selectedAddSectionId.value = unique_id;
+};
+
+const addNewSection = async () => {
+  if (!selectedAddSectionId.value || !currentReplacingKey.value) return;
+
+  const newComponentId = selectedAddSectionId.value;
+  const afterSectionKey = currentReplacingKey.value;
+
+  try {
+    actionLoading.value = true;
+
+    // Find the position of after_section_id from already fetched active components
+    const afterSection = activeComponents.value.find(comp => comp.id === afterSectionKey);
+    const afterSectionPosition = afterSection ? afterSection.position : null;
+
+    const res = await WordpressService.CustomComponentsAndFieldValues.addNewSection({
+      website_domain: siteSettingsDetail.value.website_domain,
+      page_id: pageId.value,
+      new_component_id: newComponentId,
+      previous_component_id: afterSectionKey, 
+      previous_section_position: afterSectionPosition,
+    });
+
+    if (res.status === 200 && res.data.success) {
+      store.updateFlashMeassge(true, "Section added successfully!", "success");
+
+      // Refresh active components & fields
+      await getActiveComponentIds();
+      await fetchCustomComponentsAndFieldsValue();
+
+      // Reset popup state
+      selectedAddSectionId.value = null;
+      showAddSectionPopup.value = false;
+    } else {
+      store.updateFlashMeassge(true, "Failed to add section.", "error");
+    }
+  } catch (error) {
+    console.error("Error adding new section:", error);
+    store.updateFlashMeassge(true, "Error adding new section.", "error");
+  } finally {
+    actionLoading.value = false;
+  }
+};
+
+/* =========================
    Watchers
 ========================= */
 watch(() => store.websiteId, async () => {
@@ -664,7 +766,11 @@ provide("dashBoardMethods", { fetchDashboardData });
                 </div>
 
                 <!-- Add new section button -->
-                <div v-if="index !== sections.length - 1" class="main-div1">
+                <div
+                  v-if="index !== sections.length - 1"
+                  class="main-div1"
+                  @click="openAddSectionPopup(section.key)"
+                >
                   <div class="edit-section"></div>
                   <h1>
                     <i class="fa fa-plus"></i> Add new section <i class="fa fa-plus"></i>
@@ -706,6 +812,37 @@ provide("dashBoardMethods", { fetchDashboardData });
 
         <div v-if="selectedReplacementId && !actionLoading" class="save-replacement-btn">
           <button @click="replaceCustomComponent">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="showAddSectionPopup" class="replace-popup-overlay">
+      <div class="replace-popup">
+        <button class="close-btn" @click="() => showAddSectionPopup = false" title="Close">&times;</button>
+        <h3>Select a component to add</h3>
+
+        <Loader v-if="actionLoading" />
+
+        <div class="components-grid" v-else>
+          <div
+            v-for="comp in addSectionOptions"
+            :key="comp.id"
+            class="component-item"
+            :class="{ selected: selectedAddSectionId === comp.unique_id, disabled: usedComponentIds.includes(comp.unique_id) }"
+            @click="!usedComponentIds.includes(comp.unique_id) && selectAddSection(comp.unique_id)"
+          >
+            <img :src="comp.preview_url" :alt="comp.component_unique_id" />
+            <div v-if="selectedAddSectionId === comp.unique_id" class="tick-overlay">
+              <i class="fa fa-check"></i>
+            </div>
+            <div v-if="usedComponentIds.includes(comp.unique_id)" class="used-overlay">
+              Already in use
+            </div>
+          </div>
+        </div>
+
+        <div v-if="selectedAddSectionId && !actionLoading" class="save-replacement-btn">
+          <button @click="addNewSection">Add Section</button>
         </div>
       </div>
     </div>
@@ -858,9 +995,10 @@ provide("dashBoardMethods", { fetchDashboardData });
   border-radius: 10px;
   width: 1028px;
   height: 500px;
-  overflow-y: auto;
   position: relative;
   text-align: center;
+  display: flex;
+  flex-direction: column;
 }
 
 .replace-popup h3 {
@@ -896,7 +1034,9 @@ provide("dashBoardMethods", { fetchDashboardData });
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  /* justify-content: center; */
+  flex: 1; 
+  overflow-y: auto;  
+  padding: 10px;    
 }
 
 .component-item {
@@ -905,15 +1045,15 @@ provide("dashBoardMethods", { fetchDashboardData });
   border: 1px solid #ccc;
   padding: 10px;
   border-radius: 8px;
-  max-width: 25%;
+  /* width: 160px; */
   height: 168px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   background-color: #f8f8f8;
 }
 
 .component-item img {
-  max-width: 96%;
-  height: 120px;
+  width: 100%;
+  height: 120px;                /* taller images */
   object-fit: cover;
   border-radius: 4px;
 }
@@ -935,7 +1075,7 @@ provide("dashBoardMethods", { fetchDashboardData });
 
 .tick-overlay {
   position: absolute;
-  top: -12px;
+  top: -10px;
   right: -7px;
   background: #1d2b64;
   color: #fff;
@@ -950,21 +1090,22 @@ provide("dashBoardMethods", { fetchDashboardData });
 }
 
 .save-replacement-btn {
-  margin-top: 12px;
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  padding: 10px 0;
   text-align: end;
+  border-top: 1px solid #eee;
 }
 
 .save-replacement-btn button {
-  padding: 4px 21px;
+  padding: 8px 20px;
   border: none;
   background: #1d2b64;
   border: 1px solid #1d2b64;
   color: #fff;
   cursor: pointer;
   border-radius: 4px;
-  position: fixed;
-  left: 79%;
-  top: 88%;
 }
 
 .save-replacement-btn button:hover {

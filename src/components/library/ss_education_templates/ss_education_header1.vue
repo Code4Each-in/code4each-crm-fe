@@ -98,7 +98,7 @@
                         @mouseover="hoveredField='header-text1'" 
                         @mouseleave="hoveredField=null">
                         <span v-if="hoveredField==='header-text1'" class="edit-label">Hero Heading</span>
-                        <input v-if="selectedField==='header-text1'" v-model="editableContent['header-text1']" @blur="blurAndUpdate('header-text1')" />
+                        <input v-if="selectedField==='header-text1'" v-model="editableContent['header-text1']" @blur="blurAndUpdate('header-text1', null, null, null, componentId)" />
                         <h1 v-else class="mb-3 text-primary">{{ editableContent['header-text1'] }}</h1>
                     </div>
 
@@ -108,7 +108,7 @@
                         @mouseover="hoveredField='header-description1'" 
                         @mouseleave="hoveredField=null">
                         <span v-if="hoveredField==='header-description1'" class="edit-label">Hero Description</span>
-                        <textarea v-if="selectedField==='header-description1'" v-model="editableContent['header-description1']" @blur="blurAndUpdate('header-description1')" />
+                        <textarea v-if="selectedField==='header-description1'" v-model="editableContent['header-description1']" @blur="blurAndUpdate('header-description1', null, null, null, componentId)" />
                         <h1 v-else class="mb-5 display-1 text-white">{{ editableContent['header-description1'] }}</h1>
                     </div>
 
@@ -124,7 +124,7 @@
                     <!-- Button that opens the sidebar -->
                     <button
                         class="btn btn-primary px-4 py-3 px-md-5 me-4 btn-border-radius"
-                        @click.stop="selectField('header-button1', 'button', 'header')"
+                        @click.stop="selectField('header-button1', 'button', 'header', componentId)"
                     >
                         {{ editableContent['header-button1'] }} 
                     </button>
@@ -140,55 +140,58 @@
         :editableContent="editableContent"
         :activeSectionType="activeSectionType"
         :activeField="selectedField"
+        :activeComponentId="activeComponentId"
         @close="closeSidebar"
-        @update-field="(data) => blurAndUpdate(data.field_name, data.value, data.type, data.file)"
+        @update-field="(data) => blurAndUpdate(data.field_name, data.value, data.type, data.file, componentId)"
         @image-upload="(e, field) => handleImageUpload(e, field, 'header')"
     />
 </template>
   
 <script setup>
-    // import '../ss_education_templates/bootstrap.min.css';
-    import { ref, watch } from 'vue';
-    import { useEditable } from '../library';
-    import SidebarEditor from '../SidebarEditor.vue';
-    
-    const props = defineProps({
-        data: {
-            type: Object,
-            default: () => ({
-            logo: '/images/logo.png',
-            address: '123 Main St, City, State, Country',
-            email: 'default@example.com',
-            phone: '+1234567890',
-            socialLinks: '',
-            menu: ['Home', 'About', 'Services', 'Contact'],
-            heroHeading: 'Your Hero Heading',
-            heroDescription: 'Your Hero Description',
-            heroButton: 'Click Here',
-            heroButtonLink: '#',
-            heroButtonTarget: '_self',
-            }),
-        },
-    });
-    
-    const emit = defineEmits(['field-updated']);
-    const editableContent = ref({ ...props.data });
-    
-    watch(() => props.data, (newVal) => {
-        editableContent.value = { ...newVal };
-    }, { immediate: true, deep: true });
-    
-    const {
-        selectedField,
-        hoveredField,
-        activeEditorType,
-        isSidebarOpen,
-        closeSidebar,
-        selectField,
-        blurAndUpdate,
-        handleImageUpload,
-        activeSectionType,
-    } = useEditable(emit, editableContent);
+// import '../ss_education_templates/bootstrap.min.css';
+import { ref, watch } from 'vue';
+import { useEditable } from '../library';
+import SidebarEditor from '../SidebarEditor.vue';
+
+const props = defineProps({
+    data: {
+        type: Object,
+        default: () => ({
+        logo: '/images/logo.png',
+        address: '123 Main St, City, State, Country',
+        email: 'default@example.com',
+        phone: '+1234567890',
+        socialLinks: '',
+        menu: ['Home', 'About', 'Services', 'Contact'],
+        heroHeading: 'Your Hero Heading',
+        heroDescription: 'Your Hero Description',
+        heroButton: 'Click Here',
+        heroButtonLink: '#',
+        heroButtonTarget: '_self',
+        }),
+    },
+});
+
+const emit = defineEmits(['field-updated']);
+const editableContent = ref({ ...props.data });
+const componentId = 'COMP_SS_EDUCATION_HEADER1_69';
+
+watch(() => props.data, (newVal) => {
+    editableContent.value = { ...newVal };
+}, { immediate: true, deep: true });
+
+const {
+    selectedField,
+    hoveredField,
+    activeEditorType,
+    isSidebarOpen,
+    closeSidebar,
+    selectField,
+    blurAndUpdate,
+    handleImageUpload,
+    activeSectionType,
+    activeComponentId,
+} = useEditable(emit, editableContent);
 </script>
   
 <style scoped>

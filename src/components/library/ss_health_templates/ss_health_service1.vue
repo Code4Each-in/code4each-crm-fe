@@ -19,7 +19,7 @@
                 <input
                   v-if="selectedField === 'service-text1'"
                   v-model="editableContent['service-text1']"
-                  @blur="blurAndUpdate('service-text1', editableContent['service-text1'])"
+                  @blur="blurAndUpdate('service-text1', editableContent['service-text1'], null, null, componentId)"
                 />
                 <h2 v-else class="service-heading">{{ editableContent['service-text1'] }}</h2>
               </div>
@@ -36,7 +36,7 @@
                 <textarea
                   v-if="selectedField === 'service-description1'"
                   v-model="editableContent['service-description1']"
-                  @blur="blurAndUpdate('service-description1', editableContent['service-description1'])"
+                  @blur="blurAndUpdate('service-description1', editableContent['service-description1'], null, null, componentId)"
                 />
                 <p v-else class="service-description">{{ editableContent['service-description1']}}</p>
               </div>
@@ -54,7 +54,7 @@
                   <div
                     class="icon editable"
                     :class="{ selected: selectedField === 'service-image' + (i + 1) }"
-                    @click.stop="selectField('service-image' + (i + 1), 'image', 'service_section')"
+                    @click.stop="selectField('service-image' + (i + 1), 'image', 'service_section', componentId)"
                     @mouseover="hoveredField = 'service-image' + (i + 1)"
                     @mouseleave="hoveredField = null"
                   >
@@ -78,7 +78,7 @@
                     <input
                       v-if="selectedField === 'service-title-' + i"
                       v-model="editableContent.services[i]['service-text' + (i + 2)]"
-                      @blur="blurAndUpdate('service-text' + (i + 2), editableContent.services[i]['service-text' + (i + 2)])"
+                      @blur="blurAndUpdate('service-text' + (i + 2), editableContent.services[i]['service-text' + (i + 2)], null, nulll, componentId)"
                     />
                     <h4 class="title" v-else>{{ service['service-text' + (i + 2)] }}</h4>
                   </div>
@@ -96,7 +96,7 @@
                   <textarea
                     v-if="selectedField === 'service-description-' + i"
                     v-model="editableContent.services[i]['service-description' + (i + 2)]"
-                    @blur="blurAndUpdate('service-description' + (i + 2), editableContent.services[i]['service-description' + (i + 2)])"
+                    @blur="blurAndUpdate('service-description' + (i + 2), editableContent.services[i]['service-description' + (i + 2)], null, null, componentId)"
                   />
                   <p v-else>{{ service['service-description' + (i + 2)] }}</p>
                 </div>
@@ -114,8 +114,8 @@
       :activeSectionType="activeSectionType"
       :activeField="selectedField"
       @close="closeSidebar"
-      @update-field="(data) => blurAndUpdate(data.field_name, data.value, data.type, data.file)"
-      @image-upload="(e, field) => handleImageUpload(e, field, 'service_section')"
+      @update-field="(data) => blurAndUpdate(data.field_name, data.value, data.type, data.file, componentId)"
+      @image-upload="(e, field) => handleImageUpload(e, field, 'service_section', componentId)"
     />
   </section>
 </template>
@@ -141,6 +141,7 @@ const props = defineProps({
 
 const emit = defineEmits(["field-updated"]);
 const editableContent = ref({ ...props.data });
+const componentId = 'COMP_SS_HEALTH_SERVICE1_64';
 
 watch(
   () => props.data,

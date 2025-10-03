@@ -32,7 +32,7 @@
                 <textarea
                   v-if="selectedField === 'footer-description1'"
                   v-model="editableContent['footer-description1']"
-                  @blur="blurAndUpdate('footer-description1')"
+                  @blur="blurAndUpdate('footer-description1', null, null, null, componentId)"
                 />
                 <p v-else class="mt-4">{{ editableContent['footer-description1'] }}</p>
               </div>
@@ -56,7 +56,7 @@
                 <input
                   v-if="selectedField === 'footer-text1'"
                   v-model="editableContent['footer-text1']"
-                  @blur="blurAndUpdate('footer-text1')"
+                  @blur="blurAndUpdate('footer-text1', null, null, null, componentId)"
                 />
                 <h4
                   v-else
@@ -108,7 +108,7 @@
                 <input
                   v-if="selectedField === 'footer-text2'"
                   v-model="editableContent['footer-text2']"
-                  @blur="blurAndUpdate('footer-text2')"
+                  @blur="blurAndUpdate('footer-text2', null, null, null, componentId)"
                 />
                 <h4
                   v-else
@@ -125,7 +125,7 @@
                   v-for="i in 6"
                   :key="i"
                   :class="{ selected: selectedField === 'footer-image' + i }"
-                  @click.stop="selectField('footer-image' + i, 'image', 'footer')"
+                  @click.stop="selectField('footer-image' + i, 'image', 'footer', componentId)"
                   @mouseover="hoveredField = 'footer-image' + i"
                   @mouseleave="hoveredField = null"
                 >
@@ -175,8 +175,8 @@
       :activeSectionType="activeSectionType"
       :activeField="selectedField"
       @close="closeSidebar"
-      @update-field="(data) => blurAndUpdate(data.field_name, data.value, data.type, data.file)"
-      @image-upload="(e, field) => handleImageUpload(e, field, 'footer')"
+      @update-field="(data) => blurAndUpdate(data.field_name, data.value, data.type, data.file, componentId)"
+      @image-upload="(e, field) => handleImageUpload(e, field, 'footer', componentId)"
     />
   </template>
   
@@ -210,6 +210,7 @@
   
   const emit = defineEmits(["update"]);
   const editableContent = ref({ ...props.data });
+  const componentId = 'COMP_SS_EDUCATION_FOOTER1_72';
   
   watch(
     () => props.data,

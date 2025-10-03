@@ -21,8 +21,9 @@ export function useEditable(emit, editableContent) {
   const activeEditorType = ref(null);
   const isSidebarOpen = ref(false);
   const activeSectionType = ref('');
+  const activeComponentId = ref('');
 
-  function selectField(field, type = null, sectionType = null) {
+  function selectField(field, type = null, sectionType = null, componentId) {
     selectedField.value = field;
   
     const sidebarTypes = ["logo", "image", "button", "menus", "social"];
@@ -40,6 +41,10 @@ export function useEditable(emit, editableContent) {
     if (sectionType) {
       activeSectionType.value = sectionType;
     }
+
+    if (componentId) {
+      activeComponentId.value = componentId;
+    }
   }
 
   function closeSidebar() {
@@ -48,9 +53,9 @@ export function useEditable(emit, editableContent) {
     selectedField.value = null;
   }
 
-  function blurAndUpdate(field, value = null, type = null, file =null) {
+  function blurAndUpdate(field, value = null, type = null, file =null, componentId = null) {
     const fieldValue = value !== null ? value : editableContent.value[field];
-    emit("field-updated", { field_name: field, value: fieldValue, type, file});
+    emit("field-updated", { field_name: field, value: fieldValue, type, file, componentId});
 
     if (!file && type !== 'about_section' && type !== 'logo' && type !== 'header' && type !=='service_section' && type !== 'footer') {
       selectedField.value = null;
@@ -58,7 +63,7 @@ export function useEditable(emit, editableContent) {
     }
   }  
 
-  function handleImageUpload(event, field_name = "image", type = null) {
+  function handleImageUpload(event, field_name = "image", type = null, componentId = null) {
     const files = event.target.files;
     if (!files || !files.length) return;
 
@@ -74,7 +79,7 @@ export function useEditable(emit, editableContent) {
         blurAndUpdate("logo", newFileName, "logo", file);
       } else {
         editableContent.value[field_name] = e.target.result;
-        blurAndUpdate(field_name, newFileName, type || "image", file);
+        blurAndUpdate(field_name, newFileName, type || "image", file, componentId);
       }
     };
     reader.readAsDataURL(file);
@@ -103,7 +108,7 @@ export function useEditable(emit, editableContent) {
     window.removeEventListener("keyup", handleKeyUp);
   });
 
-  return { selectedField, hoveredField, activeEditorType, isSidebarOpen, closeSidebar, selectField, blurAndUpdate, handleImageUpload, activeSectionType };
+  return { selectedField, hoveredField, activeEditorType, isSidebarOpen, closeSidebar, selectField, blurAndUpdate, handleImageUpload, activeSectionType, activeComponentId };
 }
 
 /* =========================

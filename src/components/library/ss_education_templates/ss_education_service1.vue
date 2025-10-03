@@ -13,7 +13,7 @@
                     <input
                     v-if="selectedField === 'service-text1'"
                     v-model="editableContent['service-text1']"
-                    @blur="blurAndUpdate('service-text1', editableContent['service-text1'])"
+                    @blur="blurAndUpdate('service-text1', editableContent['service-text1'], null, null, componentId)"
                     />
                     <h4 v-else class="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">{{ editableContent['service-text1'] }}</h4>
                 </div>
@@ -29,7 +29,7 @@
                     <input
                         v-if="selectedField === 'service-text2'"
                         v-model="editableContent.services[0]['service-text2']"
-                        @blur="blurAndUpdate('service-text2', editableContent.services[0]['service-text2'])"
+                        @blur="blurAndUpdate('service-text2', editableContent.services[0]['service-text2'], null, null, componentId)"
                     />
                     <h1 v-else class="mb-5 display-3">{{ editableContent.services[0]['service-text2'] }}</h1>
                 </div>
@@ -48,7 +48,7 @@
                                 <div
                                     class="editable"
                                     :class="{ selected: selectedField === 'service-image' + (i + 1) }"
-                                    @click.stop="selectField('service-image' + (i + 1), 'image', 'service_section')"
+                                    @click.stop="selectField('service-image' + (i + 1), 'image', 'service_section', componentId)"
                                     @mouseover="hoveredField = 'service-image' + (i + 1)"
                                     @mouseleave="hoveredField = null"
                                 >
@@ -72,7 +72,7 @@
                                     <input
                                     v-if="selectedField === 'service-text' + (i + 2)"
                                     v-model="service['service-text' + (i + 2)]"
-                                    @blur="blurAndUpdate('service-text' + (i + 2), service['service-text' + (i + 2)])"
+                                    @blur="blurAndUpdate('service-text' + (i + 2), service['service-text' + (i + 2)], null, null, componentId)"
                                     />
                                     <h4 v-else>{{ service['service-text' + (i + 2)] }}</h4>
                                 </div>
@@ -89,7 +89,7 @@
                                     <textarea
                                         v-if="selectedField === 'service-description' + (i + 1)"
                                         v-model="service['service-description' + (i + 1)]"
-                                        @blur="blurAndUpdate('service-description' + (i + 1), service['service-description' + (i + 1)])"
+                                        @blur="blurAndUpdate('service-description' + (i + 1), service['service-description' + (i + 1)], null, null, componentId)"
                                     />
                                     <p v-else class="my-3">{{ service['service-description' + (i + 1)] }}</p>
                                 </div>
@@ -105,7 +105,7 @@
                                     <span v-if="hoveredField === 'service-button' + (i + 1)" class="edit-label">Button</span>
                                     <button
                                     class="btn btn-primary text-white px-4 py-2 my-2 btn-border-radius"
-                                    @click.stop="selectField('service-button' + (i + 1), 'button', 'service_section')"
+                                    @click.stop="selectField('service-button' + (i + 1), 'button', 'service_section', componentId)"
                                     >
                                     {{ service['service-button' + (i + 1)] }}
                                     </button>
@@ -124,9 +124,10 @@
       :editableContent="editableContent"
       :activeSectionType="activeSectionType"
       :activeField="selectedField"
+      :activeComponentId="activeComponentId"
       @close="closeSidebar"
-      @update-field="(data) => blurAndUpdate(data.field_name, data.value, data.type, data.file)"
-      @image-upload="(e, field) => handleImageUpload(e, field, 'service_section')"
+      @update-field="(data) => blurAndUpdate(data.field_name, data.value, data.type, data.file, componentId)"
+      @image-upload="(e, field) => handleImageUpload(e, field, 'service_section', componentId)"
     />
 </template>
 
@@ -153,6 +154,7 @@ const props = defineProps({
 
 const emit = defineEmits(["field-updated"]);
 const editableContent = ref({ ...props.data });
+const componentId = 'COMP_SS_EDUCATION_SERVICE1_71';
 
 watch(
   () => props.data,
@@ -173,6 +175,7 @@ const {
   blurAndUpdate,
   handleImageUpload,
   activeSectionType,
+  activeComponentId,
 } = useEditable(emit, editableContent);
 
 </script>

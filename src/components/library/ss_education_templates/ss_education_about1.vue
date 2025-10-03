@@ -5,7 +5,7 @@
                 <div class="col-lg-5 wow fadeIn" data-wow-delay="0.1s">
                     <div class="about-image editable" 
                         :class="{ selected: selectedField === 'about-image1' }"
-                        @click.stop="selectField('about-image1', 'image','about_section')"
+                        @click.stop="selectField('about-image1', 'image','about_section', componentId)"
                         @mouseover="hoveredField='about-image1'" 
                         @mouseleave="hoveredField=null"
                     >
@@ -21,7 +21,7 @@
                         @mouseleave="hoveredField=null">
                         <span v-if="hoveredField==='about-text1'" class="edit-label">Text</span>
                         <span v-if="selectedField==='about-text1'">
-                            <input v-model="editableContent['about-text1']" @blur="blurAndUpdate('about-text1')"/>
+                            <input v-model="editableContent['about-text1']" @blur="blurAndUpdate('about-text1', null, null, null, componentId)"/>
                         </span>
                         <span v-else>{{ editableContent['about-text1'] }}</span>
                     </h4>
@@ -32,7 +32,7 @@
                         @mouseleave="hoveredField=null">
                         <span v-if="hoveredField==='about-text2'" class="edit-label">Text</span>
                         <span v-if="selectedField==='about-text2'">
-                            <textarea v-model="editableContent['about-text2']" @blur="blurAndUpdate('about-text2')"/>
+                            <textarea v-model="editableContent['about-text2']" @blur="blurAndUpdate('about-text2', null, null, null, componentId)"/>
                         </span>
                         <span v-else>{{ editableContent['about-text2'] }}</span>
                     </h1>
@@ -43,7 +43,7 @@
                         @mouseleave="hoveredField=null">
                         <span v-if="hoveredField==='about-description1'" class="edit-label">Text</span>
                         <span v-if="selectedField==='about-description1'">
-                            <textarea v-model="editableContent['about-description1']" @blur="blurAndUpdate('about-description1')"/>
+                            <textarea v-model="editableContent['about-description1']" @blur="blurAndUpdate('about-description1', null, null, null, componentId)"/>
                         </span>
                         <span v-else>{{ editableContent['about-description1'] }}</span>
                     </p>
@@ -68,7 +68,7 @@
                             <input 
                                 v-if="selectedField === 'about-service' + (index + 1)"
                                 v-model="service['about-service' + (index + 1)]" 
-                                @blur="blurAndUpdate('about-service' + (index + 1), service['about-service' + (index + 1)])"
+                                @blur="blurAndUpdate('about-service' + (index + 1), service['about-service' + (index + 1)], null, null, componentId)"
                             />
                             <span v-else>{{ service['about-service' + (index + 1)] }}</span>
                             </h6>
@@ -86,7 +86,7 @@
                         <!-- Button that opens the sidebar -->
                         <button
                             class="btn btn-primary px-5 py-3 btn-border-radius"
-                            @click.stop="selectField('about-button1', 'button', 'about_section')"
+                            @click.stop="selectField('about-button1', 'button', 'about_section', componentId)"
                         >
                             {{ editableContent['about-button1'] }}
                         </button>
@@ -101,9 +101,10 @@
         :editableContent="editableContent"
         :activeSectionType="activeSectionType"
         :activeField="selectedField"
+        :activeComponentId = "activeComponentId"
         @close="closeSidebar"
-        @update-field="(data) => blurAndUpdate(data.field_name, data.value, data.type, data.file)"
-        @image-upload="(e, field) => handleImageUpload(e, field, 'about_section')"
+        @update-field="(data) => blurAndUpdate(data.field_name, data.value, data.type, data.file, componentId)"
+        @image-upload="(e, field) => handleImageUpload(e, field, 'about_section', componentId)"
     />
 </template>
 
@@ -135,6 +136,7 @@ const props = defineProps({
 
 const emit = defineEmits(["field-updated"]);
 const editableContent = ref({ ...props.data });
+const componentId = 'COMP_SS_EDUCATION_ABOUT1_70';
 
 watch(
   () => props.data,
@@ -154,6 +156,7 @@ const {
   blurAndUpdate,
   handleImageUpload,
   activeSectionType,
+  activeComponentId,
 } = useEditable(emit, editableContent);
 
 </script>

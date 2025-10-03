@@ -33,7 +33,7 @@
                   <textarea
                     v-if="selectedField === 'footer-description1'"
                     v-model="editableContent['footer-description1']"
-                    @blur="blurAndUpdate('footer-description1')"
+                    @blur="blurAndUpdate('footer-description1', null, null, null, componentId)"
                   />
                   <p v-else class="footer-desc desc-content m-b-35">{{ editableContent['footer-description1'] }}</p>
                 </div>
@@ -51,7 +51,7 @@
                   <!-- Button that opens the sidebar -->
                   <button
                     class="btn btn-outline-success btn-hover-success"
-                    @click.stop="selectField('footer-button1', 'button', 'footer')"
+                    @click.stop="selectField('footer-button1', 'button', 'footer', componentId)"
                   >
                     {{ editableContent['footer-button1'] }} 
                   </button>
@@ -74,7 +74,7 @@
                   <input
                     v-if="selectedField === 'footer-text1'"
                     v-model="editableContent['footer-text1']"
-                    @blur="blurAndUpdate('footer-text1')"
+                    @blur="blurAndUpdate('footer-text1', null, null, null, componentId)"
                   />
                   <h4 v-else class="widget-title footer-title">{{ editableContent['footer-text1'] }}</h4>
                 </div>
@@ -100,7 +100,7 @@
                   <input
                     v-if="selectedField === 'footer-text2'"
                     v-model="editableContent['footer-text2']"
-                    @blur="blurAndUpdate('footer-text2')"
+                    @blur="blurAndUpdate('footer-text2', null, null, null, componentId)"
                   />
                   <h4 v-else class="widget-title footer-title">{{ editableContent['footer-text2'] }}</h4>
                 </div>
@@ -137,7 +137,7 @@
                   <input
                     v-if="selectedField === 'footer-text3'"
                     v-model="editableContent['footer-text3']"
-                    @blur="blurAndUpdate('footer-text3')"
+                    @blur="blurAndUpdate('footer-text3', null, null, null, componentId)"
                   />
                   <h4 v-else class="widget-title footer-title">{{ editableContent['footer-text3'] }}</h4>
                 </div>
@@ -194,8 +194,9 @@
         :type="activeEditorType"
         :editableContent="editableContent"
         :activeSectionType="activeSectionType"
+        :activeComponentId="activeComponentId"
         @close="closeSidebar"
-        @update-field="(data) => blurAndUpdate(data.field_name, data.value, data.type, data.file)"
+        @update-field="(data) => blurAndUpdate(data.field_name, data.value, data.type, data.file, componentId)"
         @image-upload="handleImageUpload"
       />
     </footer>
@@ -227,6 +228,7 @@
   
   const emit = defineEmits(["update"]);
   const editableContent = ref({ ...props.data });
+  const componentId = 'COMP_SS_HEALTH_FOOTER1_65';
   
   watch(
     () => props.data,
@@ -247,6 +249,7 @@
     blurAndUpdate,
     handleImageUpload,
     activeSectionType,
+    activeComponentId,
   } = useEditable(emit, editableContent);
   </script>  
 
