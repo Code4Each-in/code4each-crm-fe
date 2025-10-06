@@ -57,7 +57,7 @@
                 </button>
   
                 <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <ul class="navbar-nav mx-auto editable" 
+                    <ul v-if="editableContent.menu && editableContent.menu.length > 0" class="navbar-nav mx-auto editable" 
                         :class="{ selected: selectedField === 'menu' }" 
                         @click.stop="selectField('menu', 'menus')" 
                         @mouseover="hoveredField='menu'" 

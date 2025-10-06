@@ -51,7 +51,7 @@ const selectedReplacementId = ref(null);
 const componentUniqueIdsByType = ref({});
 const actionLoading = ref(false);
 const replaceLoading = ref(false);
-const usedComponentIds = computed(() => Object.values(componentUniqueIdsByType.value));
+const usedComponentIds = computed(() => Object.values(componentUniqueIdsByType.value).flat());
 const showAddSectionPopup = ref(false);
 const addSectionOptions = ref([]);
 const selectedAddSectionId = ref(null);
@@ -275,22 +275,20 @@ const footerBlockData = (componentuniqueId) => {
 
 // All sections for editor rendering
 const sections = computed(() => {
-  return Object.entries(componentIdsByType.value).flatMap(([type, ids]) => {
-    return (Array.isArray(ids) ? ids : [ids])
-      .map((id) => {
-        let data = null;
+  return activeComponents.value
+    .map((comp) => {
+      let data = null;
 
-        if (type === "header") data = heroBlockData(id);
-        else if (type === "about_section") data = aboutBlockData(id);
-        else if (type === "service_section") data = serviceBlockData(id);
-        else if (type === "footer") data = footerBlockData(id);
+      if (comp.type === "header") data = heroBlockData(comp.id);
+      else if (comp.type === "about_section") data = aboutBlockData(comp.id);
+      else if (comp.type === "service_section") data = serviceBlockData(comp.id);
+      else if (comp.type === "footer") data = footerBlockData(comp.id);
 
-        if (!data || Object.keys(data).length === 0) return null;
+      if (!data || Object.keys(data).length === 0) return null;
 
-        return { key: id, type, data };
-      })
-      .filter(Boolean);
-  });
+      return { key: comp.id, type: comp.type, data };
+    })
+    .filter(Boolean);
 });
 
 /* =========================

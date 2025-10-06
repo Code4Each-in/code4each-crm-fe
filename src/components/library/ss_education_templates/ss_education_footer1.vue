@@ -298,6 +298,7 @@
   }
   .footer-item .logo {
     max-height: 80px;
+    width: 100px;
   }
   .bg-dark {
     background-color: #393d72 !important;
