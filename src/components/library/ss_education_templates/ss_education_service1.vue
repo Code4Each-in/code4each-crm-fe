@@ -1,123 +1,127 @@
 <template>
     <section class="section service-section service" id="service">
-        <div class="container py-5">
-            <div class="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style="max-width: 700px;">
-                <div
-                    class="editable"
-                    :class="{ selected: selectedField === 'service-text1' }"
-                    @click.stop="selectField('service-text1')"
-                    @mouseover="hoveredField = 'service-text1'"
-                    @mouseleave="hoveredField = null"
-                >
-                    <span v-if="hoveredField === 'service-text1'" class="edit-label">Text</span>
-                    <input
-                    v-if="selectedField === 'service-text1'"
-                    v-model="editableContent['service-text1']"
-                    @blur="blurAndUpdate('service-text1', editableContent['service-text1'], null, null, componentId)"
-                    />
-                    <h4 v-else class="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">{{ editableContent['service-text1'] }}</h4>
-                </div>
+      <div class="container py-5">
+        <!-- Heading -->
+        <div class="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style="max-width: 700px;">
+          <!-- Subheading -->
+          <div
+            class="editable"
+            :class="{ selected: selectedField === 'service-text1' }"
+            @click.stop="selectField('service-text1')"
+            @mouseover="hoveredField = 'service-text1'"
+            @mouseleave="hoveredField = null"
+          >
+            <span v-if="hoveredField === 'service-text1'" class="edit-label">Text</span>
+            <input
+              v-if="selectedField === 'service-text1'"
+              v-model="editableContent['service-text1']"
+              @blur="blurAndUpdate('service-text1', editableContent['service-text1'], null, null, componentId)"
+            />
+            <h4 v-else class="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">
+              {{ editableContent['service-text1'] }}
+            </h4>
+          </div>
   
-                <div
-                    class="editable"
-                    :class="{ selected: selectedField === 'service-text2' }"
-                    @click.stop="selectField('service-text2')"
-                    @mouseover="hoveredField = 'service-text2'"
-                    @mouseleave="hoveredField = null"
-                >
-                    <span v-if="hoveredField === 'service-text2'" class="edit-label">Text</span>
-                    <input
-                        v-if="selectedField === 'service-text2'"
-                        v-model="editableContent.services[0]['service-text2']"
-                        @blur="blurAndUpdate('service-text2', editableContent.services[0]['service-text2'], null, null, componentId)"
-                    />
-                    <h1 v-else class="mb-5 display-3">{{ editableContent.services[0]['service-text2'] }}</h1>
-                </div>
-            </div>
-
-            <div class="row g-5">
-                <div
-                    class="col-md-6 col-lg-6 col-xl-3"
-                    v-for="(service, i) in editableContent.services"
-                    :key="i"
-                >
-                    <div class="text-center border-primary border bg-white service-item">
-                        <div class="service-content d-flex align-items-center justify-content-center p-4">
-                            <div class="service-content-inner">
-                                <!-- Service Image -->
-                                <div
-                                    class="editable"
-                                    :class="{ selected: selectedField === 'service-image' + (i + 1) }"
-                                    @click.stop="selectField('service-image' + (i + 1), 'image', 'service_section', componentId)"
-                                    @mouseover="hoveredField = 'service-image' + (i + 1)"
-                                    @mouseleave="hoveredField = null"
-                                >
-                                    <span v-if="hoveredField === 'service-image' + (i + 1)" class="edit-label">Image</span>
-                                    <img
-                                    :src="service['service-image' + (i + 1)] || '/images/default-service.png'"
-                                    alt="Service Image"
-                                    class="service-image p-4"
-                                    />
-                                </div>
-
-                                <!-- Service Title -->
-                                <div
-                                    class="editable"
-                                    :class="{ selected: selectedField === 'service-text' + (i + 2) }"
-                                    @click.stop="selectField('service-text' + (i + 2))"
-                                    @mouseover="hoveredField = 'service-text' + (i + 2)"
-                                    @mouseleave="hoveredField = null"
-                                >
-                                    <span v-if="hoveredField === 'service-text' + (i + 2)" class="edit-label">Text</span>
-                                    <input
-                                    v-if="selectedField === 'service-text' + (i + 2)"
-                                    v-model="service['service-text' + (i + 2)]"
-                                    @blur="blurAndUpdate('service-text' + (i + 2), service['service-text' + (i + 2)], null, null, componentId)"
-                                    />
-                                    <h4 v-else>{{ service['service-text' + (i + 2)] }}</h4>
-                                </div>
-
-                                <!-- Service Description -->
-                                <div
-                                    class="editable"
-                                    :class="{ selected: selectedField === 'service-description' + (i + 1) }"
-                                    @click.stop="selectField('service-description' + (i + 1))"
-                                    @mouseover="hoveredField = 'service-description' + (i + 1)"
-                                    @mouseleave="hoveredField = null"
-                                >
-                                    <span v-if="hoveredField === 'service-description' + (i + 1)" class="edit-label">Text</span>
-                                    <textarea
-                                        v-if="selectedField === 'service-description' + (i + 1)"
-                                        v-model="service['service-description' + (i + 1)]"
-                                        @blur="blurAndUpdate('service-description' + (i + 1), service['service-description' + (i + 1)], null, null, componentId)"
-                                    />
-                                    <p v-else class="my-3">{{ service['service-description' + (i + 1)] }}</p>
-                                </div>
-
-                                <!-- Service Button -->
-                                <div
-                                    class="editable mbr-section-btn"
-                                    :class="{ selected: selectedField === 'service-button' + (i + 1) }"
-                                    @mouseover="hoveredField = 'service-button' + (i + 1)"
-                                    @mouseleave="hoveredField = null"
-                                    v-if="service['service-button' + (i + 1)]"
-                                >
-                                    <span v-if="hoveredField === 'service-button' + (i + 1)" class="edit-label">Button</span>
-                                    <button
-                                    class="btn btn-primary text-white px-4 py-2 my-2 btn-border-radius"
-                                    @click.stop="selectField('service-button' + (i + 1), 'button', 'service_section', componentId)"
-                                    >
-                                    {{ service['service-button' + (i + 1)] }}
-                                    </button>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+          <!-- Main Title -->
+          <div
+            class="editable"
+            :class="{ selected: selectedField === 'service-text2' }"
+            @click.stop="selectField('service-text2')"
+            @mouseover="hoveredField = 'service-text2'"
+            @mouseleave="hoveredField = null"
+          >
+            <span v-if="hoveredField === 'service-text2'" class="edit-label">Text</span>
+            <input
+              v-if="selectedField === 'service-text2'"
+              v-model="editableContent['service-text2']"
+              @blur="blurAndUpdate('service-text2', editableContent['service-text2'], null, null, componentId)"
+            />
+            <h1 v-else class="mb-5 display-3">{{ editableContent['service-text2'] }}</h1>
+          </div>
         </div>
+  
+        <!-- Services -->
+        <div class="row g-5">
+          <div class="col-md-6 col-lg-6 col-xl-3" v-for="i in 4" :key="i">
+            <div class="text-center border-primary border bg-white service-item">
+              <div class="service-content d-flex align-items-center justify-content-center p-4">
+                <div class="service-content-inner">
+                  <!-- Service Image -->
+                  <div
+                    class="editable"
+                    :class="{ selected: selectedField === 'service-image' + i }"
+                    @click.stop="selectField('service-image' + i, 'image', 'service_section', componentId)"
+                    @mouseover="hoveredField = 'service-image' + i"
+                    @mouseleave="hoveredField = null"
+                  >
+                    <span v-if="hoveredField === 'service-image' + i" class="edit-label">Image</span>
+                    <img
+                      :src="editableContent['service-image' + i] || '/images/default-service.png'"
+                      alt="Service Image"
+                      class="service-image p-4"
+                    />
+                  </div>
+  
+                  <!-- Service Title -->
+                  <div
+                    class="editable"
+                    :class="{ selected: selectedField === 'service-text' + (i + 2) }"
+                    @click.stop="selectField('service-text' + (i + 2))"
+                    @mouseover="hoveredField = 'service-text' + (i + 2)"
+                    @mouseleave="hoveredField = null"
+                  >
+                    <span v-if="hoveredField === 'service-text' + (i + 2)" class="edit-label">Text</span>
+                    <input
+                      v-if="selectedField === 'service-text' + (i + 2)"
+                      v-model="editableContent['service-text' + (i + 2)]"
+                      @blur="blurAndUpdate('service-text' + (i + 2), editableContent['service-text' + (i + 2)], null, null, componentId)"
+                    />
+                    <h4 v-else>{{ editableContent['service-text' + (i + 2)] }}</h4>
+                  </div>
+  
+                  <!-- Service Description -->
+                  <div
+                    class="editable"
+                    :class="{ selected: selectedField === 'service-description' + i }"
+                    @click.stop="selectField('service-description' + i)"
+                    @mouseover="hoveredField = 'service-description' + i"
+                    @mouseleave="hoveredField = null"
+                  >
+                    <span v-if="hoveredField === 'service-description' + i" class="edit-label">Text</span>
+                    <textarea
+                      v-if="selectedField === 'service-description' + i"
+                      v-model="editableContent['service-description' + i]"
+                      @blur="blurAndUpdate('service-description' + i, editableContent['service-description' + i], null, null, componentId)"
+                    />
+                    <p v-else class="my-3">{{ editableContent['service-description' + i] }}</p>
+                  </div>
+  
+                  <!-- Service Button -->
+                  <div
+                    class="editable mbr-section-btn"
+                    :class="{ selected: selectedField === 'service-button' + i }"
+                    @mouseover="hoveredField = 'service-button' + i"
+                    @mouseleave="hoveredField = null"
+                    v-if="editableContent['service-button' + i]"
+                  >
+                    <span v-if="hoveredField === 'service-button' + i" class="edit-label">Button</span>
+                    <button
+                      class="btn btn-primary text-white px-4 py-2 my-2 btn-border-radius"
+                      @click.stop="selectField('service-button' + i, 'button', 'service_section', componentId)"
+                    >
+                      {{ editableContent['service-button' + i] }}
+                    </button>
+                  </div>
+  
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  
     </section>
+  
     <SidebarEditor
       :isOpen="isSidebarOpen"
       :type="activeEditorType"
@@ -141,13 +145,19 @@ const props = defineProps({
     type: Object,
     default: () => ({
       "service-text1": "Our Services",
-      services: [
-        { "service-text2": "Empowering Students Through Education" },
-        { "service-image1": "/images/1.jpg", "service-text3": "Service 1", "service-description1": "Description 1", "service-button1": "Join Us" },
-        { "service-image2": "/images/2.jpg", "service-text4": "Service 2", "service-description2": "Description 2", "service-button2": "Join Us" },
-        { "service-image3": "/images/3.jpg", "service-text5": "Service 2", "service-description3": "Description 3", "service-button3": "Join Us" },
-        { "service-image4": "/images/4.jpg", "service-text6": "Service 2", "service-description4": "Description 4", "service-button4": "Join Us" },
-      ],
+      "service-text2": "Empowering Students Through Education",
+      "service-image1": "/images/1.jpg",
+      "service-text3": "Service 1",
+      "service-description1": "Description 1",
+      "service-image2": "/images/2.jpg",
+      "service-text4": "Service 2",
+      "service-description2": "Description 2",
+      "service-image3": "/images/3.jpg",
+      "service-text5": "Service 3",
+      "service-description3": "Description 3",
+      "service-image4": "/images/4.jpg",
+      "service-text6": "Service 4",
+      "service-description4": "Description 4",
     }),
   },
 });

@@ -38,75 +38,76 @@
                   v-model="editableContent['service-description1']"
                   @blur="blurAndUpdate('service-description1', editableContent['service-description1'], null, null, componentId)"
                 />
-                <p v-else class="service-description">{{ editableContent['service-description1']}}</p>
+                <p v-else class="service-description">{{ editableContent['service-description1'] }}</p>
               </div>
             </div>
 
             <!-- Right Side - Services -->
-            <div class="about-right-side bg-name-primary">
-              <div
-                v-for="(service, i) in editableContent.services"
-                :key="i"
-                class="single-about"
-              >
-                <div class="icon-title">
-                  <!-- Icon / Image -->
-                  <div
-                    class="icon editable"
-                    :class="{ selected: selectedField === 'service-image' + (i + 1) }"
-                    @click.stop="selectField('service-image' + (i + 1), 'image', 'service_section', componentId)"
-                    @mouseover="hoveredField = 'service-image' + (i + 1)"
-                    @mouseleave="hoveredField = null"
-                  >
-                    <span v-if="hoveredField === 'service-image' + (i + 1)" class="edit-label">Image</span>
-                    <img
-                      :src="service['service-image' + (i + 1)] || ''"
-                      alt="Service Image"
-                      class="service-image"
-                    />
+              <div class="about-right-side bg-name-primary">
+                <div
+                  v-for="i in 2"
+                  :key="i"
+                  class="single-about"
+                >
+                  <div class="icon-title">
+                    <!-- Icon / Image -->
+                    <div
+                      class="icon editable"
+                      :class="{ selected: selectedField === 'service-image' + i }"
+                      @click.stop="selectField('service-image' + i, 'image', 'service_section', componentId)"
+                      @mouseover="hoveredField = 'service-image' + i"
+                      @mouseleave="hoveredField = null"
+                    >
+                      <span v-if="hoveredField === 'service-image' + i" class="edit-label">Image</span>
+                      <img
+                        :src="editableContent['service-image' + i] || '/images/default-service.png'"
+                        alt="Service Image"
+                        class="service-image"
+                      />
+                    </div>
+
+                    <!-- Service Title -->
+                    <div
+                      class="editable"
+                      :class="{ selected: selectedField === 'service-text' + (i + 1) }"
+                      @click.stop="selectField('service-text' + (i + 1))"
+                      @mouseover="hoveredField = 'service-text' + (i + 1)"
+                      @mouseleave="hoveredField = null"
+                    >
+                      <span v-if="hoveredField === 'service-text' + (i + 1)" class="edit-label">Text</span>
+                      <input
+                        v-if="selectedField === 'service-text' + (i + 1)"
+                        v-model="editableContent['service-text' + (i + 1)]"
+                        @blur="blurAndUpdate('service-text' + (i + 1), editableContent['service-text' + (i + 1)], null, null, componentId)"
+                      />
+                      <h4 class="title" v-else>{{ editableContent['service-text' + (i + 1)] }}</h4>
+                    </div>
                   </div>
 
-                  <!-- Service Title -->
+                  <!-- Service Description -->
                   <div
                     class="editable"
-                    :class="{ selected: selectedField === 'service-title-' + i }"
-                    @click.stop="selectField('service-title-' + i)"
-                    @mouseover="hoveredField = 'service-title-' + i"
+                    :class="{ selected: selectedField === 'service-description' + (i + 1) }"
+                    @click.stop="selectField('service-description' + (i + 1))"
+                    @mouseover="hoveredField = 'service-description' + (i + 1)"
                     @mouseleave="hoveredField = null"
                   >
-                    <span v-if="hoveredField === 'service-title-' + i" class="edit-label">Text</span>
-                    <input
-                      v-if="selectedField === 'service-title-' + i"
-                      v-model="editableContent.services[i]['service-text' + (i + 2)]"
-                      @blur="blurAndUpdate('service-text' + (i + 2), editableContent.services[i]['service-text' + (i + 2)], null, nulll, componentId)"
+                    <span v-if="hoveredField === 'service-description' + (i + 1)" class="edit-label">Text</span>
+                    <textarea
+                      v-if="selectedField === 'service-description' + (i + 1)"
+                      v-model="editableContent['service-description' + (i + 1)]"
+                      @blur="blurAndUpdate('service-description' + (i + 1), editableContent['service-description' + (i + 1)], null, null, componentId)"
                     />
-                    <h4 class="title" v-else>{{ service['service-text' + (i + 2)] }}</h4>
+                    <p v-else>{{ editableContent['service-description' + (i + 1)] }}</p>
                   </div>
                 </div>
-
-                <!-- Service Description -->
-                <div
-                  class="editable"
-                  :class="{ selected: selectedField === 'service-description-' + i }"
-                  @click.stop="selectField('service-description-' + i)"
-                  @mouseover="hoveredField = 'service-description-' + i"
-                  @mouseleave="hoveredField = null"
-                >
-                  <span v-if="hoveredField === 'service-description-' + i" class="edit-label">Text</span>
-                  <textarea
-                    v-if="selectedField === 'service-description-' + i"
-                    v-model="editableContent.services[i]['service-description' + (i + 2)]"
-                    @blur="blurAndUpdate('service-description' + (i + 2), editableContent.services[i]['service-description' + (i + 2)], null, null, componentId)"
-                  />
-                  <p v-else>{{ service['service-description' + (i + 2)] }}</p>
-                </div>
               </div>
-            </div>
             <!-- End Right Side -->
           </div>
         </div>
       </div>
     </div>
+
     <SidebarEditor
       :isOpen="isSidebarOpen"
       :type="activeEditorType"
@@ -130,11 +131,13 @@ const props = defineProps({
     type: Object,
     default: () => ({
       "service-text1": "Neonal Medical Care - 35 Years of Trusted Experience",
-      // "service-description1": "Providing compassionate and comprehensive healthcare services with cutting-edge technology and expert medical professionals.",
-      services: [
-        { "service-image1": "/images/1.jpg", "service-text2": "Service 1", "service-description1": "Description 1" },
-        { "service-image2": "/images/2.jpg", "service-text3": "Service 2", "service-description2": "Description 2" },
-      ],
+      "service-description1": "Providing compassionate and comprehensive healthcare services with cutting-edge technology and expert medical professionals.",
+      "service-image1": "/images/1.jpg",
+      "service-text2": "Service 1",
+      "service-description2": "Description 1",
+      "service-image2": "/images/2.jpg",
+      "service-text3": "Service 2",
+      "service-description3": "Description 2"
     }),
   },
 });
@@ -163,13 +166,11 @@ const {
   handleImageUpload,
   activeSectionType,
 } = useEditable(emit, editableContent);
-
 </script>
 
-
 <style scoped>
- /* Editable highlights */
- .editable {
+  /* Editable highlights */
+  .editable {
     cursor: pointer;
     padding: 4px;
     position: relative;
@@ -211,10 +212,7 @@ const {
     padding: 8px;
     border: 1px solid #ccc;
   }
-  .service-heading {
-    color: #fff;
-    margin-bottom: 20px;
-  }
+
   .editable.description-section.selected, 
   .editable.description-section:hover {
       border-color: #fff;
@@ -225,13 +223,20 @@ const {
       border-color: #fff;
       margin-bottom: 10px;
   }
-.about-bg {
+
+  .service-heading {
+    color: #fff;
+    margin-bottom: 20px;
+  }
+
+  .about-bg {
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
     padding: 16px 0px 0px;
-}
-.about-wrapper {
+  }
+
+  .about-wrapper {
     display: -webkit-box;
     display: -webkit-flex;
     display: -ms-flexbox;
@@ -241,63 +246,53 @@ const {
     flex-wrap: wrap;
     position: relative;
     padding: 0px 0px 50px;
-}
+  }
 
-.about-wrapper .about-left-side {
+  .about-wrapper .about-left-side {
     width: 50%;
     padding: 50px;
     height: 545px;
-}
+  }
 
-.bg-name-success {
+  .bg-name-success {
     background-color: #00ADB5;
-}
-.content-left-side .title {
+  }
+
+  .content-left-side .title {
     color: #F9FAFB;
     font-size: 24px;
     line-height: 43px;
     font-weight: 700;
-}
+  }
 
-/* .content-left-side span {
-    position: relative;
-    margin: 20px 0;
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-flex-wrap: wrap;
-    -ms-flex-wrap: wrap;
-    flex-wrap: wrap;
-} */
-
-.content-left-side span::before {
+  .content-left-side span::before {
     position: absolute;
     content: "";
     width: 80px;
     height: 1px;
     background: #00adb5;
     left: 0;
-}
-.content-left-side p {
+  }
+
+  .content-left-side p {
     font-size: 14px;
-    /* line-height: 38px; */
     color: #F9FAFB;
-}
-.about-wrapper .about-right-side {
-    /* max-width: 570px; */
+  }
+
+  .about-wrapper .about-right-side {
     width: 100%;
     padding: 40px 70px;
     position: absolute;
     right: 0;
     width: 50%;
     height: 545px;
-}
-.bg-name-primary {
-    background-color: #222831;
-}
+  }
 
-.about-wrapper .about-right-side .single-about .icon-title {
+  .bg-name-primary {
+    background-color: #222831;
+  }
+
+  .about-wrapper .about-right-side .single-about .icon-title {
     display: -webkit-box;
     display: -webkit-flex;
     display: -ms-flexbox;
@@ -310,8 +305,9 @@ const {
     -ms-flex-align: center;
     align-items: center;
     margin-bottom: 13px;
-}
-.about-wrapper .about-right-side .single-about .icon-title .icon {
+  }
+
+  .about-wrapper .about-right-side .single-about .icon-title .icon {
     border: 2px solid #00adb5;
     border-radius: 100%;
     height: 80px;
@@ -328,45 +324,47 @@ const {
     -webkit-align-items: center;
     -ms-flex-align: center;
     align-items: center;
-}
+  }
 
-.about-wrapper .about-right-side .single-about .icon-title .title {
+  .about-wrapper .about-right-side .single-about .icon-title .title {
     margin: 0 0 0 30px;
     font-size: 26px;
     line-height: 2;
     font-weight: 700;
     color: #F9FAFB;
-}
-.about-wrapper .about-right-side .single-about p {
+  }
+
+  .about-wrapper .about-right-side .single-about p {
     font-size: 14px;
     line-height: 1.9;
     color: #F9FAFB;
-    /* font-family: "Roboto", sans-serif; */
-}
+  }
 
-.about-wrapper .about-right-side .single-about {
+  .about-wrapper .about-right-side .single-about {
     border-bottom: 1px solid #222831;
     margin-bottom: 20px;
     padding-bottom: 0px;
-}
+  }
 
-@media only screen and (max-width: 992px){
+  @media only screen and (max-width: 992px){
     .about-wrapper {
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: -ms-flexbox;
-        display: block;
-        -webkit-flex-wrap: wrap;
-        -ms-flex-wrap: wrap;
-        flex-wrap: wrap;
-        position: relative;
-        padding: 0px 0px 00px;
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: -ms-flexbox;
+      display: block;
+      -webkit-flex-wrap: wrap;
+      -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+      position: relative;
+      padding: 0px 0px 00px;
     }
+
     .about-wrapper .about-left-side {
-        width: 100%;
-        padding: 25px 50px 19px 60px;
-        height: 350px;
+      width: 100%;
+      padding: 25px 50px 19px 60px;
+      height: 350px;
     }
+
     .about-bg {
       background-size: cover;
       background-position: center center;
@@ -375,39 +373,38 @@ const {
       height: 110vh;
       margin-bottom: 0px;
     }
+
     .content-left-side .title {
-        color: #F9FAFB;
-        font-size: 24px;
-        line-height: 35px;
-        font-weight: 700;
+      color: #F9FAFB;
+      font-size: 24px;
+      line-height: 35px;
+      font-weight: 700;
     }
+
     .content-left-side p {
-    font-size: 18px;
-    /* line-height: 29px; */
-    color: #F9FAFB;
-}
+      font-size: 18px;
+      color: #F9FAFB;
+    }
+
     .about-wrapper .about-right-side {
-        /* max-width: 570px; */
-        width: 100%;
-        padding: 24px 30px;
-        position: absolute;
-        right: 0;
-        /* width: 50%; */
-        /* margin-bottom: 160px; */
+      width: 100%;
+      padding: 24px 30px;
+      position: absolute;
+      right: 0;
     }
-}
-@media only screen and (max-width: 992px){
+  }
+
+  @media only screen and (max-width: 992px){
     .about-wrapper .about-left-side {
-        width: 100%;
-        padding: 50px 30px 22px 30px;
-        height: 280px;
+      width: 100%;
+      padding: 50px 30px 22px 30px;
+      height: 280px;
     }
-}
-img.service-image {
+  }
+
+  img.service-image {
     width: 65%;
     margin: 10px;
-}
-
-/*service   css  end */
+  }
 </style>
   

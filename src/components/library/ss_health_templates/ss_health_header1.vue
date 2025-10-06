@@ -5,7 +5,7 @@
       <div class="container">
         <!-- Editable Logo -->
         <div
-          class="hero-logo editable"
+          class="hero-logo ss_editable"
           @click.stop="selectField('logo', 'logo')"
           @mouseover="hoveredField = 'logo'"
           @mouseleave="hoveredField = null"
@@ -26,7 +26,7 @@
 
         <div class="collapse navbar-collapse" id="heroNavbarNav">
           <ul
-            class="hero-menu navbar-nav ms-auto editable"
+            class="hero-menu navbar-nav ms-auto ss_editable"
             :class="{ selected: selectedField === 'menu' }"
             @click.stop="selectField('menu', 'menus')"
             @mouseover="hoveredField = 'menu'"
@@ -54,7 +54,7 @@
           <div class="col-lg-6 hero-content">
             <!-- Title 1 -->
             <div
-              class="editable"
+              class="ss_editable"
               :class="{ selected: selectedField === 'header-text1' }"
               @click.stop="selectField('header-text1')"
               @mouseover="hoveredField = 'header-text1'"
@@ -71,7 +71,7 @@
 
             <!-- Title 2 -->
             <div
-              class="editable"
+              class="ss_editable"
               :class="{ selected: selectedField === 'header-text2' }"
               @click.stop="selectField('header-text2')"
               @mouseover="hoveredField = 'header-text2'"
@@ -88,7 +88,7 @@
 
             <!-- Description -->
             <div
-              class="editable"
+              class="ss_editable"
               :class="{ selected: selectedField === 'header-description1' }"
               @click.stop="selectField('header-description1')"
               @mouseover="hoveredField = 'header-description1'"
@@ -105,7 +105,7 @@
 
             <!-- Button -->
             <div
-              class="editable"
+              class="ss_editable"
               :class="{ selected: selectedField === 'header-button1' }"
               @mouseover="hoveredField = 'header-button1'"
               @mouseleave="hoveredField = null"
@@ -127,7 +127,7 @@
            
           <div class="col-lg-6">
             <div
-              class="hero-image-wrapper editable"
+              class="hero-image-wrapper ss_editable"
               :class="{ selected: selectedField === 'header-image' }"
               @click.stop="selectField('header-image', 'image', 'header', componentId)" 
               @mouseover="hoveredField = 'header-image'"
@@ -203,18 +203,11 @@ const {
   activeSectionType,
   activeComponentId,
 } = useEditable(emit, editableContent);
-
 </script>
 
-  <style scoped>
-  /* General */
-  .hero-header {
-    background: #222831;
-    color: #f9fafb;
-  }
-  
+<style scoped>
   /* Editable styling */
-  .editable {
+  .ss_editable {
     cursor: pointer;
     padding: 4px;
     position: relative;
@@ -222,11 +215,11 @@ const {
     transition: border-color 0.2s ease;
   }
   
-  .editable:hover {
+  .ss_editable:hover {
     border-color: #00adb5;
   }
   
-  .editable.selected {
+  .ss_editable.selected {
     border-color: #00adb5;
   }
   
@@ -253,21 +246,28 @@ const {
   }
   
   /* Navbar */
+  .hero-header {
+    background: #222831;
+    color: #f9fafb;
+  }
 
   .hero-logo .hero-logo-img{
     height: 100px;
   }
+
   .hero-navbar-toggler {
     border: none;
     color: #f9fafb;
     font-size: 18px;
   }
+
   .navbar .hero-menu-link {
     font-size: 18px;
     padding: 0.7rem 20px;
     color: #f9fafb;
     font-weight: 600;
   }
+
   .navbar .hero-menu-link:hover,
   .navbar .hero-menu-link:focus,
   .navbar .hero-menu-link.active {
@@ -280,18 +280,22 @@ const {
     background-color: #222831;
     position: relative;
   }
+
   .hero-title1 {
     font-size: 30px;
     font-weight: 400;
   }
+
   .hero-title2 {
     font-size: 3rem;
     font-weight: 700;
   }
+
   .hero-description {
     font-size: 24px;
     line-height: 1.6;
   }
+
   .hero-btn {
     font-weight: 600;
     letter-spacing: 1px;
@@ -303,6 +307,7 @@ const {
     color: #f9fafb;
     transition: all 0.3s ease-in-out;
   }
+
   .hero-btn:hover {
     background-color: #ffffff;
     color: #393e46;
@@ -313,6 +318,7 @@ const {
   .hero-image-wrapper {
     position: relative;
   }
+
   .hero-img {
     width: 100%;
   }
@@ -330,6 +336,7 @@ const {
     pointer-events: none;
     z-index: -1;
   }
+
   .hero-section .hero-content::after {
     position: absolute;
     content: "";
@@ -343,5 +350,5 @@ const {
     pointer-events: none;
     z-index: -1;
   }
-  </style>
+</style>
   
