@@ -186,16 +186,22 @@ const aboutBlockData = (componentuniqueId) => {
 const serviceBlockData = (componentuniqueId) => {
   const fields = getFieldsByComponentType("service_section", componentuniqueId);
   if (!fields.length) return null;
-
-  const services = Array.from({ length: 4 }, (_, i) => ({
-    [`service-image${i + 1}`]: getFieldValue(fields, `service-image${i + 1}`),
-    [`service-text${i + 2}`]: getFieldValue(fields, `service-text${i + 2}`),
-    [`service-description${i + 1}`]: getFieldValue(fields, `service-description${i + 1}`),
-    [`service-button${i + 1}`]: getFieldValue(fields, `service-button${i + 1}`),
-  }));
+  
   return {
     "service-text1": getFieldValue(fields, "service-text1"),
-    services,
+    "service-text2": getFieldValue(fields, "service-text2"),
+    "service-image1": getFieldValue(fields, "service-image1"),
+    "service-text3": getFieldValue(fields, "service-text3"),
+    "service-description1": getFieldValue(fields, "service-description1"),
+    "service-image2": getFieldValue(fields, "service-image2"),
+    "service-text4": getFieldValue(fields, "service-text4"),
+    "service-description2": getFieldValue(fields, "service-description2"),
+    "service-image3": getFieldValue(fields, "service-image3"),
+    "service-text5": getFieldValue(fields, "service-text5"),
+    "service-description3": getFieldValue(fields, "service-description3"),
+    "service-image4": getFieldValue(fields, "service-image4"),
+    "service-text6": getFieldValue(fields, "service-text6"),
+    "service-description4": getFieldValue(fields, "service-description4"),
   };
 };
 
@@ -326,7 +332,6 @@ const getActiveComponentIds = async () => {
     });
     if (res.status === 200 && res.data.success) {
       activeComponents.value = res.data.components_detail;
-      console.log(activeComponents.value);
       const map = {};
       const uniqueMap = {};
       res.data.components_detail.forEach((comp) => {
@@ -468,11 +473,9 @@ const deleteCustomComponent = async (componentUniqueId) => {
     });
 
     if (res.status === 200 && res.data.success) {
-      store.updateFlashMeassge(true, "Component deleted successfully!", "success");
-
       await getActiveComponentIds();
       await fetchCustomComponentsAndFieldsValue();
-
+      store.updateFlashMeassge(true, "Component deleted successfully!", "success");
     } else {
       store.updateFlashMeassge(true, "Failed to delete component.", "error");
     }
@@ -501,7 +504,6 @@ const getComponentsByType = async (type) => {
     console.error("Error fetching components by type:", error);
   }
 };
-
 
 const replaceComponent = async (componentKey) => {
   currentReplacingKey.value = componentKey;
@@ -583,6 +585,11 @@ const closeReplacePopup = () => {
   selectedReplacementId.value = null;
 };
 
+const closeAddNewSectionPopup = () => {
+  showAddSectionPopup.value = false;
+  selectedAddSectionId.value = null;
+}
+
 /* =========================
    Add Section Popup Logic
 ========================= */
@@ -600,6 +607,7 @@ const openAddSectionPopup = async (sectionKey) => {
   .flat(); 
 
   try {
+    replaceLoading.value = true;
     const res = await WordpressService.CustomComponentsAndFieldValues.getComponentForNewSection({
       type: alwaysTypesToAdd,
       exclude_ids: excludeIds,
@@ -617,6 +625,8 @@ const openAddSectionPopup = async (sectionKey) => {
     }
   } catch (error) {
     console.error("Error fetching components for add section:", error);
+  } finally {
+    replaceLoading.value = false;
   }
 };
 
@@ -629,9 +639,12 @@ const addNewSection = async () => {
 
   const newComponentId = selectedAddSectionId.value;
   const afterSectionKey = currentReplacingKey.value;
-
+  showAddSectionPopup.value = false;
   try {
     actionLoading.value = true;
+
+    // Reset popup state
+    selectedAddSectionId.value = null;
 
     // Find the position of after_section_id from already fetched active components
     const afterSection = activeComponents.value.find(comp => comp.id === afterSectionKey);
@@ -646,15 +659,10 @@ const addNewSection = async () => {
     });
 
     if (res.status === 200 && res.data.success) {
-      store.updateFlashMeassge(true, "Section added successfully!", "success");
-
       // Refresh active components & fields
       await getActiveComponentIds();
       await fetchCustomComponentsAndFieldsValue();
-
-      // Reset popup state
-      selectedAddSectionId.value = null;
-      showAddSectionPopup.value = false;
+      store.updateFlashMeassge(true, "Section added successfully!", "success");
     } else {
       store.updateFlashMeassge(true, "Failed to add section.", "error");
     }
@@ -818,10 +826,10 @@ provide("dashBoardMethods", { fetchDashboardData });
 
     <div v-if="showAddSectionPopup" class="replace-popup-overlay">
       <div class="replace-popup">
-        <button class="close-btn" @click="() => showAddSectionPopup = false" title="Close">&times;</button>
+        <button class="close-btn" @click="closeAddNewSectionPopup" title="Close">&times;</button>
         <h3>Select a component to add</h3>
 
-        <Loader v-if="actionLoading" />
+        <Loader v-if="replaceLoading" />
 
         <div class="components-grid" v-else>
           <div
