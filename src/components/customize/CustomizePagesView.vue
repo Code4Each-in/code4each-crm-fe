@@ -186,22 +186,26 @@ const aboutBlockData = (componentuniqueId) => {
 const serviceBlockData = (componentuniqueId) => {
   const fields = getFieldsByComponentType("service_section", componentuniqueId);
   if (!fields.length) return null;
-  
+
   return {
     "service-text1": getFieldValue(fields, "service-text1"),
     "service-text2": getFieldValue(fields, "service-text2"),
     "service-image1": getFieldValue(fields, "service-image1"),
     "service-text3": getFieldValue(fields, "service-text3"),
     "service-description1": getFieldValue(fields, "service-description1"),
+    "service-button1": getFieldValue(fields, "service-button1"),
     "service-image2": getFieldValue(fields, "service-image2"),
     "service-text4": getFieldValue(fields, "service-text4"),
     "service-description2": getFieldValue(fields, "service-description2"),
+    "service-button2": getFieldValue(fields, "service-button2"),
     "service-image3": getFieldValue(fields, "service-image3"),
     "service-text5": getFieldValue(fields, "service-text5"),
     "service-description3": getFieldValue(fields, "service-description3"),
+    "service-button3": getFieldValue(fields, "service-button3"),
     "service-image4": getFieldValue(fields, "service-image4"),
     "service-text6": getFieldValue(fields, "service-text6"),
     "service-description4": getFieldValue(fields, "service-description4"),
+    "service-button4": getFieldValue(fields, "service-button4"),
   };
 };
 

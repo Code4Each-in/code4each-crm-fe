@@ -82,8 +82,6 @@
             </nav>
         </div>
     </div>
-  
-    <!-- Hero Section -->
     <div class="container-fluid py-5 hero-header wow fadeIn" data-wow-delay="0.1s">
         <div class="container py-5">
             <div class="row g-5">
@@ -107,7 +105,6 @@
                         <textarea v-if="selectedField==='header-description1'" v-model="editableContent['header-description1']" @blur="blurAndUpdate('header-description1', null, null, null, componentId)" />
                         <h1 v-else class="mb-5 display-1 text-white">{{ editableContent['header-description1'] }}</h1>
                     </div>
-
                     <div
                     class="ss_editable"
                     :class="{ selected: selectedField === 'header-button1' }"
@@ -116,8 +113,6 @@
                     v-if="editableContent['header-button1']"
                     >
                     <span v-if="hoveredField === 'header-button1'" class="edit-label">Button</span>
-
-                    <!-- Button that opens the sidebar -->
                     <button
                         class="btn btn-primary px-4 py-3 px-md-5 me-4 btn-border-radius"
                         @click.stop="selectField('header-button1', 'button', 'header', componentId)"
@@ -129,7 +124,6 @@
             </div>
         </div>
     </div>
-  
     <SidebarEditor
         :isOpen="isSidebarOpen"
         :type="activeEditorType"
@@ -169,7 +163,7 @@ const props = defineProps({
 
 const emit = defineEmits(['field-updated']);
 const editableContent = ref({ ...props.data });
-const componentId = 'COMP_SS_EDUCATION_HEADER1_69';
+const componentId = 'COMP_SS_EDUCATION_HEADER2_74';
 
 watch(() => props.data, (newVal) => {
     editableContent.value = { ...newVal };
@@ -201,7 +195,7 @@ const {
     .ss_editable:hover {
         border-color: #00adb5;
     }
-    
+  
     .ss_editable.selected {
         border-color: #00adb5;
     }
@@ -227,7 +221,7 @@ const {
         padding: 8px;
         border: 1px solid #ccc;
     }
-
+ 
     #spinner {
         opacity: 0;
         visibility: hidden;
@@ -337,8 +331,9 @@ const {
     }
 
     .btn.btn-primary:hover {
-        background: #00b4d8;
-        color: #FF4880;
+        background: #D7ECFA !important;
+        color: #087ca7;
+        border: 1px solid #087ca7;
     }
 
     .btn-border-radius {
@@ -376,7 +371,7 @@ const {
     }
 
     .topbar .top-link .fa:hover i {
-        color: #1d70a2 !important;
+        color: #087ca7 !important;
     }
 
     .navbar {
@@ -394,7 +389,7 @@ const {
     .navbar .navbar-nav .nav-link.active,
     .fixed-top.bg-white .navbar .navbar-nav .nav-link:hover,
     .fixed-top.bg-white .navbar .navbar-nav .nav-link.active {
-        color: #FF4880;
+        color: #087ca7;
     }
 
     .navbar .dropdown-toggle::after {
@@ -422,8 +417,8 @@ const {
     }
 
     .dropdown .dropdown-menu a:hover {
-        background: #00b4d8;
-        color: #FF4880;
+        background: #F0F0F0;
+        color: #087ca7;
     }
 
     .navbar .nav-item:hover .dropdown-menu {
@@ -452,15 +447,15 @@ const {
     }
 
     .bg-light {
-        background-color: #ffecf2 !important;
+        background-color: #6cbdd975 !important;
     }
 
     .bg-primary {
-        background-color: #f26ca7 !important;
+        background-color: #087ca7 !important;
     }
 
     .text-secondary {
-        color: #1d70a2 !important;
+        color: #363b3c !important;
     }
 
     .text-white {
@@ -468,12 +463,12 @@ const {
     }
 
     a {
-        color: #ff4880;
+        color: #d6eaf7;
         text-decoration: none;
     }
 
     .text-primary {
-        color: #ff4880 !important;
+        color: #146d8e !important;
     }
 
     .header-social {
@@ -490,10 +485,10 @@ const {
     .eidtor-site img:hover {
         box-shadow: none;
     }
-    
+
     .btn-primary {
         color: #000;
-        background-color: #ff4880;
-        border-color: #ff4880;
+        background-color: #087ca7;
+        border-color: #087ca7;
     }
 </style>

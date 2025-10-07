@@ -181,7 +181,7 @@ const props = defineProps({
   
 const emit = defineEmits(["update"]);
 const editableContent = ref({ ...props.data });
-const componentId = 'COMP_SS_EDUCATION_FOOTER1_72';
+const componentId = 'COMP_SS_EDUCATION_FOOTER2_77';
   
 watch(
   () => props.data,
@@ -241,7 +241,7 @@ const {
   }
 
   .footer {
-    background: linear-gradient(rgba(255, 255, 255, .8), rgba(255, 255, 255, 1)), url(../images/background.webp);
+    background: linear-gradient(rgba(255, 255, 255, .8), rgb(208, 235, 251)), url(../images/background.webp);
     background-position: top center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -250,7 +250,7 @@ const {
   .footer .footer-galary-img img {
     width: 100%;
     border-style: dotted; 
-    border-color: #FF4880;
+    border-color: #087ca7;
     transition: 0.5s;
   }
 
@@ -274,21 +274,21 @@ const {
   }
 
   .bg-dark {
-    background-color: #393d72 !important;
+    background-color: #2386c8 !important;
   }
 
   .btn-primary {
     color: #000;
-    background-color: #ff4880;
-    border-color: #ff4880;
+    background-color: #146d8e;
+    border-color: #146d8e;
   }
 
   .text-primary {
-    color: #ff4880 !important;
+    color: #146d8e !important;
   }
 
   .border-primary {
-    border-color: #ff4880 !important;
+    border-color: #146d8e !important;
   }
 
   .title-border-radius {

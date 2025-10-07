@@ -32,7 +32,7 @@
             v-model="editableContent['service-text2']"
             @blur="blurAndUpdate('service-text2', editableContent['service-text2'], null, null, componentId)"
           />
-          <h1 v-else class="mb-5 display-3">{{ editableContent['service-text2'] }}</h1>
+          <h1 v-else class="mb-5 display-3" style="color: #393d72;">{{ editableContent['service-text2'] }}</h1>
         </div>
       </div>
       <div class="row g-5">
@@ -67,7 +67,7 @@
                     v-model="editableContent['service-text' + (i + 2)]"
                     @blur="blurAndUpdate('service-text' + (i + 2), editableContent['service-text' + (i + 2)], null, null, componentId)"
                   />
-                  <h4 v-else>{{ editableContent['service-text' + (i + 2)] }}</h4>
+                  <h4 v-else style="color: #393d72;">{{ editableContent['service-text' + (i + 2)] }}</h4>
                 </div>
                 <div
                   class="ss_editable"
@@ -152,7 +152,7 @@ const props = defineProps({
 
 const emit = defineEmits(["field-updated"]);
 const editableContent = ref({ ...props.data });
-const componentId = 'COMP_SS_EDUCATION_SERVICE1_71';
+const componentId = 'COMP_SS_EDUCATION_SERVICE2_76';
 
 watch(
   () => props.data,
@@ -190,7 +190,7 @@ const {
     border-color: #00adb5;
   }
   
-  .ss_editable.selected {
+  .editable.selected {
     border-color: #00adb5;
   }
   
@@ -217,7 +217,7 @@ const {
   }
 
   .service {
-    background: linear-gradient(rgba(255, 72, 128, 0.05), rgba(255, 72, 128, 0.2)) !important;
+    background: linear-gradient(rgb(205, 236, 252), rgb(236, 222, 238)) !important;
   }
 
   .service .service-item {
@@ -247,7 +247,7 @@ const {
   }
 
   .service-item:hover .service-content::after {
-    background: #00b4d8;
+    background: #f0f0f0;
     width: 100%;
     opacity: 1;
     z-index: 1;
@@ -258,6 +258,16 @@ const {
     z-index: 2;
   }
 
+  h1,
+  h2,
+  h3,
+  .h1,
+  .h2,
+  .h3 {
+    font-weight: 200;
+    font-family: 'Montserrat', sans-serif;
+  }
+
   .service-item .service-content-inner i,
   .service-item .service-content-inner p,
   .service-item .service-content-inner a.h4 {
@@ -266,7 +276,7 @@ const {
 
   .service-item:hover .service-content-inner i,
   .service-item:hover .service-content-inner p {
-    color: #fff !important;
+    color: #393d72 !important;
   }
 
   .service-item:hover .service-content-inner a.h4 {
@@ -281,6 +291,7 @@ const {
   .service-item .service-content-inner a.btn-primary:hover {
     background: #FF4880 !important;
     color: #fff !important;
+    border: 1px solid #FF4880 !important;
   }
 
   .bg-light {
@@ -305,7 +316,7 @@ const {
   }
 
   .text-primary {
-    color: #ff4880 !important;
+    color: #146d8e !important;
   }
 
   .header-social {
@@ -325,8 +336,8 @@ const {
 
   .btn-primary {
     color: #000;
-    background-color: #ff4880;
-    border-color: #ff4880;
+    background-color: #087ca7;
+    border-color: #087ca7;
   }
 
   .bg-dark {
@@ -334,7 +345,7 @@ const {
   }
 
   .border-primary {
-    border-color: #ff4880 !important;
+    border-color: #087ca7 !important
   }
 
   .title-border-radius {
@@ -342,7 +353,7 @@ const {
   }
 
   .border-bottom {
-    border-bottom: 1px solid #ff4880 !important;
+    border-bottom: 1px solid #087ca7 !important;
   }
 
   .btn-border-radius {
@@ -352,5 +363,9 @@ const {
   .btn.btn-primary {
     border: 0;
     color: #fff;
+  }
+
+  .bg-white {
+    background-color: #fff !important;
   }
 </style>
