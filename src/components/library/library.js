@@ -10,7 +10,10 @@ import COMP_SS_EDUCATION_HEADER1_69 from "./ss_education_templates/ss_education_
 import COMP_SS_EDUCATION_ABOUT1_70 from "./ss_education_templates/ss_education_about1.vue";
 import COMP_SS_EDUCATION_SERVICE1_71 from "./ss_education_templates/ss_education_service1.vue";
 import COMP_SS_EDUCATION_FOOTER1_72 from "./ss_education_templates/ss_education_footer1.vue";
-
+import COMP_SS_EDUCATION_HEADER2_74 from "./ss_education_templates/ss_education_header2.vue";
+import COMP_SS_EDUCATION_ABOUT2_75 from "./ss_education_templates/ss_education_about2.vue";
+import COMP_SS_EDUCATION_SERVICE2_76 from "./ss_education_templates/ss_education_service2.vue";
+import COMP_SS_EDUCATION_FOOTER2_77 from "./ss_education_templates/ss_education_footer2.vue";
 /* =========================
    Composable for editable fields
 ========================= */
@@ -124,4 +127,8 @@ export const componentLibrary = {
   COMP_SS_EDUCATION_ABOUT1_70: COMP_SS_EDUCATION_ABOUT1_70,
   COMP_SS_EDUCATION_SERVICE1_71: COMP_SS_EDUCATION_SERVICE1_71,
   COMP_SS_EDUCATION_FOOTER1_72: COMP_SS_EDUCATION_FOOTER1_72,
+  COMP_SS_EDUCATION_HEADER2_74: COMP_SS_EDUCATION_HEADER2_74,
+  COMP_SS_EDUCATION_ABOUT2_75: COMP_SS_EDUCATION_ABOUT2_75,
+  COMP_SS_EDUCATION_SERVICE2_76: COMP_SS_EDUCATION_SERVICE2_76,
+  COMP_SS_EDUCATION_FOOTER2_77: COMP_SS_EDUCATION_FOOTER2_77
 };

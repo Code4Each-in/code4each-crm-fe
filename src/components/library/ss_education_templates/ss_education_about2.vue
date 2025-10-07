@@ -136,7 +136,7 @@ const props = defineProps({
 
 const emit = defineEmits(["field-updated"]);
 const editableContent = ref({ ...props.data });
-const componentId = 'COMP_SS_EDUCATION_ABOUT1_70';
+const componentId = 'COMP_SS_EDUCATION_ABOUT2_75';
 
 watch(
   () => props.data,
@@ -176,7 +176,7 @@ const {
     .ss_editable.selected {
         border-color: #00adb5;
     }
-  
+    
     .edit-label {
         position: absolute;
         top: -10px;
@@ -189,7 +189,7 @@ const {
         z-index: 2;
         pointer-events: none;
     }
-  
+    
     input,
     textarea {
         width: 100%;
@@ -224,22 +224,22 @@ const {
     }
 
     .about {
-        background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), url(../images/background.webp);
+        background: linear-gradient(rgba(188, 225, 238, 0.89), rgba(255, 255, 255, 0.8)), url(../images/background.webp);
         background-position: center center;
         background-repeat: no-repeat;
         background-size: cover;
     }
 
     .bg-light {
-        background-color: #ffecf2 !important;
+        background-color: #6cbdd975 !important;
     }
 
     .bg-primary {
-        background-color: #f26ca7 !important;
+        background-color: #087ca7 !important;
     }
 
     .text-secondary {
-        color: #1d70a2 !important;
+        color: #363b3c !important;
     }
 
     .text-white {
@@ -252,7 +252,7 @@ const {
     }
 
     .text-primary {
-        color: #ff4880 !important;
+        color: #146d8e !important;
     }
 
     .header-social {
@@ -272,8 +272,8 @@ const {
 
     .btn-primary {
         color: #000;
-        background-color: #ff4880;
-        border-color: #ff4880;
+        background-color: #087ca7;
+        border-color: #087ca7;
     }
 
     .bg-dark {
@@ -281,7 +281,7 @@ const {
     }
 
     .border-primary {
-        border-color: #ff4880 !important;
+        border-color: #087ca7 !important;
     }
 
     .title-border-radius {
@@ -289,13 +289,13 @@ const {
     }
 
     .border-bottom {
-        border-bottom: 1px solid #ff4880 !important;
+        border-bottom: 2px solid #087ca7 !important;
     }
 
     .btn-border-radius {
         border-radius: 25% 10%;
     }
-
+    
     .btn.btn-primary {
         border: 0;
         color: #fff;
