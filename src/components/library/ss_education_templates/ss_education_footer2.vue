@@ -25,7 +25,7 @@
               <textarea
                 v-if="selectedField === 'footer-description1'"
                 v-model="editableContent['footer-description1']"
-                @blur="blurAndUpdate('footer-description1', null, null, null, componentId)"
+                @blur="blurAndUpdate('footer-description1', null, 'footer', null, componentId)"
               />
               <p v-else class="mt-4">{{ editableContent['footer-description1'] }}</p>
             </div>
@@ -44,7 +44,7 @@
               <input
                 v-if="selectedField === 'footer-text1'"
                 v-model="editableContent['footer-text1']"
-                @blur="blurAndUpdate('footer-text1', null, null, null, componentId)"
+                @blur="blurAndUpdate('footer-text1', null, 'footer', null, componentId)"
               />
               <h4
                 v-else
@@ -66,11 +66,23 @@
               @mouseleave="hoveredField = null"
             >
               <span v-if="hoveredField === 'socialLinks'" class="edit-label">Social Links</span>
-              <li v-for="(link, i) in editableContent.socialLinks" :key="i">
-                <span class="btn btn-primary btn-sm-square me-3 rounded-circle text-white">
-                  <i :class="link.icon" aria-hidden="true"></i>
-                </span>
-              </li>
+
+              <!-- If social links exist -->
+              <template v-if="editableContent.socialLinks && editableContent.socialLinks.length > 0">
+                <li v-for="(link, i) in editableContent.socialLinks" :key="i">
+                  <span class="btn btn-primary btn-sm-square me-3 rounded-circle text-white">
+                    <i :class="link.icon" aria-hidden="true"></i>
+                  </span>
+                </li>
+              </template>
+
+              <!-- If no social links -->
+              <template v-else>
+                <li class="text-white d-flex align-items-center text-muted">
+                    <i class="fa fa-plus" style="margin: 8px; color: #fff;"></i>
+                    Add Social Links
+                </li>
+              </template>
             </ul>
           </div>
         </div>
@@ -87,7 +99,7 @@
               <input
                 v-if="selectedField === 'footer-text2'"
                 v-model="editableContent['footer-text2']"
-                @blur="blurAndUpdate('footer-text2', null, null, null, componentId)"
+                @blur="blurAndUpdate('footer-text2', null, 'footer', null, componentId)"
               />
               <h4
                 v-else

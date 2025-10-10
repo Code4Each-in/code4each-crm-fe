@@ -57,7 +57,10 @@ const addSectionOptions = ref([]);
 const selectedAddSectionId = ref(null);
 const addSectionType = ref("");
 const activeComponents = ref([]); 
-const componentuniqueId = ref(null);
+const globalToggle = ref({
+  header: false,
+  footer: false
+});
 
 /* =========================
    Component Registry
@@ -163,12 +166,6 @@ const aboutBlockData = (componentuniqueId) => {
   const fields = getFieldsByComponentType("about_section", componentuniqueId);
   if (!fields.length) return null;
 
-  const services = Array.from({ length: 6 }, (_, i) => ({
-    [`about-image${i + 1}`]: getFieldValue(fields, `about-img${i + 1}`),
-    [`about-text${i + 5}`]: getFieldValue(fields, `about-text${i + 5}`),
-    [`about-service${i + 1}`]: getFieldValue(fields, `about-service${i + 1}`), 
-  }));
-
   return {
     "about-text1": getFieldValue(fields, "about-text1"),
     "about-text2": getFieldValue(fields, "about-text2"),
@@ -176,9 +173,24 @@ const aboutBlockData = (componentuniqueId) => {
     "about-text4": getFieldValue(fields, "about-text4"),
     "about-description1": getFieldValue(fields, "about-description1"),
     "about-button1": getFieldValue(fields, "about-button1"),
-    buttonUrl: getFieldValue(fields, "about-button1", 1) || "#",
-    buttonTarget: getFieldValue(fields, "about-button1", 2) || "_self",
-    services,
+    "about-image1": getFieldValue(fields, "about-img1"),
+    "about-image2": getFieldValue(fields, "about-img2"),
+    "about-image3": getFieldValue(fields, "about-img3"),
+    "about-image4": getFieldValue(fields, "about-img4"),
+    "about-image5": getFieldValue(fields, "about-img5"),
+    "about-image6": getFieldValue(fields, "about-img6"),
+    "about-text5": getFieldValue(fields, "about-text5"),
+    "about-text6": getFieldValue(fields, "about-text6"),
+    "about-text7": getFieldValue(fields, "about-text7"),
+    "about-text8": getFieldValue(fields, "about-text8"),
+    "about-text9": getFieldValue(fields, "about-text9"),
+    "about-text10": getFieldValue(fields, "about-text10"),
+    "about-service1": getFieldValue(fields, "about-service1"),
+    "about-service2": getFieldValue(fields, "about-service2"),
+    "about-service3": getFieldValue(fields, "about-service3"),
+    "about-service4": getFieldValue(fields, "about-service4"),
+    "about-service5": getFieldValue(fields, "about-service5"),
+    "about-service6": getFieldValue(fields, "about-service6"),
   };
 };
 
@@ -277,6 +289,28 @@ const footerBlockData = (componentuniqueId) => {
   };
 };
 
+// Common Text 
+const commonTextBlockData = (componentuniqueId) => {
+  const fields = getFieldsByComponentType("common_text", componentuniqueId);
+  if (!fields.length) return null;
+
+  return {
+    'common-image1': getFieldValue(fields, "common-image1"),
+    'common-text1': getFieldValue(fields, "common-text1"),
+    'common-text2': getFieldValue(fields, "common-text2"),
+    'common-description1': getFieldValue(fields, "common-description1"),
+    'common-image2': getFieldValue(fields, "common-image2"),
+    'common-text3': getFieldValue(fields, "common-text3"),
+    'common-description2': getFieldValue(fields, "common-description2"),
+    'common-image3': getFieldValue(fields, "common-image3"),
+    'common-text4': getFieldValue(fields, "common-text4"),
+    'common-description3': getFieldValue(fields, "common-description3"),
+    'common-image4': getFieldValue(fields, "common-image4"),
+    'common-text5': getFieldValue(fields, "common-text5"),
+    'common-description4': getFieldValue(fields, "common-description4"),
+  };
+}
+
 // All sections for editor rendering
 const sections = computed(() => {
   return activeComponents.value
@@ -287,6 +321,7 @@ const sections = computed(() => {
       else if (comp.type === "about_section") data = aboutBlockData(comp.id);
       else if (comp.type === "service_section") data = serviceBlockData(comp.id);
       else if (comp.type === "footer") data = footerBlockData(comp.id);
+      else if (comp.type === "common_text") data = commonTextBlockData(comp.id);
 
       if (!data || Object.keys(data).length === 0) return null;
 
@@ -355,7 +390,19 @@ const fetchGlobalVariables = async () => {
   if (!siteSettingsDetail.value?.website_domain) return;
   try {
     const res = await WordpressService.getGlobalVariables({ website_domain: siteSettingsDetail.value.website_domain });
-    if (res.status === 200 && res.data.success) globalVariables.value = res.data.global_variables || []; adminEmail.value = res.data.admin_email || "";
+    if (res.status === 200 && res.data.success) {
+      globalVariables.value = res.data.global_variables || [];
+      adminEmail.value = res.data.admin_email || "";
+
+      // Map backend variables to toggles
+      globalVariables.value.forEach((variable) => {
+        if (variable.name === "global-header-value") {
+          globalToggle.value.header = variable.value === "on";
+        } else if (variable.name === "global-footer-value") {
+          globalToggle.value.footer = variable.value === "on";
+        }
+      });
+    }
   } catch (error) {
     console.error("Error fetching global variables:", error);
   }
@@ -392,8 +439,7 @@ const fetchCustomComponentsAndFieldsValue = async () => {
 ========================= */
 const saveCustomComponentsFieldValues = (field_name, value, type = "text", file, componentId) => {
   if (!pageId.value) return;
-  isSaving.value = true;
-  console.log("Component ID:", componentId);  
+  isSaving.value = true; 
 
   if (saveTimeout.value) clearTimeout(saveTimeout.value);
   if (typeof field_name === "object") {
@@ -565,6 +611,43 @@ const replaceCustomComponent = async () => {
   }
 };
 
+const onGlobalToggle = async (type, event) => {
+  const newValue = event.target.checked;
+
+  if (!newValue) {
+    // If user is turning it OFF
+    const confirmed = window.confirm(
+      `Are you sure you want to turn OFF global changes for ${type.toUpperCase()}?\n` +
+      `If you do, ${type} changes will no longer update globally.`
+    );
+
+    if (!confirmed) {
+      // revert toggle back to ON
+      event.target.checked = true;
+      return;
+    }
+  }
+
+  // Update local value
+  globalToggle.value[type] = newValue;
+
+  try {
+    const res = await WordpressService.CustomComponentsAndFieldValues.addGobalSwitchValue({
+      website_domain: siteSettingsDetail.value.website_domain,
+      type, 
+      value: newValue ? "on" : "off",
+    });
+    if (res.status === 200 && res.data.success) {
+      store.updateFlashMeassge(true, "Switch Updated Gogbally", "success");
+    }
+  } catch (error) {
+    console.error("Error updating global toggle:", error);
+    globalToggle.value[type] = !newValue;
+    event.target.checked = !newValue;
+    alert("Something went wrong while updating. Please try again.");
+  }
+}
+
 /* =========================
    Lifecycle Hooks
 ========================= */
@@ -595,7 +678,7 @@ const closeAddNewSectionPopup = () => {
 /* =========================
    Add Section Popup Logic
 ========================= */
-const alwaysTypesToAdd = ["about_section", "service_section"];
+const alwaysTypesToAdd = ["about_section", "service_section", "common_text"];
 
 const openAddSectionPopup = async (sectionKey) => {
   showAddSectionPopup.value = true;
@@ -747,6 +830,21 @@ provide("dashBoardMethods", { fetchDashboardData });
               <!-- Render sections -->
               <div v-else v-for="(section, index) in sections" :key="section.key" class="component-wrapper">
                 <div class="eidtor-img">
+                  <!-- Show Global Toggle only for Header & Footer -->
+                  <div
+                    v-if="['header', 'footer'].includes(section.type)"
+                    class="global-toggle-container"
+                  >
+                    <label class="switch">
+                      <input
+                        type="checkbox"
+                        :checked="globalToggle[section.type]"
+                        @change="onGlobalToggle(section.type, $event)"
+                      />
+                      <span class="slider round"></span>
+                    </label>
+                    <span class="toggle-label">Global Changes</span>
+                  </div>
                   <!-- Action tab -->
                   <div class="component-actions">
                     <!-- Replace button: show for all -->
@@ -1139,6 +1237,68 @@ provide("dashBoardMethods", { fetchDashboardData });
   text-align: center;
   border-radius: 4px;
   padding: 2px 0;
+}
+.global-toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  padding: 5px 10px;
+  background: #f9f9f9;
+  border-radius: 6px;
+  width: fit-content;
+  border: 1px solid #ddd;
+}
+
+/* Toggle switch styling */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #007bff;
+}
+
+input:checked + .slider:before {
+  transform: translateX(24px);
+}
+
+.toggle-label {
+  font-weight: 600;
+  color: #333;
 }
 
 </style>

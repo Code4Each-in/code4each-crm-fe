@@ -33,13 +33,24 @@
             @mouseleave="hoveredField = null"
           >
             <span v-if="hoveredField === 'menu'" class="edit-label">Menus</span>
-            <li
-              v-for="(item, index) in editableContent.menu"
-              :key="index"
-              class="hero-menu-item nav-item"
-            >
-              <span class="hero-menu-link nav-link">{{ item }}</span>
-            </li>
+             <!-- Show menus if present -->
+             <template v-if="editableContent.menu && editableContent.menu.length">
+              <li
+                v-for="(item, index) in editableContent.menu"
+                :key="index"
+                class="hero-menu-item nav-item"
+              >
+                <span class="hero-menu-link nav-link">{{ item }}</span>
+              </li>
+            </template>
+
+            <!-- Show “Add Menu” placeholder when empty -->
+            <template v-else>
+              <li class="hero-menu-item nav-item text-muted">
+                <i class="fa fa-plus me-1" style="color: #fff;"></i>
+                Add Menus
+              </li>
+            </template>
           </ul>
         </div>
       </div>
@@ -64,7 +75,7 @@
               <input
                 v-if="selectedField === 'header-text1'"
                 v-model="editableContent['header-text1']"
-                @blur="blurAndUpdate('header-text1', null, null, null, componentId)"
+                @blur="blurAndUpdate('header-text1', null, 'header', null, componentId)"
               />
               <h2 v-else class="hero-title1">{{ editableContent['header-text1'] }}</h2>
             </div>
@@ -81,7 +92,7 @@
               <input
                 v-if="selectedField === 'header-text2'"
                 v-model="editableContent['header-text2']"
-                @blur="blurAndUpdate('header-text2', null, null, null, componentId)"
+                @blur="blurAndUpdate('header-text2', null, 'header', null, componentId)"
               />
               <h1 v-else class="hero-title2">{{ editableContent['header-text2'] }}</h1>
             </div>
@@ -98,7 +109,7 @@
               <textarea
                 v-if="selectedField === 'header-description1'"
                 v-model="editableContent['header-description1']"
-                @blur="blurAndUpdate('header-description1', null, null, null, componentId)"
+                @blur="blurAndUpdate('header-description1', null, 'header', null, componentId)"
               ></textarea>
               <p v-else class="hero-description">{{ editableContent['header-description1'] }}</p>
             </div>

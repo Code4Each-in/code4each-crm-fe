@@ -83,22 +83,21 @@
     <!-- Services Grid -->
     <div class="services-wrapper">
       <div
-        v-for="(service, i) in editableContent.services"
-        :key="i"
+        v-for="i in 6" :key="i"
         class="single-service aos-init aos-animate"
         :data-aos-duration="1100 + i * 100"
       >
         <!-- Service Image -->
         <div
           class="single-service-thumb editable"
-          :class="{ selected: selectedField === 'about-image' + (i + 1) }"
-          @click.stop="selectField('about-image' + (i + 1), 'image', 'about_section', componentId)"
-          @mouseover="hoveredField = 'about-image' + (i + 1)"
+          :class="{ selected: selectedField === 'about-image' + i }"
+          @click.stop="selectField('about-image' + i, 'image', 'about_section', componentId)"
+          @mouseover="hoveredField = 'about-image' + i"
           @mouseleave="hoveredField = null"
         >
-          <span v-if="hoveredField === 'about-image' + (i + 1)" class="edit-label">Image</span>
+          <span v-if="hoveredField === 'about-image' + i" class="edit-label">Image</span>
           <img
-            :src="service['about-image' + (i + 1)] || '/images/default-service.png'"
+            :src="editableContent['about-image' + i] || '/images/default-service.png'"
             alt="About Image"
             class="about-image"
           />
@@ -107,18 +106,18 @@
         <!-- Service Text -->
         <div
           class="single-service-title editable"
-          :class="{ selected: selectedField === 'about-text' + (i + 5) }"
-          @click.stop="selectField('about-text' + (i + 5))"
-          @mouseover="hoveredField = 'about-text' + (i + 5)"
+          :class="{ selected: selectedField === 'about-text' + (i + 4) }"
+          @click.stop="selectField('about-text' + (i + 4))"
+          @mouseover="hoveredField = 'about-text' + (i + 4)"
           @mouseleave="hoveredField = null"
         >
-          <span v-if="hoveredField === 'about-text' + (i + 5)" class="edit-label">Text</span>
+          <span v-if="hoveredField === 'about-text' + (i + 4)" class="edit-label">Text</span>
           <input
-            v-if="selectedField === 'about-text' + (i + 5)"
-            v-model="service['about-text' + (i + 5)]"
-            @blur="blurAndUpdate('about-text' + (i + 5), service['about-text' + (i + 5)], null, null, componentId)"
+            v-if="selectedField === 'about-text' + (i + 4)"
+            v-model="editableContent['about-text' + (i + 4)]"
+            @blur="blurAndUpdate('about-text' + (i + 4), service['about-text' + (i + 4)], null, null, componentId)"
           />
-          <h2 v-else class="title">{{ service['about-text' + (i + 5)] }}</h2>
+          <h2 v-else class="title">{{ editableContent['about-text' + (i + 4)] }}</h2>
         </div>
       </div>
     </div>
@@ -150,14 +149,18 @@ const props = defineProps({
       "about-text2": "Our",
       "about-text3": "Best Services",
       "about-text4": "for You",
-      services: [
-        { "about-image1": "/images/doctor.png", "about-text5": "Best Doctors" },
-        { "about-image2": "/images/affordable.png", "about-text6": "Affordable Care" },
-        { "about-image3": "/images/insurance.png", "about-text7": "Insurance Partners" },
-        { "about-image4": "/images/support.png", "about-text8": "24/7 Support" },
-        { "about-image5": "/images/alarm.png", "about-text9": "Emergency Service" },
-        { "about-image6": "/images/telemedicine.png", "about-text10": "Online Consultancy" },
-      ],
+      "about-image1": "/images/doctor.png",
+      "about-text5": "Best Doctors",
+      "about-image2": "/images/affordable.png",
+      "about-text6": "Affordable Care",
+      "about-image3": "/images/insurance.png",
+      "about-text7": "Insurance Partners",
+      "about-image4": "/images/support.png",
+      "about-text8": "24/7 Support",
+      "about-image5": "/images/alarm.png",
+      "about-text9": "Emergency Service",
+      "about-image6": "/images/telemedicine.png",
+      "about-text10": "Online Consultancy",
     }),
   },
 });

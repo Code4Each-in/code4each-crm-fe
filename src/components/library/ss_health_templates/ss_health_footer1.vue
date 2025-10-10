@@ -33,7 +33,7 @@
                   <textarea
                     v-if="selectedField === 'footer-description1'"
                     v-model="editableContent['footer-description1']"
-                    @blur="blurAndUpdate('footer-description1', null, null, null, componentId)"
+                    @blur="blurAndUpdate('footer-description1', null, 'footer', null, componentId)"
                   />
                   <p v-else class="footer-desc desc-content m-b-35">{{ editableContent['footer-description1'] }}</p>
                 </div>
@@ -74,7 +74,7 @@
                   <input
                     v-if="selectedField === 'footer-text1'"
                     v-model="editableContent['footer-text1']"
-                    @blur="blurAndUpdate('footer-text1', null, null, null, componentId)"
+                    @blur="blurAndUpdate('footer-text1', null, 'footer', null, componentId)"
                   />
                   <h4 v-else class="widget-title footer-title">{{ editableContent['footer-text1'] }}</h4>
                 </div>
@@ -86,7 +86,7 @@
             </div>
   
             <!-- Column 3: Menu -->
-            <div class="col-sm-6 col-md-6 col-lg-2 col-xl-2 m-b-40" v-if="editableContent.menu && editableContent.menu.length">
+            <div class="col-sm-6 col-md-6 col-lg-2 col-xl-2 m-b-40">
               <div class="single-footer-widget footer-menu">
                 <!-- Menu Heading -->
                 <div
@@ -100,7 +100,7 @@
                   <input
                     v-if="selectedField === 'footer-text2'"
                     v-model="editableContent['footer-text2']"
-                    @blur="blurAndUpdate('footer-text2', null, null, null, componentId)"
+                    @blur="blurAndUpdate('footer-text2', null, 'footer', null, componentId)"
                   />
                   <h4 v-else class="widget-title footer-title">{{ editableContent['footer-text2'] }}</h4>
                 </div>
@@ -112,18 +112,24 @@
                   @mouseleave="hoveredField = null"
                 >
                   <span v-if="hoveredField === 'menu'" class="edit-label">Menus</span>
-                  <li
-                    v-for="(item, i) in editableContent.menu"
-                    :key="i"
-                  >
-                    <span class="footer-menus">{{ item }}</span>
-                  </li>
+                  <!-- Show existing menus -->
+                  <template v-if="editableContent.menu && editableContent.menu.length">
+                    <li v-for="(item, i) in editableContent.menu" :key="i">
+                      <span class="footer-menus">{{ item }}</span>
+                    </li>
+                  </template>
+                  <template v-else>
+                    <li class="text-muted">
+                      <i class="fa fa-plus me-1" style="color: #fff;"></i>
+                      Add Menus
+                    </li>
+                  </template>
                 </ul>
               </div>
             </div>
   
             <!-- Column 4: Social -->
-            <div class="col-sm-6 col-md-6 col-lg-3 col-xl-2 m-b-40" v-if="editableContent.socialLinks && editableContent.socialLinks.length">
+            <div class="col-sm-6 col-md-6 col-lg-3 col-xl-2 m-b-40">
               <div class="single-footer-widget single-footer-space-left">
                 <!-- Social Heading -->
                 <div
@@ -137,7 +143,7 @@
                   <input
                     v-if="selectedField === 'footer-text3'"
                     v-model="editableContent['footer-text3']"
-                    @blur="blurAndUpdate('footer-text3', null, null, null, componentId)"
+                    @blur="blurAndUpdate('footer-text3', null, 'footer', null, componentId)"
                   />
                   <h4 v-else class="widget-title footer-title">{{ editableContent['footer-text3'] }}</h4>
                 </div>
@@ -153,12 +159,22 @@
                   <span v-if="hoveredField === 'socialLinks'" class="edit-label">
                     Social Links
                   </span>
+                  <!-- Show existing social links -->
+                  <template v-if="editableContent.socialLinks && editableContent.socialLinks.length">
+                    <li v-for="(link, i) in editableContent.socialLinks" :key="i">
+                      <a :href="link.url" target="_blank" rel="noopener">
+                        <i :class="link.icon" aria-hidden="true"></i>
+                      </a>
+                    </li>
+                  </template>
 
-                  <li v-for="(link, i) in editableContent.socialLinks" :key="i">
-                    <a :href="link.url" target="_blank" rel="noopener">
-                      <i :class="link.icon" aria-hidden="true"></i>
-                    </a>
-                  </li>
+                  <!-- Show “Add Social Links” placeholder when empty -->
+                  <template v-else>
+                    <li class="text-muted">
+                      <i class="fa fa-plus me-1" style="color: #fff;"></i>
+                      Add Social Links
+                    </li>
+                  </template>
                 </ul>
               </div>
             </div>
@@ -463,7 +479,7 @@ a.text-color-success:hover {
 }
 
 .single-footer-widget .widget-title {
-    font-size: 18px;
+    font-size: 17px;
     color:#F9FAFB;
     margin-bottom: 25px;
     font-weight: 500;
