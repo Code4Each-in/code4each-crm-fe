@@ -60,7 +60,6 @@ const currentTab = ref("button");
 const pageId = ref(route.query.page_id ? parseInt(route.query.page_id) : null);
 const initialLoading = ref(true);
 const pageLoading = ref(false);
-const componentIdsByType = ref({});
 
 const withLoader = async (asyncFn) => {
   loading.value = true;
@@ -167,6 +166,8 @@ const submitCustomFields = async (data) => {
       website_url: siteSettingsDetail.value?.website_domain,
       component_unique_id: activeComponentId,
       form_fields: formFields,
+      section_type: props.sectionType,
+      pageId: pageId.value
     });
 
     if (response.status === 200 && response.data.success) {

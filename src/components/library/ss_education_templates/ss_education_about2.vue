@@ -10,7 +10,7 @@
                         @mouseleave="hoveredField=null"
                     >
                         <span v-if="hoveredField==='about-image1'" class="edit-label">Image</span>
-                        <img :src="editableContent.services?.[0]?.['about-image1']" alt="About Us" class="img-fluid">
+                        <img :src="editableContent['about-image1']" alt="About Us" class="img-fluid">
                     </div>
                 </div>
                 <div class="col-lg-7 wow fadeIn" data-wow-delay="0.3s">
@@ -50,27 +50,26 @@
                     <div class="row mb-4">
                         <div 
                             class="col-lg-6" 
-                            v-for="(service, index) in editableContent.services" 
-                            :key="index"
+                            v-for="i in 6" :key="i"
                         >
                             <h6 class="mb-3 ss_editable"
-                                :class="{ selected: selectedField === 'about-service' + (index + 1) }"
-                                @click.stop="selectField('about-service' + (index + 1))"
-                                @mouseover="hoveredField = 'about-service' + (index + 1)"
+                                :class="{ selected: selectedField === 'about-service' + i }"
+                                @click.stop="selectField('about-service' + i)"
+                                @mouseover="hoveredField = 'about-service' + i"
                                 @mouseleave="hoveredField = null"
                             >
                             <i class="fa fa-check-circle me-2"
-                                :class="(index + 1) % 3 === 1 ? '' : ((index + 1) % 3 === 2 ? 'text-primary' : 'text-secondary')">
+                                :class="(i + 1) % 3 === 1 ? '' : ((i + 1) % 3 === 2 ? 'text-primary' : 'text-secondary')">
                             </i>
 
-                            <span v-if="hoveredField === 'about-service' + (index + 1)" class="edit-label">Text</span>
+                            <span v-if="hoveredField === 'about-service' + i" class="edit-label">Text</span>
 
                             <input 
-                                v-if="selectedField === 'about-service' + (index + 1)"
-                                v-model="service['about-service' + (index + 1)]" 
-                                @blur="blurAndUpdate('about-service' + (index + 1), service['about-service' + (index + 1)], null, null, componentId)"
+                                v-if="selectedField === 'about-service' + i"
+                                v-model="service['about-service' + i]" 
+                                @blur="blurAndUpdate('about-service' + i, editableContent['about-service' + i], null, null, componentId)"
                             />
-                            <span v-else>{{ service['about-service' + (index + 1)] }}</span>
+                            <span v-else>{{ editableContent['about-service' + i] }}</span>
                             </h6>
                         </div>
                     </div>
@@ -121,15 +120,13 @@ const props = defineProps({
         "about-text2": "Best Services",
         "about-description1": "for You",
         "about-button1": "Learn More",
-        services: [
-            {"about-image1": "/images/doctor.png"},
-            {"about-service1": "/images/doctor.png"},
-            {"about-service2": "/images/affordable.png"},
-            {"about-service3": "/images/insurance.png"},
-            {"about-service4": "/images/support.png"},
-            {"about-service5": "/images/alarm.png"},
-            {"about-service6": "/images/telemedicine.png"},
-        ],
+        "about-image1": "/images/doctor.png",
+        "about-service1": "/images/doctor.png",
+        "about-service2": "/images/affordable.png",
+        "about-service3": "/images/insurance.png",
+        "about-service4": "/images/support.png",
+        "about-service5": "/images/alarm.png",
+        "about-service6": "/images/telemedicine.png",
     }),
   },
 });

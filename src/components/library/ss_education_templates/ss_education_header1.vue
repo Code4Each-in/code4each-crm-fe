@@ -15,21 +15,32 @@
                 </div>
                 <div class="top-link pe-2">
                     <ul
-                    class="header-social ss_editable"
-                    :class="{ selected: selectedField === 'socialLinks' }"
-                    @click.stop="selectField('socialLinks', 'social')"
-                    @mouseover="hoveredField = 'socialLinks'"
-                    @mouseleave="hoveredField = null"
-                    >
-                    <span v-if="hoveredField === 'socialLinks'" class="edit-label">
-                        Social Links
-                    </span>
-
-                    <li v-for="(link, i) in editableContent.socialLinks" :key="i">
-                        <span class="text-white">
-                            <i :class="link.icon" aria-hidden="true"></i>
+                        class="header-social ss_editable"
+                        :class="{ selected: selectedField === 'socialLinks' }"
+                        @click.stop="selectField('socialLinks', 'social')"
+                        @mouseover="hoveredField = 'socialLinks'"
+                        @mouseleave="hoveredField = null"
+                        >
+                        <span v-if="hoveredField === 'socialLinks'" class="edit-label">
+                            Social Links
                         </span>
-                    </li>
+
+                        <!-- If social links exist -->
+                        <template v-if="editableContent.socialLinks && editableContent.socialLinks.length > 0">
+                            <li v-for="(link, i) in editableContent.socialLinks" :key="i">
+                            <span class="text-white">
+                                <i :class="link.icon" aria-hidden="true"></i>
+                            </span>
+                            </li>
+                        </template>
+
+                        <!-- If no social links -->
+                        <template v-else>
+                            <li class="text-white">
+                            <i class="fa fa-plus me-1"></i>
+                            <span>Add Social Links</span>
+                            </li>
+                        </template>
                     </ul>
                 </div>
             </div>
@@ -53,17 +64,32 @@
                 </button>
   
                 <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <ul v-if="editableContent.menu && editableContent.menu.length > 0" class="navbar-nav mx-auto ss_editable" 
+                    <ul 
+                        class="navbar-nav mx-auto ss_editable" 
                         :class="{ selected: selectedField === 'menu' }" 
                         @click.stop="selectField('menu', 'menus')" 
                         @mouseover="hoveredField='menu'" 
-                        @mouseleave="hoveredField=null">
+                        @mouseleave="hoveredField=null"
+                        >
                         <span v-if="hoveredField==='menu'" class="edit-label">Menu</span>
-                        <li v-for="(item, index) in editableContent.menu" :key="index" class="nav-item">
+
+                        <!-- If menu items exist -->
+                        <template v-if="editableContent.menu && editableContent.menu.length > 0">
+                            <li v-for="(item, index) in editableContent.menu" :key="index" class="nav-item">
                             <span class="nav-link">{{ item }}</span>
-                        </li>
+                            </li>
+                        </template>
+
+                        <!-- If no menu items -->
+                        <template v-else>
+                            <li class="nav-item">
+                            <span class="nav-link text-muted">
+                                <i class="fa fa-plus me-1"></i>
+                                Add Menus
+                            </span>
+                            </li>
+                        </template>
                     </ul>
-  
                     <div class="d-flex me-4">
                         <div id="phone-tada" class="d-flex align-items-center justify-content-center">
                             <span class="position-relative wow tada" data-wow-delay=".9s">
@@ -94,7 +120,7 @@
                         @mouseover="hoveredField='header-text1'" 
                         @mouseleave="hoveredField=null">
                         <span v-if="hoveredField==='header-text1'" class="edit-label">Hero Heading</span>
-                        <input v-if="selectedField==='header-text1'" v-model="editableContent['header-text1']" @blur="blurAndUpdate('header-text1', null, null, null, componentId)" />
+                        <input v-if="selectedField==='header-text1'" v-model="editableContent['header-text1']" @blur="blurAndUpdate('header-text1', null, 'header', null, componentId)" />
                         <h1 v-else class="mb-3 text-primary">{{ editableContent['header-text1'] }}</h1>
                     </div>
 
@@ -104,7 +130,7 @@
                         @mouseover="hoveredField='header-description1'" 
                         @mouseleave="hoveredField=null">
                         <span v-if="hoveredField==='header-description1'" class="edit-label">Hero Description</span>
-                        <textarea v-if="selectedField==='header-description1'" v-model="editableContent['header-description1']" @blur="blurAndUpdate('header-description1', null, null, null, componentId)" />
+                        <textarea v-if="selectedField==='header-description1'" v-model="editableContent['header-description1']" @blur="blurAndUpdate('header-description1', null, 'header', null, componentId)" />
                         <h1 v-else class="mb-5 display-1 text-white">{{ editableContent['header-description1'] }}</h1>
                     </div>
 

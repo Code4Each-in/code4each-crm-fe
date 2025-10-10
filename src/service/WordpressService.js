@@ -281,6 +281,9 @@ const WordpressService = {
     addNewSection: (data) => {
       return requests(baseUrl).post(`/add-new-custom-component-section`, data)
     },
+    addGobalSwitchValue: (data) => {
+      return requests(baseUrl).post(`/add-gobal-switch-value`, data)
+    },
   }
 
 }
