@@ -33,7 +33,7 @@
                 class="accordion-button1"
                 @click="showForm = !showForm"
               >
-                <i class="fa fa-plus" aria-hidden="true"></i> Add button
+                <i class="fa fa-plus" aria-hidden="true"></i> Add Menus
               </button>
             </div>
 
@@ -50,8 +50,10 @@
                     v-model="values.menu_value_type"
                   >
                     <option value="">Select Type</option>
-                    <option value="internal">Internal</option>
-                    <option value="external">External</option>
+                    <!-- <option value="internal">Internal</option> -->
+                    <option value="pages">Pages</option>
+                    <!-- <option value="external">External</option> -->
+                    <option value="external">Third Party Links</option>
                   </select>
                   <div class="text-danger">{{ allErrors.menu_value_type }}</div>
                 </div>
@@ -60,18 +62,21 @@
                   <input type="text" class="form-control" v-model="values.name" />
                   <div class="text-danger">{{ allErrors.name }}</div>
                 </div>
-                <div v-if="values.menu_value_type === 'internal'" class="col-12">
-                  <label class="form-label">Section*</label>
+                <div v-if="values.menu_value_type === 'pages'" class="col-12">
+                  <label class="form-label">Pages*</label>
                   <select class="form-select" v-model="values.type">
-                    <option value="">Select Section</option>
-                    <option v-for="option in sections" :key="option.value" :value="option.value">
-                      {{ option.label }}
+                    <option value="">Select Pages</option>
+                    <option 
+                      v-for="page in templatePages" 
+                      :key="page.page_id" 
+                      :value="page.page_id">
+                      <span v-html="page.page_name"></span>
                     </option>
                   </select>
                   <div class="text-danger">{{ allErrors.type }}</div>
                 </div>
                 <div v-if="values.menu_value_type === 'external'" class="col-12">
-                  <label class="form-label">External Link*</label>
+                  <label class="form-label">Third Party Link*</label>
                   <input type="text" class="form-control" v-model="values.external" />
                   <div class="text-danger">{{ allErrors.external }}</div>
                 </div>
@@ -114,8 +119,9 @@
                           <label class="form-label">Menu Type*</label>
                           <select class="form-select" v-model="eachValues.menu_value_type">
                             <option value="">Select Type</option>
-                            <option value="internal">Internal</option>
-                            <option value="external">External</option>
+                            <!-- <option value="internal">Internal</option> -->
+                            <option value="pages">Pages</option>
+                            <option value="external">Third Party Links</option>
                           </select>
                           <div class="text-danger">{{ allErrorsEach.menu_value_type }}</div>
                         </div>
@@ -124,18 +130,21 @@
                           <input type="text" class="form-control" v-model="eachValues.name" />
                           <div class="text-danger">{{ allErrorsEach.name }}</div>
                         </div>
-                        <div v-if="eachValues.menu_value_type === 'internal'" class="col-12">
-                          <label class="form-label">Section*</label>
+                        <div v-if="eachValues.menu_value_type === 'pages'" class="col-12">
+                          <label class="form-label">Pages*</label>
                           <select class="form-select" v-model="eachValues.type">
-                            <option value="">Select Section</option>
-                            <option v-for="option in sections" :key="option.value" :value="option.value">
-                              {{ option.label }}
+                            <option value="">Select Pages</option>
+                            <option 
+                              v-for="page in templatePages" 
+                              :key="page.page_id" 
+                              :value="page.page_id">
+                              <span v-html="page.page_name"></span>
                             </option>
                           </select>
                           <div class="text-danger">{{ allErrorsEach.type }}</div>
                         </div>
                         <div v-if="eachValues.menu_value_type === 'external'" class="col-12">
-                          <label class="form-label">External Link*</label>
+                          <label class="form-label">Third Party Link*</label>
                           <input type="text" class="form-control" v-model="eachValues.external" />
                           <div class="text-danger">{{ allErrorsEach.external }}</div>
                         </div>
@@ -185,6 +194,7 @@ const loading = ref(true);
 const siteSettingsDeatil = ref();
 const menuUnderDelete = ref(null);
 const selectedCategory = ref("");
+const templatePages = ref([]);
 
 const submitLoading = ref(false);
 
@@ -240,7 +250,8 @@ const submitAddMenu = handleSubmit(async () => {
     submitLoading.value = true;
     let data = {};
     let formValues = values.value;
-    if (formValues.menu_value_type === "internal") {
+    // if (formValues.menu_value_type === "internal") {
+      if (formValues.menu_value_type === "pages") {
       await validationSchema.validate(formValues, { abortEarly: false });
       data.value = formValues.type;
     } else if (formValues.menu_value_type === "external") {
@@ -280,7 +291,8 @@ const editMenu = handleSubmit(async () => {
     submitLoading.value = true;
     let data = {};
     let formValues = eachValues.value;
-    if (formValues.menu_value_type === "internal") {
+    // if (formValues.menu_value_type === "internal") {
+    if (formValues.menu_value_type === "pages") {
       await validationSchema.validate(formValues, { abortEarly: false });
       data.value = formValues.type;
     } else if (formValues.menu_value_type === "external") {
@@ -407,9 +419,27 @@ const getMenus = async () => {
   }
 };
 
+// -------------------------
+// Fetch Template Pages
+// -------------------------
+const getTemplatePage = async () => {
+    try {
+        const response = await WordpressService.TemplatePages.getTemplatePage({
+            website_domain: siteSettingsDeatil.value.website_domain,
+        });
+
+        if (response.status === 200 && response.data.success) {
+            templatePages.value = response.data.response;
+        }
+    } catch (error) {
+        console.error(error);
+    }
+};
+
 onMounted(async () => {
   await getSiteDeatils();
   await getMenus();
+  await getTemplatePage();
   loading.value = false;
 });
 
