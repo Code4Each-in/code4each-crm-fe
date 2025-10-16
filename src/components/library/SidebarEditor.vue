@@ -54,6 +54,13 @@
         :active-componentId="activeComponentIdProp"
       />
 
+      <!-- Form Editor -->
+      <FormEditor
+        v-if="type === 'form'"
+        :active-componentId="activeComponentIdProp"
+        :active-fieldName="props.activeField"
+      />
+
       <!-- Menu Editor -->
       <MenuEditor
         v-if="type === 'menus'"
@@ -73,6 +80,7 @@ import { computed, watch } from 'vue';
 import ButtonEditor from "./ButtonEditor.vue";
 import MenuEditor from "./MenuEditor.vue";
 import SocialLinksEditor from "./SocialLinksEditor.vue";
+import FormEditor from "./FormEditor.vue";
 
 // Props
 const props = defineProps({

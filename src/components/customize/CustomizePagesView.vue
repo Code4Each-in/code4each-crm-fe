@@ -311,6 +311,21 @@ const commonTextBlockData = (componentuniqueId) => {
   };
 }
 
+// Common Contact Form
+const commonContactFormBlockData = (componentuniqueId) => {
+  const fields = getFieldsByComponentType("contact_form", componentuniqueId);
+  if (!fields.length) return null;
+  console.log(fields);
+
+  return {
+    'contact-text1': getFieldValue(fields, "contact-text1"),
+    'contact-text2': getFieldValue(fields, "contact-text2"),
+    'contact-text3': getFieldValue(fields, "contact-text3"),
+    'contact-description1': getFieldValue(fields, "contact-description1"),
+    'contact-button1': getFieldValue(fields, "contact-button1"),
+  };
+}
+
 // All sections for editor rendering
 const sections = computed(() => {
   return activeComponents.value
@@ -322,6 +337,7 @@ const sections = computed(() => {
       else if (comp.type === "service_section") data = serviceBlockData(comp.id);
       else if (comp.type === "footer") data = footerBlockData(comp.id);
       else if (comp.type === "common_text") data = commonTextBlockData(comp.id);
+      else if (comp.type === "contact_form") data = commonContactFormBlockData(comp.id);
 
       if (!data || Object.keys(data).length === 0) return null;
 
@@ -539,7 +555,7 @@ const getComponentsByType = async (type) => {
   try {
     const res = await WordpressService.CustomComponentsAndFieldValues.getComponentsByType({ type });
     if (res.status === 200 && res.data.success) {
-      const baseUrl = import.meta.env.VITE_CRM_API_URL; // get from VITE env
+      const baseUrl = import.meta.env.VITE_CRM_API_URL;
       replaceComponentOptions.value = (res.data.component || []).map(comp => ({
         id: comp.id, 
         unique_id: comp.component_unique_id, 
@@ -678,7 +694,7 @@ const closeAddNewSectionPopup = () => {
 /* =========================
    Add Section Popup Logic
 ========================= */
-const alwaysTypesToAdd = ["about_section", "service_section", "common_text"];
+const alwaysTypesToAdd = ["about_section", "service_section", "common_text", "contact_form"];
 
 const openAddSectionPopup = async (sectionKey) => {
   showAddSectionPopup.value = true;
