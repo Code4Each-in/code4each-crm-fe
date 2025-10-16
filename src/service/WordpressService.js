@@ -284,6 +284,9 @@ const WordpressService = {
     addGobalSwitchValue: (data) => {
       return requests(baseUrl).post(`/add-gobal-switch-value`, data)
     },
+    addForm: (data) => {
+      return requests(baseUrl).post(`/add-form`, data)
+    },
   }
 
 }

@@ -15,6 +15,7 @@ import COMP_SS_EDUCATION_ABOUT2_75 from "./ss_education_templates/ss_education_a
 import COMP_SS_EDUCATION_SERVICE2_76 from "./ss_education_templates/ss_education_service2.vue";
 import COMP_SS_EDUCATION_FOOTER2_77 from "./ss_education_templates/ss_education_footer2.vue";
 import COMP_SS_COMMON_TEXT_78 from "./ss_common_text/ss_common_text.vue";
+import COMP_SS_CONTACT_FORM_79 from "./ss_contact_form/ss_contact_form.vue";
 /* =========================
    Composable for editable fields
 ========================= */
@@ -29,8 +30,8 @@ export function useEditable(emit, editableContent) {
 
   function selectField(field, type = null, sectionType = null, componentId) {
     selectedField.value = field;
-  
-    const sidebarTypes = ["logo", "image", "button", "menus", "social"];
+
+    const sidebarTypes = ["logo", "image", "button", "menus", "social", "form"];
   
     if (type && sidebarTypes.includes(type)) {
       // open sidebar only for these types
@@ -133,4 +134,5 @@ export const componentLibrary = {
   COMP_SS_EDUCATION_SERVICE2_76: COMP_SS_EDUCATION_SERVICE2_76,
   COMP_SS_EDUCATION_FOOTER2_77: COMP_SS_EDUCATION_FOOTER2_77,
   COMP_SS_COMMON_TEXT_78: COMP_SS_COMMON_TEXT_78,
+  COMP_SS_CONTACT_FORM_79: COMP_SS_CONTACT_FORM_79
 };
