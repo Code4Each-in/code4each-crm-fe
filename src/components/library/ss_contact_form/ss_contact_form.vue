@@ -87,7 +87,7 @@
                             class="btn btn-primary px-5 py-3 btn-border-radius"
                             @click.stop="selectField('contact-button1', 'form', 'contact_form', componentId)"
                         >
-                            {{ editableContent['contact-button1'] }}
+                            {{ data.form_id ? 'Change Form' : editableContent['contact-button1'] }}
                         </button>
                     </div>
                 </div>
@@ -122,6 +122,7 @@ const props = defineProps({
         'contact-text3': "Over 2,500+Customers",
         'contact-description1': "Grursus mal suada faci lisis Lorem ipsum dolarorit more is ame tion the a consectetur elit. Vesti at bulum nec odio aea the dumm ipsumm ipsum that dolocons rsus mal suada as and fadolorit to the consectetur elit. All a the Lorem Ipsum generators on the Internet tend.",
         'contact-button1': "Add New Form",
+        'form_id': "Here FormID"
         }),
     },
 });

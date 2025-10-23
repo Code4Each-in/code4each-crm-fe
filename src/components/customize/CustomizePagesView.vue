@@ -322,7 +322,10 @@ const commonTextBlockData = (componentuniqueId) => {
 const commonContactFormBlockData = (componentuniqueId) => {
   const fields = getFieldsByComponentType("contact_form", componentuniqueId);
   if (!fields.length) return null;
-  console.log(fields);
+
+  // Find the field with field_name = 'contact-button1'
+  const buttonField = fields.find(field => field.field_name === 'contact-button1');
+  const formId = buttonField ? buttonField.form_id : null;
 
   return {
     'contact-text1': getFieldValue(fields, "contact-text1"),
@@ -330,6 +333,7 @@ const commonContactFormBlockData = (componentuniqueId) => {
     'contact-text3': getFieldValue(fields, "contact-text3"),
     'contact-description1': getFieldValue(fields, "contact-description1"),
     'contact-button1': getFieldValue(fields, "contact-button1"),
+    'form_id': formId
   };
 }
 
