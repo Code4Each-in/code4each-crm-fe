@@ -16,6 +16,11 @@ import COMP_SS_EDUCATION_SERVICE2_76 from "./ss_education_templates/ss_education
 import COMP_SS_EDUCATION_FOOTER2_77 from "./ss_education_templates/ss_education_footer2.vue";
 import COMP_SS_COMMON_TEXT_78 from "./ss_common_text/ss_common_text.vue";
 import COMP_SS_CONTACT_FORM_79 from "./ss_contact_form/ss_contact_form.vue";
+import COMP_SS_HEALTH_HEADER3_80 from "./ss_health_templates/ss_health_header3.vue";
+import COMP_SS_HEALTH_ABOUT3_81 from "./ss_health_templates/ss_health_about3.vue";
+import COMP_SS_HEALTH_SERVICE3_82 from "./ss_health_templates/ss_health_service3.vue";
+import COMP_SS_HEALTH_FOOTER3_83 from "./ss_health_templates/ss_health_footer3.vue";
+
 /* =========================
    Composable for editable fields
 ========================= */
@@ -134,5 +139,9 @@ export const componentLibrary = {
   COMP_SS_EDUCATION_SERVICE2_76: COMP_SS_EDUCATION_SERVICE2_76,
   COMP_SS_EDUCATION_FOOTER2_77: COMP_SS_EDUCATION_FOOTER2_77,
   COMP_SS_COMMON_TEXT_78: COMP_SS_COMMON_TEXT_78,
-  COMP_SS_CONTACT_FORM_79: COMP_SS_CONTACT_FORM_79
+  COMP_SS_CONTACT_FORM_79: COMP_SS_CONTACT_FORM_79,
+  COMP_SS_HEALTH_HEADER3_80: COMP_SS_HEALTH_HEADER3_80,
+  COMP_SS_HEALTH_ABOUT3_81: COMP_SS_HEALTH_ABOUT3_81,
+  COMP_SS_HEALTH_SERVICE3_82: COMP_SS_HEALTH_SERVICE3_82,
+  COMP_SS_HEALTH_FOOTER3_83: COMP_SS_HEALTH_FOOTER3_83
 };

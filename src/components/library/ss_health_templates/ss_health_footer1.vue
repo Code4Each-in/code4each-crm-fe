@@ -79,7 +79,7 @@
                   <h4 v-else class="widget-title footer-title">{{ editableContent['footer-text1'] }}</h4>
                 </div>
                 <ul class="footer-list p-detail">
-                  <li><span href="#">{{ editableContent.phone }}</span></li>
+                  <li><span>{{ editableContent.phone }}</span></li>
                   <li><span>{{ editableContent.address }}</span></li>
                 </ul>
               </div>
