@@ -173,9 +173,9 @@ const aboutBlockData = (componentuniqueId) => {
     "about-text4": getFieldValue(fields, "about-text4"),
     "about-description1": getFieldValue(fields, "about-description1"),
     "about-button1": getFieldValue(fields, "about-button1"),
-    "about-image1": getFieldValue(fields, "about-img1"),
-    "about-image2": getFieldValue(fields, "about-img2"),
-    "about-image3": getFieldValue(fields, "about-img3"),
+    "about-image1": getFieldValue(fields, "about-img1") || getFieldValue(fields, "about-image1"),
+    "about-image2": getFieldValue(fields, "about-img2") || getFieldValue(fields, "about-image2"),
+    "about-image3": getFieldValue(fields, "about-img3") || getFieldValue(fields, "about-image3"),
     "about-image4": getFieldValue(fields, "about-img4"),
     "about-image5": getFieldValue(fields, "about-img5"),
     "about-image6": getFieldValue(fields, "about-img6"),
@@ -218,6 +218,12 @@ const serviceBlockData = (componentuniqueId) => {
     "service-text6": getFieldValue(fields, "service-text6"),
     "service-description4": getFieldValue(fields, "service-description4"),
     "service-button4": getFieldValue(fields, "service-button4"),
+    "service-image5": getFieldValue(fields, "service-image5"),
+    "service-image6": getFieldValue(fields, "service-image6"),
+    "service-description5": getFieldValue(fields, "service-description5"),
+    "service-description6": getFieldValue(fields, "service-description6"),
+    "service-text7": getFieldValue(fields, "service-text7"),
+    "service-text8": getFieldValue(fields, "service-text8"),
   };
 };
 
@@ -281,6 +287,7 @@ const footerBlockData = (componentuniqueId) => {
     "footer-text1": getFieldValue(fields, "footer-text1"),
     "footer-text2": getFieldValue(fields, "footer-text2"),
     "footer-text3": getFieldValue(fields, "footer-text3"),
+    "footer-text4": getFieldValue(fields, "footer-text4"),
     menu: footerMenus.value.map((m) => m.name),
     socialLinks,
     copyright: getGlobalVar("agency_name", "Your Agency"),
