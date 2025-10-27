@@ -25,7 +25,7 @@
               <i class="fa fa-times"></i>
             </button>
             <a class="navbar-brand-logo" style="cursor: pointer;text-align: center;">
-              <img class="imgisite" src="/images/logo-beta.png" alt="logo" style="width: 40%;">
+              <img class="imgisite" src="/images/ss_logo.png" alt="logo" style="width: 40%;">
             </a>
             <h4 class="sevenDays">Start Your 7 Day Free Trial Today!</h4>
 

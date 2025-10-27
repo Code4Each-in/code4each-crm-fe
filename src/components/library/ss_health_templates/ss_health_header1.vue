@@ -139,14 +139,14 @@
           <div class="col-lg-6">
             <div
               class="hero-image-wrapper ss_editable"
-              :class="{ selected: selectedField === 'header-image' }"
-              @click.stop="selectField('header-image', 'image', 'header', componentId)" 
-              @mouseover="hoveredField = 'header-image'"
+              :class="{ selected: selectedField === 'header-image1' }"
+              @click.stop="selectField('header-image1', 'image', 'header', componentId)" 
+              @mouseover="hoveredField = 'header-image1'"
               @mouseleave="hoveredField = null"
             >
-              <span v-if="hoveredField === 'header-image'" class="edit-label">Image</span>
+              <span v-if="hoveredField === 'header-image1'" class="edit-label">Image</span>
               <img
-                :src="editableContent[selectedField === 'header-image' ? 'header-image' : 'header-image'] || '/images/hero.png'"
+                :src="editableContent[selectedField === 'header-image1' ? 'header-image1' : 'header-image1'] || '/images/hero.png'"
                 alt="Hero Image"
                 class="hero-img"
               />
@@ -184,7 +184,7 @@ const props = defineProps({
       'header-text2': "Your Header Text 2",
       'header-description1': "Your description goes here.",
       'header-button1': "Click Here",
-      'header-image': "/images/hero.png",
+      'header-image1': "/images/hero.png",
     }),
   },
 });

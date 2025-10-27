@@ -115,7 +115,7 @@ const handleShowModal = (modal) => {
           @click="navigateToHome"
           style="cursor: pointer"
         >
-          <img class="img-fluid" src="/images/logo-beta.png" alt="logo" />
+          <img class="img-fluid" src="/images/ss_logo.png" alt="logo" />
         </a>
         <div class="add-listing d-none d-sm-block">
           <a
