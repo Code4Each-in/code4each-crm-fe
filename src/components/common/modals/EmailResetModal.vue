@@ -26,7 +26,7 @@
             </button>
 
             <a class="navbar-brand-logo" style="cursor: pointer;text-align: center;">
-              <img class="imgisite" src="/images/logo-beta.png" alt="logo" style="width: 40%;">
+              <img class="imgisite" src="/images/ss_logo.png" alt="logo" style="width: 40%;">
             </a>
 
             <form class="form-start">

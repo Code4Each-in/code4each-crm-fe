@@ -153,7 +153,7 @@ const heroBlockData = (componentuniqueId) => {
     "header-button1": getFieldValue(fields, "header-button1"),
     buttonUrl: getFieldValue(fields, "header-button1", 1) || "#",
     buttonTarget: getFieldValue(fields, "header-button1", 2) || "_self",
-    "header-image": getFieldValue(fields, "header-img") || "",
+    "header-image1": getFieldValue(fields, "header-img1") || getFieldValue(fields, "header-image1"),
     address: fullAddress,
     phone: getGlobalVar("phone", ""),
     socialLinks,

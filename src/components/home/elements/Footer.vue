@@ -25,7 +25,7 @@
         <div class="footer-single-block footer-logo-blojg">
           <div class="footer-logo-block">
             <img
-              src="/images/logo-beta.png"
+              src="/images/ss_logo.png"
               loading="lazy"
               alt="Footer Logo Image"
               class="footer-logo-image"

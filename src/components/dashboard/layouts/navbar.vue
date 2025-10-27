@@ -51,7 +51,7 @@ onBeforeUnmount(() => {
       <a class="navbar-brand fw-bold text-uppercase text-base" @click="navigate">
         <span class="d-none d-brand-partial">Bubbly </span>
         <span class="d-none d-sm-inline">
-          <img src="/images/logo-beta.png" />
+          <img src="/images/ss_logo.png" />
         </span>
       </a>
 
