@@ -353,6 +353,24 @@ const categoriesWithTemplates = computed(() => {
   });
 });
 
+const skipAddress = () => {
+  // Clear the fields
+  values.value.address = "";
+  values.value.city = "";
+  values.value.state = "";
+  values.value.zip = "";
+  values.value.country = "";
+
+  // Go directly to step 4
+  selectedOptionTemplate.value = "selectTemplate";
+  const categoryname = getCategoryNameById(values.value.businessCategory);
+  selectedCategories.value = [categoryname.toLowerCase()];
+  currentStep.value = 4;
+
+  // Clear errors
+  allErrors.value = {};
+};
+
 </script>
 <template>
   <div class="modal fade" id="basicModal" tabindex="-1" aria-hidden="true">
@@ -529,7 +547,16 @@ const categoriesWithTemplates = computed(() => {
                   </select>
                   <div class="text-danger">{{ allErrors.country }}</div>
                 </div>
-
+                <div class="text-end mb-3">
+                  <button
+                    type="button"
+                    class="btn btn-link p-0"
+                    style="font-size: 15px; text-decoration: underline; color: gray !important;"
+                    @click="skipAddress"
+                  >
+                    Skip for Now
+                  </button>
+                </div>
                 <button
                   type="button"
                   class="btn btn-primary prev-step"

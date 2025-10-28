@@ -61,10 +61,14 @@ const remainingTime = computed(() => {
         Verification Alert
       </h4>
       <p>
-        Welcome to our platform! To unlock all features and secure your account,
+        Welcome to our platform!<br>
+        To access all features and ensure your account’s security, please verify your email address by clicking the verification link sent to your inbox.<br>
+        If you haven’t received the verification email, click the button below to resend the link.<br>
+        Thank you for choosing us.
+        <!-- Welcome to our platform! To unlock all features and secure your account,
         please verify your email. Check your inbox for a verification link.
         Thank you for choosing us! . If you not receive the verification link on
-        your email please click the Button Below To Get link.
+        your email please click the Button Below To Get link. -->
       </p>
       <hr />
       <a

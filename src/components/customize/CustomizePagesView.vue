@@ -644,8 +644,8 @@ const onGlobalToggle = async (type, event) => {
   if (!newValue) {
     // If user is turning it OFF
     const confirmed = window.confirm(
-      `Are you sure you want to turn OFF global changes for ${type.toUpperCase()}?\n` +
-      `If you do, ${type} changes will no longer update globally.`
+      `Are you sure you want to turn OFF global updates for ${type.toUpperCase()}?\n` +
+      `If you turn it off, any changes you make to the ${type} will only apply to this page.`
     );
 
     if (!confirmed) {
@@ -659,13 +659,13 @@ const onGlobalToggle = async (type, event) => {
   globalToggle.value[type] = newValue;
 
   try {
-    const res = await WordpressService.CustomComponentsAndFieldValues.addGobalSwitchValue({
+    const res = await WordpressService.CustomComponentsAndFieldValues.addGlobalSwitchValue({
       website_domain: siteSettingsDetail.value.website_domain,
       type, 
       value: newValue ? "on" : "off",
     });
     if (res.status === 200 && res.data.success) {
-      store.updateFlashMeassge(true, "Switch Updated Gogbally", "success");
+      store.updateFlashMeassge(true, "Switch Updated Globally", "success");
     }
   } catch (error) {
     console.error("Error updating global toggle:", error);
