@@ -1051,6 +1051,7 @@ select.form-select {
     height: 46px !important;
     padding: 4px 10px !important;
     margin: 0px !important;
+    width: 100% !important;
 }
 
 .form-select{
