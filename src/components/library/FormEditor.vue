@@ -27,6 +27,9 @@
       <!-- If no forms -->
       <p v-if="!forms.length" class="no-forms-text">
         No forms available for this site.
+        <button class="create-form-btn" @click="goToFormBuilder">
+          Create a Form
+        </button>
       </p>
     </div>
 
@@ -55,9 +58,10 @@
 import { ref, onMounted } from "vue";
 import WordpressService from "@/service/WordpressService";
 import { useStore } from "@/stores/store";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
+const router = useRouter();
 const store = useStore();
 
 const loading = ref(true);
@@ -71,6 +75,10 @@ const props = defineProps({
   activeComponentId: String, 
   activeFieldName: String, 
 });
+
+const goToFormBuilder = () => {
+  router.push("/form-builder");
+};
 
 /* ===============================
    Fetch Forms
@@ -221,4 +229,30 @@ onMounted(async () => {
 .button-wrapper {
   margin-top: 20px;
 }
+
+.no-forms-box {
+  margin-top: 15px;
+  padding: 12px;
+  background: #f7f7f7;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 14px;
+  border: 1px solid #ddd;
+}
+
+.create-form-btn {
+  margin-top: 10px;
+  padding: 6px 12px;
+  background: #007bff;
+  color: #fff;
+  font-size: 13px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+.create-form-btn:hover {
+  background: #0056b3;
+}
+
 </style>

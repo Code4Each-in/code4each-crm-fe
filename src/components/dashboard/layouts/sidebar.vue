@@ -175,7 +175,7 @@
                 <span class="sidebar-link-title">SEO Keywords</span>
               </router-link>
             </li>
-            <li class="sidebar-list-item">
+            <!-- <li class="sidebar-list-item">
               <router-link
                 :to="{ name: 'rearrangePage' }"
                 class="sidebar-link text-muted"
@@ -186,7 +186,7 @@
                 <i class="fa fa-arrows"></i>
                 <span class="sidebar-link-title">Rearrange</span>
               </router-link>
-            </li>
+            </li> -->
             <!-- <li class="sidebar-list-item">
               <a
                 href="#"
