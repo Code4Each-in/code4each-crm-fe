@@ -163,7 +163,7 @@ const sendMailToVerifyEmail = handleSubmit(async () => {
       hideForgetModal();
       store.updateFlashMeassge(
         true,
-        "Please check your inbox and verify your email!"
+        "Password reset link has been sent to your email. Please check your inbox."
       );
     }
   } catch (error) {

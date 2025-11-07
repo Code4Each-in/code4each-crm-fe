@@ -53,6 +53,9 @@
               <!-- If no forms exist -->
               <div v-if="activeForms.length === 0" class="text-danger mb-2">
                 Please create a form first.
+                <button class="create-form-btn" @click="goToFormBuilder">
+                  Create a Form
+                </button>
               </div>
               <!-- If forms exist -->
               <div v-else>
@@ -147,16 +150,22 @@ import { capitalizeAndReplaceChar } from "@/util/helper";
 import SelectBox from "@/components/common/SelectBox.vue";
 import { EventBus } from "@/EventBus";
 import WordpressService from "@/service/WordpressService";
+import { useRouter } from "vue-router";
 
 const isButtonDisabled = ref(false);
 const resetToggle = ref(true);
 const formData = ref({});
+const router = useRouter();
 
 const emits = defineEmits();
 const props = defineProps({
   siteSettingsFormFields: Object,
   websiteDomain: String,
 });
+
+const goToFormBuilder = () => {
+  router.push("/form-builder");
+};
 
 const { handleSubmit } = useForm({
   validationSchema: yup.object({}),
@@ -276,5 +285,30 @@ onMounted(() => {
 
 .inline-buttons {
   text-align: center;
+}
+
+.no-forms-box {
+  margin-top: 15px;
+  padding: 12px;
+  background: #f7f7f7;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 14px;
+  border: 1px solid #ddd;
+}
+
+.create-form-btn {
+  margin-top: 10px;
+  padding: 6px 12px;
+  background: #007bff;
+  color: #fff;
+  font-size: 13px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+.create-form-btn:hover {
+  background: #0056b3;
 }
 </style>
