@@ -287,6 +287,12 @@ const WordpressService = {
     addForm: (data) => {
       return requests(baseUrl).post(`/add-form`, data)
     },
+  },
+
+  BillingDetails :{
+    userBillingDetails: (data) => {
+      return requests(baseUrl).post(`/add-userbillingdetails`, data)
+    }
   }
 
 }

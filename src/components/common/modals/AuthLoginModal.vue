@@ -171,7 +171,8 @@ const props = defineProps({
   showLoginModal: {
       type:Boolean,
       default:false
-    }
+  },
+  redirectToCheckout: Boolean
 });
 
 const resetLoginForm = () => {
@@ -232,7 +233,17 @@ const login = handleSubmit(async () => {
         fetchDashboardData.status === 200 &&
         fetchDashboardData.data.success
       ) {
-        router.push("/dashboard");
+        if (props.redirectToCheckout) {
+          // User clicked subscribe now → go to checkout
+          const selectedPlan = JSON.parse(localStorage.getItem("selectedPlan"));
+          if (selectedPlan) {
+            const encodedPlanId = btoa(selectedPlan.id.toString());
+            router.push(`/checkout/${encodedPlanId}`);
+          }
+        } else {
+          // Direct login/signup → go to dashboard
+          router.push("/dashboard");
+        }
       } else {
         router.push("/login");
       }
@@ -277,6 +288,7 @@ const login = handleSubmit(async () => {
     }
 
     underAction.value = false;
+    redirectToCheckout.value = false;
   }
 });
 

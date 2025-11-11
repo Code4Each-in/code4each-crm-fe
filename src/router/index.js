@@ -138,6 +138,11 @@ const router = createRouter({
       name: 'customize_customizepages',
       component: CustomizePages
     },
+    {
+      path: '/checkout/:planId',
+      name: 'Checkout',
+      component: () => import('@/views/Checkout.vue'),
+    }    
   ]
 });
 
