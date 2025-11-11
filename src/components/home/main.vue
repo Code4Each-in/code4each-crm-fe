@@ -534,7 +534,7 @@ const fetchPlans = async () => {
                   </div>
                 </div>
 
-                <ul class="features">
+                <!-- <ul class="features">
                   <li class="feature">
                     <div class="check-icon"></div>
                     <span class="feature-text">Max Websites: {{ plan.max_websites }}</span>
@@ -547,13 +547,13 @@ const fetchPlans = async () => {
                     <div class="check-icon"></div>
                     <span class="feature-text">API Access</span>
                   </li>
-                </ul>
+                </ul> -->
 
                 <div class="add-listing d-none d-sm-block">
                   <button
                     class="button"
                     :class="index === 2 ? 'button-primary hover-top' : 'button-outline hover-top'"
-                    @click="openPaymentModal(plan)"
+                    @click="showModal('signup')"
                   >
                     {{ index === 0 ? 'Get Started' : 'Subscribe Now' }}
                   </button>
@@ -612,8 +612,8 @@ const fetchPlans = async () => {
       </div>
     </div>
   </section>
-  <AuthSignupModal :showSignUpModal="showSignUpModal" :redirect-to-checkout="redirectToCheckout" @closeModal="showSignUpModal=false" @showAnotherModal="handleShowModal"></AuthSignupModal>
-  <AuthLoginModal :showLoginModal="loginModalShow" :redirect-to-checkout="redirectToCheckout" @closeModal="loginModalShow=false" @showAnotherModal="handleShowModal" ></AuthLoginModal>
+  <AuthSignupModal :showSignUpModal="showSignUpModal" @closeModal="showSignUpModal=false" @showAnotherModal="handleShowModal"></AuthSignupModal>
+  <AuthLoginModal :showLoginModal="loginModalShow" @closeModal="loginModalShow=false" @showAnotherModal="handleShowModal" ></AuthLoginModal>
   <EmailResetModal :showResetModal="forgetModalShow" @closeModal="forgetModalShow=false" @showAnotherModal="handleShowModal" ></EmailResetModal>
   <AlertForSignupModal :alertShowModal="alertShow" @closeModal="alertShow=false" @showAnotherModal="handleShowModal"></AlertForSignupModal>
 </template>

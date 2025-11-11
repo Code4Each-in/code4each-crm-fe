@@ -128,7 +128,7 @@ onMounted(async () => {
               </div>
             </div>
 
-            <ul class="features">
+            <!-- <ul class="features">
               <li class="feature">
                 <div class="check-icon"></div>
                 <span class="feature-text">Max Websites: {{ plan.max_websites }}</span>
@@ -141,7 +141,7 @@ onMounted(async () => {
                 <div class="check-icon"></div>
                 <span class="feature-text">API Access</span>
               </li>
-            </ul>
+            </ul> -->
 
             <!-- BUTTON SECTION -->
             <div class="add-listing d-none d-sm-block">
