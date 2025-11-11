@@ -189,7 +189,8 @@ const props = defineProps({
   showSignUpModal: {
       type:Boolean,
       default:false
-    }
+    },
+    redirectToCheckout: Boolean,
 });
 
 // watch(() => props.showSignUpModal, (newValue, oldValue) => {
@@ -275,7 +276,17 @@ const registerUser = handleSubmit(async () => {
       localStorage.setItem("access_token", token);
       hideSignupModal();
       loadingSignup.value = false;
-      router.push("/dashboard");
+      if (props.redirectToCheckout) {
+        // User clicked subscribe now → go to checkout
+        const selectedPlan = JSON.parse(localStorage.getItem("selectedPlan"));
+        if (selectedPlan) {
+          const encodedPlanId = btoa(selectedPlan.id.toString());
+          router.push(`/checkout/${encodedPlanId}`);
+        }
+      } else {
+        // Direct login/signup → go to dashboard
+        router.push("/dashboard");
+      }
     }
   } catch (error) {
     allErrors.value = {};
@@ -307,6 +318,7 @@ const registerUser = handleSubmit(async () => {
   }
   isDisabledSignUp.value = false;
   loadingSignup.value = false;
+  redirectToCheckout.value = false;
 });
 
 const hideSignupModal = () => {
