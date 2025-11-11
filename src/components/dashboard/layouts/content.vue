@@ -256,15 +256,17 @@ const fetchPlans = async (paymentId) => {
                       </h3>
                       
                     </div>
-                    <div class="subscription-text-side">
+                    <div 
+                      class="subscription-text-side"
+                      v-if="dashboardData.user.current_plans[0].planexpired < 30"
+                    >
                       <h3 class="subscription-heading">
-
-                        {{ dashboardData.user.current_plans[0].planexpired > 0? `Expiring in  ${dashboardData.user.current_plans[0].planexpired} Day`: 'Expired' }}
-
+                        {{ dashboardData.user.current_plans[0].planexpired > 0 
+                          ? `Expiring in ${dashboardData.user.current_plans[0].planexpired} Day${dashboardData.user.current_plans[0].planexpired > 1 ? 's' : ''}`
+                          : 'Expired' }}
                       </h3>
                       <div class="subscription-form-side" style="margin-left: 18px;">
-                        <a class="subscription-btn" style="cursor: pointer" @click="naviagte('/plans')"> Buy Plan
-                        </a>
+                        <a class="subscription-btn" style="cursor: pointer" @click="naviagte('/plans')"> Buy Plan </a>
                       </div>
                     </div>
                   </div>

@@ -214,6 +214,20 @@
             <span class="sidebar-link-title">Form Builder</span>
           </router-link>
         </li>
+        <li class="sidebar-list-item"
+          v-if="
+            dashboardData?.agency_website_info?.length >= 1 &&
+            dashboardData?.agency_website_info[0].website_id
+          ">
+          <router-link
+            :to="{ name: 'plans' }"
+            class="sidebar-link text-muted"
+            :class="{ active: currentRoute.includes('/plans') }"
+          >
+            <i class="fa fa-wpforms me-3" aria-hidden="true"></i>
+            <span class="sidebar-link-title">Plans</span>
+          </router-link>
+        </li>
         <!-- <li class="sidebar-list-item"
         v-if="
             dashboardData?.agency_website_info?.length >= 1 &&
