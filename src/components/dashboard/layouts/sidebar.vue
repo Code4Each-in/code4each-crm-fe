@@ -214,11 +214,7 @@
             <span class="sidebar-link-title">Form Builder</span>
           </router-link>
         </li>
-        <li class="sidebar-list-item"
-          v-if="
-            dashboardData?.agency_website_info?.length >= 1 &&
-            dashboardData?.agency_website_info[0].website_id
-          ">
+        <li class="sidebar-list-item">
           <router-link
             :to="{ name: 'plans' }"
             class="sidebar-link text-muted"
