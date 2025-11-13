@@ -40,11 +40,14 @@ const plans = ref();
 const isYearly = ref(false);
 const errorMessage = ref("");
 const planLoading = ref(false);
+// const referralLink = ref("");
 allErrors;
 watch(
   () => props.dashboardData,
   (newDashboardData, OldDashboardData) => {
     allDashboardData.value = props.dashboardData;
+    // referralLink.value = `https://speedysites.in/?ref=${allDashboardData.value?.user.referral_code}`;
+    // referralLink.value = `http://localhost:5173/?ref=${allDashboardData.value?.user.referral_code}`;
     // console.log('aaa',allDashboardData)
   },
   {
@@ -197,6 +200,17 @@ const fetchPlans = async (paymentId) => {
   }
 };
 
+// const copyReferralLink = () => {
+//   if (!referralLink.value) return;
+//   navigator.clipboard.writeText(referralLink.value)
+//     .then(() => {
+//       store.updateFlashMeassge(true, `Referral link copied to clipboard!`, 'success');
+//     })
+//     .catch(() => {
+//       store.updateFlashMeassge(true, `Failed to copy referral link.`, 'success');
+//     });
+// };
+
 </script> 
 <template>
   <Loader v-if="loading" />
@@ -210,6 +224,15 @@ const fetchPlans = async (paymentId) => {
       </div>
       <div v-else class="main-container container">
         <div id="wrapper" :class="loading ? 'fade' : ''">
+          <!-- <div 
+            class="referral-link-wrapper" 
+            v-if="dashboardData?.user?.user_type === 'agent'"
+          >
+            <button @click="copyReferralLink" class="btn btn-primary">
+              <i class="fa fa-link" aria-hidden="true"></i>
+              Copy Referral Link
+            </button>
+          </div> -->
           <section
             v-if="dashboardData?.agency_website_info?.length >= 1 && dashboardData.user.user_type != 'developer'"
             class="speedy-subscription bg-white"
@@ -265,9 +288,9 @@ const fetchPlans = async (paymentId) => {
                           ? `Expiring in ${dashboardData.user.current_plans[0].planexpired} Day${dashboardData.user.current_plans[0].planexpired > 1 ? 's' : ''}`
                           : 'Expired' }}
                       </h3>
-                      <!-- <div class="subscription-form-side" style="margin-left: 18px;">
+                      <div class="subscription-form-side" style="margin-left: 18px;">
                         <a class="subscription-btn" style="cursor: pointer" @click="naviagte('/plans')"> Buy Plan </a>
-                      </div> -->
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -576,7 +599,19 @@ const fetchPlans = async (paymentId) => {
   width: 3rem;
   height: 3rem;
 }
+/* .referral-link-wrapper .btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 30px;
+  position: relative;
+  border: solid 2px #1d2b64;
+  gap: 6px;
+  color: #fff;
+  background: #1d2b64;
+  border-radius: 8px;
+  font-size: 18px;
+} */
 </style>
-
 
 
