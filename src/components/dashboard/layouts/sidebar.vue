@@ -214,11 +214,7 @@
             <span class="sidebar-link-title">Form Builder</span>
           </router-link>
         </li>
-        <!-- <li class="sidebar-list-item"
-          v-if="
-            dashboardData?.agency_website_info?.length >= 1 &&
-            dashboardData?.agency_website_info[0].website_id
-          ">
+        <li class="sidebar-list-item">
           <router-link
             :to="{ name: 'plans' }"
             class="sidebar-link text-muted"
@@ -227,21 +223,20 @@
             <i class="fa fa-wpforms me-3" aria-hidden="true"></i>
             <span class="sidebar-link-title">Plans</span>
           </router-link>
+        </li>
+        <!-- <li 
+          class="sidebar-list-item" 
+          v-if="dashboardData?.user?.user_type === 'agent'"
+        >
+          <router-link
+            :to="{ name: 'referred_user' }"
+            class="sidebar-link text-muted"
+            :class="{ active: currentRoute.includes('/referred-user') }"
+          >
+            <i class="fa fa-users" aria-hidden="true"></i>
+            <span class="sidebar-link-title">Users</span>
+          </router-link>
         </li> -->
-        <!-- <li class="sidebar-list-item"
-        v-if="
-            dashboardData?.agency_website_info?.length >= 1 &&
-            dashboardData?.agency_website_info[0].website_id
-          ">
-                <router-link
-                  :to="{ name: 'plans' }"
-                  class="sidebar-link text-muted"
-                  :class="{ active: currentRoute === '/plans' }"
-                >
-                  <i class="fa fa-credit-card me-3"></i>
-                  <span class="sidebar-link-title"> Plans</span>
-                </router-link>
-              </li> -->
       </ul>
       <div class="dashboard-design" v-if="currentRoute === '/dashboard'">
         <div class="feedback-btn">
