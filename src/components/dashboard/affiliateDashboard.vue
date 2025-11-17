@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import Chart from "chart.js/auto";
+// import Chart from "chart.js/auto";
 import NavBar from "./layouts/navbar.vue";
 import SideBar from "./layouts/sidebar.vue";
 import { useAuth } from "../../service/useAuth";
@@ -139,7 +139,7 @@ const fetchMonthlyEarnings = async () => {
     if (response.status === 200 && response.data.success) {
       earningsData.value.labels = response.data.response.monthly_earnings.map(item => item.month);
       earningsData.value.values = response.data.response.monthly_earnings.map(item => item.total);
-      initializeChart(); // re-render chart with real data
+      // initializeChart(); // re-render chart with real data
     }
   } catch (err) {
     console.error("Error fetching monthly earnings:", err);
@@ -161,35 +161,35 @@ const fetchWithdrawalHistory = async () => {
 };
 
 // Canvas ref
-const chartCanvas = ref(null);
+// const chartCanvas = ref(null);
 // Initialize Chart
-function initializeChart() {
-  if (!chartCanvas.value) return;
+// function initializeChart() {
+//   if (!chartCanvas.value) return;
 
-  new Chart(chartCanvas.value.getContext("2d"), {
-    type: "line",
-    data: {
-      labels: earningsData.value.labels,
-      datasets: [
-        {
-          label: "Monthly Earnings",
-          data: earningsData.value.values,
-          borderColor: "hsl(200, 95%, 45%)",
-          backgroundColor: "hsla(200, 95%, 45%, 0.1)",
-          fill: true,
-          tension: 0.4,
-          pointBackgroundColor: "hsl(200, 95%, 45%)",
-          pointBorderColor: "#fff",
-          pointRadius: 5,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-    },
-  });
-}
+//   new Chart(chartCanvas.value.getContext("2d"), {
+//     type: "line",
+//     data: {
+//       labels: earningsData.value.labels,
+//       datasets: [
+//         {
+//           label: "Monthly Earnings",
+//           data: earningsData.value.values,
+//           borderColor: "hsl(200, 95%, 45%)",
+//           backgroundColor: "hsla(200, 95%, 45%, 0.1)",
+//           fill: true,
+//           tension: 0.4,
+//           pointBackgroundColor: "hsl(200, 95%, 45%)",
+//           pointBorderColor: "#fff",
+//           pointRadius: 5,
+//         },
+//       ],
+//     },
+//     options: {
+//       responsive: true,
+//       maintainAspectRatio: false,
+//     },
+//   });
+// }
 
 const copyReferralLink = () => {
   if (!referralLink.value) return;
