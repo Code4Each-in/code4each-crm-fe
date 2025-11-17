@@ -110,6 +110,7 @@ const createOrder = async (planRazorId) => {
     const monthlyAmount = parseFloat(selectedPlan.value.price);
     const duration = selectedPlan.value.duration_months;
     const totalPayable = monthlyAmount * duration * 1.18;
+    const withOutGstAmount = monthlyAmount * duration;
     const amountInPaise = Math.round(totalPayable * 100);
     const plan_id = selectedPlan.value.id;
 
@@ -118,6 +119,7 @@ const createOrder = async (planRazorId) => {
       razor_id: planRazorId,
       plan_id: plan_id,
       amount: amountInPaise,
+      total_amount_without_gst: withOutGstAmount,
       billing_id: billing_id.value,
       user_id: dashboardData.value?.user.id,
       agency_id: dashboardData.value?.user.agency_id,

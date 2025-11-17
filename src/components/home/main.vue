@@ -23,70 +23,78 @@ const ModalShowing = ref(false);
 const alertShow = ref(false);
 const loginExist = ref(false);
 const plans = ref();
-const redirectToCheckout = ref(false);
+// const redirectToCheckout = ref(false);
+const userType = ref('user');
+const referralCode = ref(null);
 
-const openPaymentModal = (plan) => {
-  const storedToken = localStorage.getItem("access_token");
+// const openPaymentModal = (plan) => {
+//   const storedToken = localStorage.getItem("access_token");
 
-  // Mark that we want to redirect to checkout after login/signup
-  redirectToCheckout.value = true;
+//   // Mark that we want to redirect to checkout after login/signup
+//   redirectToCheckout.value = true;
 
-  if (!storedToken) {
-    showModal("signup");
-    return;
-  }
+//   if (!storedToken) {
+//     showModal("signup");
+//     return;
+//   }
 
-  if (parseFloat(plan.price) === 0) {
-    router.push("/dashboard");
-    return;
-  }
+//   if (parseFloat(plan.price) === 0) {
+//     router.push("/dashboard");
+//     return;
+//   }
 
-  const planDetails = {
-    id: plan.id,
-    razor_id: plan.razor_id,
-    name: plan.name,
-    price: plan.price,
-    max_websites: plan.max_websites,
-    duration_months: plan.duration_months,
-  };
-  localStorage.setItem("selectedPlan", JSON.stringify(planDetails));
+//   const planDetails = {
+//     id: plan.id,
+//     razor_id: plan.razor_id,
+//     name: plan.name,
+//     price: plan.price,
+//     max_websites: plan.max_websites,
+//     duration_months: plan.duration_months,
+//   };
+//   localStorage.setItem("selectedPlan", JSON.stringify(planDetails));
 
-  const encodedPlanId = btoa(plan.id.toString());
-  router.push(`/checkout/${encodedPlanId}`);
-};
+//   const encodedPlanId = btoa(plan.id.toString());
+//   router.push(`/checkout/${encodedPlanId}`);
+// };
 
 const showModal = (modal) => {
   hideModal();
   ModalShowing.value = true;
   backendError.value = "";
+
   if (modal === "forget") {
     loginModalShow.value =
       showSignUpModal.value =
       alertShow.value =
         false;
     forgetModalShow.value = true;
+
   } else if (modal === "login") {
     loginModalShow.value = true;
     forgetModalShow.value =
       showSignUpModal.value =
       alertShow.value =
         false;
+
   } else if (modal === "signup") {
+    userType.value = 'user';
     showSignUpModal.value = true;
     forgetModalShow.value =
       loginModalShow.value =
       alertShow.value =
         false;
+
   } else if (modal === "alert") {
     alertShow.value = true;
     forgetModalShow.value =
       loginModalShow.value =
       showSignUpModal.value =
         false;
-  } else if(modal === "feedback") {
+
+  } else if (modal === "feedback") {
     store.updateFeedbackModalStore();
   }
-};
+};  
 
 const hideModal = () => {
   ModalShowing.value = false;
@@ -103,6 +111,9 @@ onMounted(async () => {
     }
   }, 15000);
   };
+  if (route.query.ref) {
+    referralCode.value = route.query.ref;
+  }
   const storedToken = localStorage.getItem("access_token");
   if (storedToken) {
     loginExist.value = storedToken;
@@ -555,7 +566,7 @@ const fetchPlans = async () => {
                     :class="index === 2 ? 'button-primary hover-top' : 'button-outline hover-top'"
                     @click="showModal('signup')"
                   >
-                    {{ index === 0 ? 'Get Started' : 'Subscribe Now' }}
+                    {{ index === 0 ? 'Get Started' : 'Get Started' }}
                   </button>
                 </div>
               </div>
@@ -612,8 +623,8 @@ const fetchPlans = async () => {
       </div>
     </div>
   </section>
-  <AuthSignupModal :showSignUpModal="showSignUpModal" @closeModal="showSignUpModal=false" @showAnotherModal="handleShowModal"></AuthSignupModal>
-  <AuthLoginModal :showLoginModal="loginModalShow" @closeModal="loginModalShow=false" @showAnotherModal="handleShowModal" ></AuthLoginModal>
+  <AuthSignupModal :showSignUpModal="showSignUpModal" :userType="userType" :referralCode="referralCode" @closeModal="showSignUpModal=false" @showAnotherModal="handleShowModal"></AuthSignupModal>
+  <AuthLoginModal :showLoginModal="loginModalShow" :referralCode="referralCode" @closeModal="loginModalShow=false" @showAnotherModal="handleShowModal" ></AuthLoginModal>
   <EmailResetModal :showResetModal="forgetModalShow" @closeModal="forgetModalShow=false" @showAnotherModal="handleShowModal" ></EmailResetModal>
   <AlertForSignupModal :alertShowModal="alertShow" @closeModal="alertShow=false" @showAnotherModal="handleShowModal"></AlertForSignupModal>
 </template>

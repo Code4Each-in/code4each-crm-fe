@@ -40,15 +40,11 @@ const plans = ref();
 const isYearly = ref(false);
 const errorMessage = ref("");
 const planLoading = ref(false);
-// const referralLink = ref("");
 allErrors;
 watch(
   () => props.dashboardData,
   (newDashboardData, OldDashboardData) => {
     allDashboardData.value = props.dashboardData;
-    // referralLink.value = `https://speedysites.in/?ref=${allDashboardData.value?.user.referral_code}`;
-    // referralLink.value = `http://localhost:5173/?ref=${allDashboardData.value?.user.referral_code}`;
-    // console.log('aaa',allDashboardData)
   },
   {
     deep: true,
@@ -200,17 +196,6 @@ const fetchPlans = async (paymentId) => {
   }
 };
 
-// const copyReferralLink = () => {
-//   if (!referralLink.value) return;
-//   navigator.clipboard.writeText(referralLink.value)
-//     .then(() => {
-//       store.updateFlashMeassge(true, `Referral link copied to clipboard!`, 'success');
-//     })
-//     .catch(() => {
-//       store.updateFlashMeassge(true, `Failed to copy referral link.`, 'success');
-//     });
-// };
-
 </script> 
 <template>
   <Loader v-if="loading" />
@@ -224,15 +209,6 @@ const fetchPlans = async (paymentId) => {
       </div>
       <div v-else class="main-container container">
         <div id="wrapper" :class="loading ? 'fade' : ''">
-          <!-- <div 
-            class="referral-link-wrapper" 
-            v-if="dashboardData?.user?.user_type === 'agent'"
-          >
-            <button @click="copyReferralLink" class="btn btn-primary">
-              <i class="fa fa-link" aria-hidden="true"></i>
-              Copy Referral Link
-            </button>
-          </div> -->
           <section
             v-if="dashboardData?.agency_website_info?.length >= 1 && dashboardData.user.user_type != 'developer'"
             class="speedy-subscription bg-white"
@@ -386,6 +362,7 @@ const fetchPlans = async (paymentId) => {
                   data-bs-toggle="modal"
                   data-bs-target="#basicModal"
                   @click="openModalWithCategories"
+                  v-if="dashboardData?.user?.user_type !== 'agent'"
                 >
                   Create a website <i class="fa fa-plus-circle"></i>
                 </button>
@@ -398,7 +375,8 @@ const fetchPlans = async (paymentId) => {
             class="card-wrappers card-info"
             v-if="
               dashboardData?.agency_website_info.length > 0 &&
-              !dashboardData?.agency_website_info[0].website_id
+              !dashboardData?.agency_website_info[0].website_id &&
+              dashboardData?.user?.user_type !== 'agent'
             "
           >
             <div class="card">
@@ -489,9 +467,9 @@ const fetchPlans = async (paymentId) => {
               data-bs-target="#basicModal"
               @click="openModalWithCategories"
               v-if="
-                dashboardData?.agency_website_info?.length < 1 ||
-                !dashboardData?.agency_website_info ||
-                dashboardData.user.user_type === 'developer'
+                dashboardData.user.user_type === 'developer' ||
+                (dashboardData.user.user_type !== 'agent' &&
+                (!dashboardData.agency_website_info || dashboardData.agency_website_info.length < 1))
               "
             >
               <a href="#" class="ag-courses-item_link">
@@ -599,19 +577,6 @@ const fetchPlans = async (paymentId) => {
   width: 3rem;
   height: 3rem;
 }
-/* .referral-link-wrapper .btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5px 30px;
-  position: relative;
-  border: solid 2px #1d2b64;
-  gap: 6px;
-  color: #fff;
-  background: #1d2b64;
-  border-radius: 8px;
-  font-size: 18px;
-} */
 </style>
 
 

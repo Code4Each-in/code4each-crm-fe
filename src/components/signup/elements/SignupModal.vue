@@ -23,7 +23,7 @@ const callback = (response) => {
   >
     <template #header>
       <h4 class="modal-title text-center" id="exampleModalLabel">
-        Start Your 7 Day Free Trial Today!
+        Start Your 15 Day Free Trial Today!
       </h4>
       <button
         type="button"

@@ -27,7 +27,7 @@
             <a class="navbar-brand-logo" style="cursor: pointer;text-align: center;">
               <img class="imgisite" src="/images/ss_logo.png" alt="logo" style="width: 40%;">
             </a>
-            <h4 class="sevenDays">Start Your 7 Day Free Trial Today!</h4>
+            <h4 class="sevenDays">Start Your 15 Day Free Trial Today!</h4>
 
             <div class="form-start">
               <div class="main-form1" style="display: flex;justify-content: space-evenly;flex-wrap: wrap;">
@@ -68,19 +68,18 @@
                       v-model="formData.email"
                     />
                     <div class="text-danger">{{ allErrors.email }}</div>
-                  <!-- </div> -->
-                  <!-- <div class="form-group">
-                    <label for="exampleInputPassword1">Phone no.</label>
+                  </div>
+                  <div class="form-group">
+                    <label for="exampleInputPassword1">Phone </label>
                     <input
                       type="text"
                       class="form-control"
                       id="exampleInputPassword1"
-                      placeholder="Phone Number..."
+                      placeholder="Enter your Phone Number"
                       v-model="formData.phone"
                     />
                     <div class="text-danger">{{ allErrors.phone }}</div>
-                  </div> -->
-                </div>
+                  </div>
                 <!-- <div class="main-form-signup"> -->
                   <div class="form-group signup" style="position: relative;">
                     <label for="exampleInputPassword1">Password</label>
@@ -189,7 +188,9 @@ const props = defineProps({
   showSignUpModal: {
       type:Boolean,
       default:false
-    }
+    },
+    userType: { type: String, default: 'user' },
+    referralCode: { type: String, default: null }
 });
 
 // watch(() => props.showSignUpModal, (newValue, oldValue) => {
@@ -231,6 +232,10 @@ const router = useRouter();
 
 const signupValidationSchema = yup.object({
   name: yup.string().required("Please enter your name."),
+  phone: yup
+    .string()
+    .matches(/^[0-9()+-\s]+$/, "Please enter a valid phone number.")
+    .required("Please enter your phone number."),
   email: yup
     .string()
     .email("Please enter a valid email address.")
@@ -268,7 +273,8 @@ const registerUser = handleSubmit(async () => {
     await signupValidationSchema.validate(formData.value, { abortEarly: false });
     allErrors.value = {};
 
-    const response = await WordpressService.registerUser(formData.value);
+    const payload = { ...formData.value, user_type: props.userType, referral_code: props.referralCode }; 
+    const response = await WordpressService.registerUser(payload);
     
     if (response.status === 200 && response.data.success) {
       const token = response.data.token;

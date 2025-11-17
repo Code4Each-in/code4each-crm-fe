@@ -9,7 +9,8 @@
         class="show-currentwesbite"
         data-toggle="modal"
         data-target="#myModal"
-        v-if="currentRoute != '/dashboard'"
+        v-if="currentRoute != '/dashboard' && dashboardData?.agency_website_info?.length >= 1 &&
+            dashboardData?.agency_website_info[0].website_id"
       >
         <div class="card">
           <div class="card-show">
@@ -41,9 +42,11 @@
       <ul class="list-unstyled">
         <li class="sidebar-list-item">
           <router-link
-            :to="{ name: 'dashboard' }"
+            :to="dashboardData?.user?.user_type === 'agent' 
+                  ? { name: 'affiliate_dashboard' } 
+                  : { name: 'dashboard' }"
             class="sidebar-link text-muted"
-            :class="{ active: currentRoute === '/dashboard' }"
+            :class="{ active: currentRoute === '/dashboard' || currentRoute === '/affiliate-dashboard' }"
           >
             <i class="fa fa-home me-3"></i>
             <span class="sidebar-link-title"> Dashboard</span>
@@ -53,7 +56,8 @@
           class="sidebar-list-item"
           v-if="
             dashboardData?.agency_website_info?.length >= 1 &&
-            dashboardData?.agency_website_info[0].website_id
+            dashboardData?.agency_website_info[0].website_id &&
+            dashboardData?.user?.user_type !== 'agent'
           "
         >
           <a
@@ -203,7 +207,8 @@
         <li class="sidebar-list-item"
           v-if="
             dashboardData?.agency_website_info?.length >= 1 &&
-            dashboardData?.agency_website_info[0].website_id
+            dashboardData?.agency_website_info[0].website_id &&
+            dashboardData?.user?.user_type !== 'agent'
           ">
           <router-link
             :to="{ name: 'form_builder' }"
@@ -224,7 +229,7 @@
             <span class="sidebar-link-title">Plans</span>
           </router-link>
         </li>
-        <!-- <li 
+        <li 
           class="sidebar-list-item" 
           v-if="dashboardData?.user?.user_type === 'agent'"
         >
@@ -236,9 +241,9 @@
             <i class="fa fa-users" aria-hidden="true"></i>
             <span class="sidebar-link-title">Users</span>
           </router-link>
-        </li> -->
+        </li>
       </ul>
-      <div class="dashboard-design" v-if="currentRoute === '/dashboard'">
+      <div class="dashboard-design" v-if="currentRoute === '/dashboard' || currentRoute === '/affiliate-dashboard'">
         <div class="feedback-btn">
           <button type="submit" class="feedback-button" @click="showModal">
             Help?

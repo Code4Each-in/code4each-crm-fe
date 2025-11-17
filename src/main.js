@@ -4,6 +4,7 @@ import { useStore } from './stores/store';
 import App from './App.vue'
 import router from './router'
 import vue3GoogleLogin from 'vue3-google-login'
+import WordpressService from "@/service/WordpressService";
 
 const app = createApp(App)
 app.config.errorHandler = (err, vm, info) => {
@@ -16,7 +17,16 @@ app.use(vue3GoogleLogin, {
 })
 app.use(createPinia())
 app.use(useStore());
-app.use(router)
+app.use(router);
+
+const urlParams = new URLSearchParams(window.location.search)
+const referralCode = urlParams.get('ref')
+
+if (referralCode) {
+    const response = await WordpressService.ReferredUsers.trackClick({
+        referral_code: referralCode
+    });
+}
 
 app.mount('#app')
 

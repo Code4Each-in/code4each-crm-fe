@@ -168,10 +168,8 @@ const router = useRouter();
 const backendError = ref("");
 
 const props = defineProps({
-  showLoginModal: {
-      type:Boolean,
-      default:false
-    }
+  showLoginModal: { type: Boolean, default: false },
+  referralCode: { type: String, default: null }
 });
 
 const resetLoginForm = () => {
@@ -221,7 +219,8 @@ const login = handleSubmit(async () => {
     allErrorsLogin.value = {};
     backendError.value = "";
 
-    const response = await WordpressService.loginUser(formDataLogin.value);
+    const payload = { ...formDataLogin.value, referral_code: props.referralCode };
+    const response = await WordpressService.loginUser(payload);
 
     if (response.status === 200 && response.data.success) {
       const token = response.data.token;
@@ -238,6 +237,10 @@ const login = handleSubmit(async () => {
           const encodedPlanId = btoa(planObj.id.toString());
           router.push(`/checkout/${encodedPlanId}`);
         } else {
+          if (fetchDashboardData.data.user?.user_type === 'agent') {
+            router.push("/affiliate-dashboard");
+            return;
+          }
           router.push("/dashboard");
         }
       } else {
@@ -267,9 +270,9 @@ const login = handleSubmit(async () => {
           Array.isArray(value) ? value[0] : value,
         ])
       );
-    }
-
-    else if (
+    } else if (status === 403) {
+      backendError.value = error?.response?.data?.details;
+    } else if (
       error.response &&
       (error.response.status === 401 || error.response.status === 405)
     ) {
