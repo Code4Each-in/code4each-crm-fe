@@ -329,7 +329,7 @@ const WordpressService = {
     sendWithdrawalData: (data) => {
       return requests(baseUrl).post('/post-withdrawal-data', data);
     },
-    fetchAffiliateAccountDetails: (data) =>{
+    fetchAffiliateAccountDetails: (data) => {
       return requests(baseUrl).get('/get-affiliate-account-details', { params: data });
     }
   }

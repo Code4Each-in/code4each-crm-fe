@@ -251,9 +251,22 @@ const openWithdrawModal = async () => {
     store.updateFlashMeassge(true, `Minimum balance of ₹${MIN_WITHDRAWAL_AMOUNT} is required to withdraw.`, "error");
     return; // do not open modal
   }
+
   if (withdrawalHistory.value && withdrawalHistory.value.length > 0) {
+    // Only fetch account details if there are previous withdrawals
     await fetchAffiliateAccountDetails();
+  } else {
+    // If no withdrawals exist, just reset the form
+    withdrawForm.value = {
+      card_name: "",
+      card_number: "",
+      exp_month: "",
+      exp_year: "",
+      cvv: "",
+      amount: ""
+    };
   }
+
   showWithdrawModal.value = true;
 };
 
