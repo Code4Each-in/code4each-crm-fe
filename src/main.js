@@ -20,13 +20,19 @@ app.use(useStore());
 app.use(router);
 
 const urlParams = new URLSearchParams(window.location.search)
-const referralCode = urlParams.get('ref')
+const trackReferralClick = async () => {
+    const referralCode = urlParams.get('ref')
 
-if (referralCode) {
-    const response = await WordpressService.ReferredUsers.trackClick({
-        referral_code: referralCode
-    });
-}
-
+    if (referralCode) {
+        try {
+            await WordpressService.ReferredUsers.trackClick({
+                referral_code: referralCode
+            });
+        } catch (err) {
+            console.error(err);
+        }
+    }
+};
+trackReferralClick();
 app.mount('#app')
 
