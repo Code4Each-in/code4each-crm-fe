@@ -157,7 +157,7 @@ onMounted(async () => {
                   {{
                     dashboardData?.user?.plan_id === plan.id
                       ? "Current Plan"
-                      : "Subscribe Now"
+                      : "Get Started"
                   }}
                 </button>
               </template>

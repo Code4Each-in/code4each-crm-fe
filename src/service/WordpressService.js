@@ -225,7 +225,6 @@ const WordpressService = {
     //   return requests(baseUrl).post(`/create-email-template`, data)
     // },
     getSettingEmailOptions: (data) => {
-      console.log("Form ID in service:", data.form_id);
       return requests(baseUrl).get('/get-setting-email-options', { params: data });
     }, 
     updateSettingEmailOptions: (data) => {
@@ -292,6 +291,46 @@ const WordpressService = {
   BillingDetails :{
     userBillingDetails: (data) => {
       return requests(baseUrl).post(`/add-userbillingdetails`, data)
+    }
+  },
+
+  ReferredUsers: {
+    getReferralUsersData: (data) => {
+      return requests(baseUrl).get('/get-referred-users', { params: data });
+    },
+    trackClick: (data) => {
+      return requests(baseUrl).post(`/track-referral-click`, data)
+    },
+    fetchTotalReferredUsers: (data) => {
+      return requests(baseUrl).get('/get-total-referred-users', { params: data });
+    },
+    fetchTotalEarnings: (data) => {
+      console.log("Fetching total earnings with data:", data);
+      return requests(baseUrl).get('/get-total-earnings', { params: data });
+    },
+    fetchTotalWithdrawalAmount: (data) => {
+      return requests(baseUrl).get('/get-total-withdrawal-amount', { params: data });
+    },
+    fetchMonthlyEarnings: (data) => {
+      return requests(baseUrl).get('/get-monthly-earnings', { params: data });
+    },
+    fetchWithdrawalHistory: (data) => {
+      return requests(baseUrl).get('/get-withdrawal-history', { params: data });
+    },
+    fetchUserPlanHistory: (data) => {
+      return requests(baseUrl).get('/get-referred-users-plan-history', { params: data });
+    }
+  },
+
+  AffiliateDetails: {
+    fetchAffiliateStats: (data) => {
+      return requests(baseUrl).get('/get-affiliate-stats', { params: data });
+    },
+    sendWithdrawalData: (data) => {
+      return requests(baseUrl).post('/post-withdrawal-data', data);
+    },
+    fetchAffiliateAccountDetails: (data) => {
+      return requests(baseUrl).get('/get-affiliate-account-details', { params: data });
     }
   }
 

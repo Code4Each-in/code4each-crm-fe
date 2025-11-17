@@ -19,6 +19,17 @@ import FormBuilder from '../views/FormBuilder.vue'
 import SEOKeywords from '../views/SEOKeywords.vue'
 import TemplatePages from '../views/TemplatePages.vue'
 import CustomizePages from '../views/CustomizePages.vue'
+import ReferredUsers from '../views/ReferredUsers.vue'
+import Refund from '@/views/Refund.vue';
+import TermsAndConditions from '@/views/TermsAndConditions.vue';
+import Shipping from '@/views/Shipping.vue';
+import PrivacyPolicy from '@/views/Privacy.vue';
+import ContactUs from '@/views/ContactUs.vue';
+import AffiliateView from '../views/AffiliateView.vue';
+import AffiliateSignup from '@/views/AffiliateSignup.vue';
+import AffiliateLogin from '@/views/AffiliateLogin.vue';
+import AffiliateDashboard from '../views/AffiliateDashboard.vue';
+import AffiliatePaymentHistoryView from '../views/AffiliatePaymentHistoryView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -142,7 +153,62 @@ const router = createRouter({
       path: '/checkout/:planId',
       name: 'Checkout',
       component: () => import('@/views/Checkout.vue'),
-    }    
+    },
+    {
+      path: '/referred-user',
+      name: 'referred_user',
+      component: ReferredUsers,
+    },
+    {
+      path: '/refund-policy',
+      name: 'refund_policy',
+      component: Refund,
+    },
+    { 
+      path: '/terms-and-conditions',
+      name: 'terms_and_conditions',
+      component: TermsAndConditions,
+    },
+    {
+      path: '/shipping',
+      name: 'shipping',
+      component: Shipping,
+    },
+    {
+      path: '/privacy-policy',
+      name: 'privacy_policy',
+      component: PrivacyPolicy,
+    },
+    {
+      path: '/contact-us',
+      name: 'contact_us',
+      component: ContactUs,
+    },
+    {
+      path: '/affiliate',
+      name: 'affiliate_view',
+      component: AffiliateView,
+    },
+    {
+      path: '/affiliate-signup',
+      name: 'affiliate_signup',
+      component: AffiliateSignup,
+    },
+    {
+      path: '/affiliate-login',
+      name: 'affiliate_login',
+      component: AffiliateLogin,
+    },
+    {
+      path: '/affiliate-dashboard',
+      name: 'affiliate_dashboard',
+      component: AffiliateDashboard,
+    },
+    {
+      path: '/affiliate-paymenthistory',
+      name: 'affiliate_history',
+      component: AffiliatePaymentHistoryView,
+    }
   ]
 });
 
