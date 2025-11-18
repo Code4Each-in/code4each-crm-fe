@@ -219,7 +219,11 @@
             <span class="sidebar-link-title">Form Builder</span>
           </router-link>
         </li>
-        <li class="sidebar-list-item">
+        <li class="sidebar-list-item"
+          v-if="
+            dashboardData?.agency_website_info?.length >= 1 &&
+            dashboardData?.user?.user_type !== 'agent'"
+        >
           <router-link
             :to="{ name: 'plans' }"
             class="sidebar-link text-muted"
