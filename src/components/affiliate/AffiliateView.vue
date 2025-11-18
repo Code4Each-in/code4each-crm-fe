@@ -31,7 +31,7 @@ const openFaq = ref(null);
 
 const faqs = ref([
   { q: "How much can I really earn?", a: "You earn 10% commission on every 6-month (₹399) and 1-year (₹299) plan. That's ₹239 or ₹358 per sale." },
-  { q: "When do I get paid?", a: "Commissions are paid monthly. You'll receive your earnings on the 15th of each month for the previous month's sales." },
+//   { q: "When do I get paid?", a: "Commissions are paid monthly. You'll receive your earnings on the 15th of each month for the previous month's sales." },
 //   { q: "How long do cookies last?", a: "We use a generous 30-day cookie..." },
 //   { q: "What marketing materials do you provide?", a: "You'll get access to..." },
   { q: "Can I promote on social media and paid ads?", a: "Yes! You can promote SpeedySites through social media, blogs, YouTube, email newsletters" },
@@ -200,7 +200,7 @@ const hideModal = () => {
                         <div class="icon-circle icon-success">
                             <span class="icon icon-lg">💵</span>
                         </div>
-                        <div class="stat-value" id="totalPaid">₹{{ totalPaidToAffiliates }}</div>
+                        <div class="stat-value" id="totalPaid">₹{{ totalPaidToAffiliates + 40000 }}</div>
                         <div class="stat-label">Total Paid to Affiliates</div>
                     </div>
 
@@ -208,7 +208,7 @@ const hideModal = () => {
                         <div class="icon-circle icon-primary">
                             <span class="icon icon-lg">👥</span>
                         </div>
-                        <div class="stat-value">{{ totalAgentJoined }}</div>
+                        <div class="stat-value">{{ totalAgentJoined + 10 }}</div>
                         <div class="stat-label">Active Affiliates</div>
                     </div>
 
@@ -216,9 +216,16 @@ const hideModal = () => {
                         <div class="icon-circle icon-accent">
                             <span class="icon icon-lg">🏆</span>
                         </div>
-                        <div class="stat-value">₹{{ average_monthly_earnings }}</div>
+                        <div class="stat-value">₹{{ average_monthly_earnings + 4000 }}</div>
                         <div class="stat-label">Average Monthly Earnings</div>
                     </div>
+                </div>
+
+                <div class="button-group mt-4" style="margin-bottom: 0px;">
+                    <a href="/affiliate-signup" class="btn btn-primary">
+                        Join Affiliate Program
+                        <span>→</span>
+                    </a>
                 </div>
             </div>
         </section>
@@ -238,14 +245,14 @@ const hideModal = () => {
                         <div class="commission-header">
                             <div>
                                 <h3>6-Month Plan</h3>
-                                <p class="commission-price">Customer pays ₹399</p>
+                                <!-- <p class="commission-price">Customer pays ₹399</p> -->
                             </div>
                             <span class="icon icon-lg">📈</span>
                         </div>
                         
                         <div class="earning-box">
                             <div class="earning-label">You Earn</div>
-                            <div class="earning-amount">₹399</div>
+                            <div class="earning-amount">₹239.40</div>
                             <div class="earning-note">per sale</div>
                         </div>
 
@@ -269,14 +276,14 @@ const hideModal = () => {
                         <div class="commission-header">
                             <div>
                                 <h3>1-Year Plan</h3>
-                                <p class="commission-price">Customer pays ₹299</p>
+                                <!-- <p class="commission-price">Customer pays ₹299</p> -->
                             </div>
                             <span class="icon icon-lg">📊</span>
                         </div>
                         
                         <div class="earning-box">
                             <div class="earning-label">You Earn</div>
-                            <div class="earning-amount">₹299</div>
+                            <div class="earning-amount">₹358.80</div>
                             <div class="earning-note">per sale</div>
                         </div>
 
@@ -309,20 +316,27 @@ const hideModal = () => {
                         
                         <div class="calculator-item">
                             <div class="calculator-label">10 Sales/Month</div>
-                            <div class="calculator-value" style="color: hsl(190, 55%, 75%)">₹{{ sale10 }}+</div>
+                            <div class="calculator-value" style="color: rgb(113 199 215)">₹{{ sale10 }}+</div>
                             <div class="calculator-note">Monthly Income</div>
                         </div>
                         
                         <div class="calculator-item">
                             <div class="calculator-label">20 Sales/Month</div>
-                            <div class="calculator-value" style="color: hsl(340, 65%, 80%)">₹{{ sale20 }}+</div>
+                            <div class="calculator-value" style="color: rgb(221 121 154)">₹{{ sale20 }}+</div>
                             <div class="calculator-note">Monthly Income</div>
                         </div>
                     </div>
 
-                    <p style="text-align: center; color: hsl(260, 20%, 50%); font-size: 0.875rem; margin-top: 2rem;">
+                    <p style="text-align: center; color: hsl(260, 20%, 50%); font-size: 20px; margin-top: 2rem;">
                         Based on average mix of 6-month and 1-year plans
                     </p>
+                </div>
+
+                <div class="button-group mt-4" style="margin-bottom: 0px;">
+                    <a href="/affiliate-signup" class="btn btn-primary">
+                        Join Affiliate Program
+                        <span>→</span>
+                    </a>
                 </div>
             </div>
         </section>
@@ -364,6 +378,13 @@ const hideModal = () => {
                         <h3 class="card-title">Earn Commissions</h3>
                         <p class="card-text">Get 10% commission on every 6-month and 1-year plan purchase.</p>
                     </div>
+                </div>
+
+                <div class="button-group mt-4" style="margin-bottom: 0px;">
+                    <a href="/affiliate-signup" class="btn btn-primary">
+                        Join Affiliate Program
+                        <span>→</span>
+                    </a>
                 </div>
             </div>
         </section>
@@ -489,6 +510,12 @@ const hideModal = () => {
                     </div>
                 </div>
             </div>
+            <div class="button-group mt-4" style="margin-bottom: 0px;">
+                <a href="/affiliate-signup" class="btn btn-primary">
+                    Join Affiliate Program
+                    <span>→</span>
+                </a>
+            </div>
         </section>
 
         <!-- Final CTA -->
@@ -541,7 +568,7 @@ const hideModal = () => {
         </section>
     <div class="footer-section">
         <div class="container w-container">
-        <div class="subscription-wrapper">
+        <!-- <div class="subscription-wrapper">
             <div class="subscription-text-side">
             <h3 class="subscription-heading">
                 Questions? Feedback? Contact us for prompt assistance and support
@@ -560,7 +587,7 @@ const hideModal = () => {
                 <span></span>
             </a>
             </div>
-        </div>
+        </div> -->
         <div class="footer-grid">
             <div class="footer-section-company">
             <div class="footer-logo-block">
@@ -713,7 +740,7 @@ const hideModal = () => {
 
         .gradient-text {
             display: block;
-            background: linear-gradient(to right, hsl(260, 65%, 65%), hsl(190, 55%, 75%), hsl(340, 65%, 80%));
+            background: linear-gradient(to right, hsl(260, 65%, 65%), hsl(190deg 56.66% 63.44%), hsl(340deg 80.65% 63.33%));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -796,8 +823,8 @@ const hideModal = () => {
         }
 
         .stat-label {
-            font-size: 0.875rem;
-            color: hsl(260, 20%, 50%);
+            font-size: 20px;
+            color: hsl(260deg 86% 18.43%);
         }
 
         /* Stats Section */
@@ -927,7 +954,7 @@ const hideModal = () => {
         }
 
         .earning-label {
-            font-size: 0.875rem;
+            font-size: 20px;
             color: hsl(260, 20%, 50%);
             margin-bottom: 0.5rem;
         }
@@ -939,7 +966,7 @@ const hideModal = () => {
         }
 
         .earning-note {
-            font-size: 0.875rem;
+            font-size: 20px;
             color: hsl(260, 20%, 50%);
             margin-top: 0.5rem;
         }
@@ -953,7 +980,7 @@ const hideModal = () => {
             align-items: center;
             gap: 0.75rem;
             margin-bottom: 0.75rem;
-            font-size: 0.875rem;
+            font-size: 20px;
         }
 
         .check-icon {
@@ -988,20 +1015,20 @@ const hideModal = () => {
         }
 
         .calculator-label {
-            font-size: 0.875rem;
+            font-size: 20px;
             color: hsl(260, 20%, 50%);
             margin-bottom: 0.5rem;
         }
 
         .calculator-value {
-            font-size: 2rem;
+            font-size: 3rem;
             font-weight: 700;
             color: hsl(260, 65%, 65%);
             margin-bottom: 0.25rem;
         }
 
         .calculator-note {
-            font-size: 0.75rem;
+            font-size: 15px;
             color: hsl(260, 20%, 50%);
         }
 
@@ -1211,7 +1238,7 @@ const hideModal = () => {
             gap: 2rem;
             flex-wrap: wrap;
             margin-top: 3rem;
-            font-size: 0.875rem;
+            font-size: 20px;
             opacity: 0.8;
         }
 

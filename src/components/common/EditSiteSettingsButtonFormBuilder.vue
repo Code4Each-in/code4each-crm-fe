@@ -223,7 +223,7 @@ const changeHiddenValuesForAllFields = () => {
 const fetchForms = async () => {
     formsFetched.value = false;
     try {
-        console.log(props.websiteDomain);
+        // console.log(props.websiteDomain);
         const response = await WordpressService.FormBuilder.fetchForms({
           website_domain: props.websiteDomain,
         });

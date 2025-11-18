@@ -110,7 +110,7 @@ const fetchTotalEarnings = async () => {
     });
     if (response.status === 200 && response.data.success) {
       totalEarningsValue.value = Number(response.data.response.total_earnings).toFixed(2);
-      console.log("Total earnings fetched:", totalEarningsValue.value);
+    //   console.log("Total earnings fetched:", totalEarningsValue.value);
     }
   } catch (error) {
     console.error("An error occurred while fetching total earnings:", error.message);

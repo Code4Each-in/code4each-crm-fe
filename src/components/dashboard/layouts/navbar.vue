@@ -48,7 +48,8 @@ onBeforeUnmount(() => {
       <a class="sidebar-toggler text-gray-500 me-4 me-lg-5 lead sidetoggle-s" @click="toggleSidebar">
         <i class="fa fa-align-left"></i>
       </a>
-      <a class="navbar-brand fw-bold text-uppercase text-base" @click="navigate">
+      <!-- <a class="navbar-brand fw-bold text-uppercase text-base" @click="navigate"> -->
+      <a class="navbar-brand fw-bold text-uppercase text-base">
         <span class="d-none d-brand-partial">Bubbly </span>
         <span class="d-none d-sm-inline">
           <img src="/images/ss_logo.png" />

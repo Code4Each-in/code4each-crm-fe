@@ -106,7 +106,7 @@ onMounted(async () => {
         </thead>
         <tbody>
             <tr v-if="referralUsers.length === 0">
-            <td colspan="3" class="text-center">No referred users found.</td>
+            <td colspan="4" class="text-center">No referred users found.</td>
             </tr>
             <tr v-for="user in referralUsers" :key="user.id">
             <td>{{ user.name }}</td>

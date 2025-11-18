@@ -295,7 +295,7 @@ const submitCustomFields = handleSubmit(async () => {
         : null,
       })),
     };
-    console.log("Submitting form data:", formData);
+    // console.log("Submitting form data:", formData);
 
     let response;
     if (formId.value) {

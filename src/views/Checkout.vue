@@ -44,7 +44,7 @@ onMounted(() => {
   const storedPlan = localStorage.getItem("selectedPlan");
   if (storedPlan) {
     selectedPlan.value = JSON.parse(storedPlan);
-    console.log("Selected Plan Object:", selectedPlan.value);
+    // console.log("Selected Plan Object:", selectedPlan.value);
   } else {
     console.error("No plan selected. Redirecting...");
   }
@@ -127,7 +127,7 @@ const createOrder = async (planRazorId) => {
     });
 
     if (response.status === 200) {
-      console.log("Order created:", response.data.order_id);
+      // console.log("Order created:", response.data.order_id);
       // Proceed with payment submission
       await submitPayment(response.data.order_id, planRazorId, plan_id);
     } else {
@@ -203,8 +203,8 @@ const handleSubmission = async (responseh, planRazorId, plan_id) => {
 const handleSubmit = async () => {
   if (!validate()) return; 
 
-  console.log("Billing submitted:", billing);
-  console.log("Plan:", selectedPlan.value);
+  // console.log("Billing submitted:", billing);
+  // console.log("Plan:", selectedPlan.value);
 
   const payload = {
     name: billing.name,
@@ -222,10 +222,10 @@ const handleSubmit = async () => {
 
   try {
     const res = await WordpressService.BillingDetails.userBillingDetails(payload);
-    console.log("Billing Details Saved`:", res.data);
+    // console.log("Billing Details Saved`:", res.data);
      billing_id.value = res.data.billing_id ?? res.data.data?.billing_id ?? null;
-    console.log("Billing Details Response:", billing_id.value);
-    console.log("Saved Billing ID:", billing_id.value);
+    // console.log("Billing Details Response:", billing_id.value);
+    // console.log("Saved Billing ID:", billing_id.value);
   } catch (error) {
     console.error("Error saving billing details:", error);
   }
