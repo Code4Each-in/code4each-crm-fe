@@ -475,7 +475,7 @@ const submitFeedback = handleSubmit(async () => {
     const response = await WordpressService.FeedBack.submitFeedback(formData);
     if (response.status === 200 && response.data.success) {
       hideModal();
-      console.log("sidebar.vue");
+      // console.log("sidebar.vue");
       store.updateFlashMeassge(true, "Feedback shared sucessfully");
     }
   } catch (validationErrors) {

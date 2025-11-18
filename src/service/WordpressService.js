@@ -305,7 +305,6 @@ const WordpressService = {
       return requests(baseUrl).get('/get-total-referred-users', { params: data });
     },
     fetchTotalEarnings: (data) => {
-      console.log("Fetching total earnings with data:", data);
       return requests(baseUrl).get('/get-total-earnings', { params: data });
     },
     fetchTotalWithdrawalAmount: (data) => {

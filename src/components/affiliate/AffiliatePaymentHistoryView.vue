@@ -28,9 +28,8 @@
             </div>
           </div>
 
-          <button class="btn btn-primary" @click="openWithdrawModal">
-            <i class="fa fa-money-bill-wave me-1" aria-hidden="true"></i>
-            Withdraw Now
+          <button class="btn btn-primary withdrawal" @click="openWithdrawModal">
+            Withdraw
           </button>
         </div>
       </div>
@@ -74,6 +73,11 @@
                     </tr>
                   </thead>
                   <tbody>
+                    <tr v-if="userPlanHistory.length === 0">
+                      <td colspan="5" class="text-center py-3 text-muted">
+                        No user is referred.
+                      </td>
+                    </tr>
                     <tr v-for="(row, idx) in userPlanHistory" :key="row.id || idx">
                       <td>{{ idx + 1 }}</td>
                       <td>{{ row.plan_name }}</td>
@@ -100,6 +104,11 @@
                     </tr>
                   </thead>
                   <tbody>
+                    <tr v-if="withdrawalHistory.length === 0">
+                      <td colspan="5" class="text-center py-3 text-muted">
+                        No withdrawal history found.
+                      </td>
+                    </tr>
                     <tr v-for="(row, idx) in withdrawalHistory" :key="row.id || idx">
                       <td>{{ idx + 1 }}</td>
                       <td>₹{{ formatNumber(row.amount) }}</td>
@@ -131,7 +140,7 @@
     <div v-if="showWithdrawModal" class="withdraw-modal-backdrop">
       <div class="withdraw-modal card p-3">
         <div class="d-flex align-items-center justify-content-between mb-2">
-          <h5 class="m-0">Withdraw Funds</h5>
+          <!-- <h5 class="m-0">Withdraw Funds</h5> -->
           <button class="btn-close" @click="closeWithdrawModal"></button>
         </div>
 
@@ -176,17 +185,18 @@
             </div>
           </div>
 
-          <div class="col-6">
-            <label class="form-label">Amount</label>
-            <div>{{ balanceDisplay }}</div>
-            <div v-if="validationErrors.amount" class="text-danger small">
+          <div class="col-12 withdrawalAmount">
+            <label class="form-label fw-bold me-1">Withdrawal Amount:</label>
+            <span class="fw-bold">{{ balanceDisplay }}</span>
+
+            <div v-if="validationErrors.amount" class="text-danger small mt-1">
               {{ validationErrors.amount }}
             </div>
           </div>
 
           <div class="col-12 mt-2 d-flex justify-content-end gap-2">
             <button class="btn btn-secondary" @click="closeWithdrawModal">Cancel</button>
-            <button class="btn btn-success" :disabled="submittingWithdraw" @click="submitWithdrawal">
+            <button class="btn requestWithdrawal" :disabled="submittingWithdraw" @click="submitWithdrawal">
               {{ submittingWithdraw ? 'Requesting...' : 'Request Withdrawal' }}
             </button>
           </div>
@@ -499,8 +509,9 @@ onMounted( async () =>{
 
 /* Tabs */
 .active-tab {
-  border-color: #0d6efd !important;
-  background: rgba(13,110,253,0.07) !important;
+  border-color: #1d2b64 !important;
+  background: #1d2b64;
+  color: #fff;
 }
 
 /* Card */
@@ -554,5 +565,35 @@ onMounted( async () =>{
   background-color: #f8d7da;
   color: #721c24;
   border: 2px solid #721c24;
+}
+
+.btn.withdrawal {
+  background-color: #1d2b64;
+  border: 2px solid #1d2b64;
+  padding: 10px 10px 10px 10px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.btn.withdrawal:hover {
+  background-color: transparent;
+  color: #1d2b64;
+}
+
+.btn.requestWithdrawal {
+  background-color: #1d2b64;
+  color: #fff;
+  border: 2px solid #1d2b64;
+}
+
+.btn.requestWithdrawal:hover {
+  background-color: #fff;
+  color: #1d2b64;
+}
+
+.withdrawalAmount {
+  background: #e6e8ea;
+  text-align: center;
+  margin: 20px 0px 14px 0px;
 }
 </style>

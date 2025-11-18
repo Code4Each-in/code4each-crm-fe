@@ -3,13 +3,15 @@
 
     <!-- Top Logo -->
     <div class="top-logo-wrapper">
-      <img class="top-logo" src="/images/ss_logo.png" alt="logo" />
+      <router-link to="/affiliate">
+        <img class="top-logo" src="/images/ss_logo.png" alt="logo" />
+      </router-link>
     </div>
 
     <!-- LOGIN CARD -->
     <div class="login-card">
 
-      <h2 class="title">Affiliate Login</h2>
+      <h2 class="title">SpeesySites Agents</h2>
       <p class="subtitle">Welcome back! Please log in to your account.</p>
 
       <form class="form-start">

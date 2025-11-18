@@ -3,7 +3,9 @@
 
     <!-- TOP LOGO OUTSIDE CARD -->
     <div class="top-logo-wrapper">
-      <img class="top-logo" src="/images/ss_logo.png" alt="logo" />
+      <router-link to="/affiliate">
+        <img class="top-logo" src="/images/ss_logo.png" alt="logo" />
+      </router-link>
     </div>
 
     <!-- SIGNUP CARD -->
