@@ -146,52 +146,40 @@
 
         <div class="row g-2">
           <div class="col-12">
-            <label class="form-label">Card Holder Name</label>
-            <input type="text" v-model="withdrawForm.card_name" class="form-control" />
-            <div v-if="validationErrors.card_name" class="text-danger small">
-              {{ validationErrors.card_name }}
+            <label class="form-label">Account Holder Name</label>
+            <input type="text" v-model="withdrawForm.account_name" class="form-control" />
+            <div v-if="validationErrors.account_name" class="text-danger small">
+              {{ validationErrors.account_name }}
             </div>
           </div>
 
           <div class="col-12">
-            <label class="form-label">Card Number</label>
-            <input type="text" v-model="withdrawForm.card_number" class="form-control" />
-            <div v-if="validationErrors.card_number" class="text-danger small">
-              {{ validationErrors.card_number }}
+            <label class="form-label">Bank Name</label>
+            <input type="text" v-model="withdrawForm.bank_name" class="form-control" />
+            <div v-if="validationErrors.bank_name" class="text-danger small">
+              {{ validationErrors.bank_name }}
             </div>
           </div>
 
-          <div class="col-6">
-            <label class="form-label">Expiry Month</label>
-            <input type="text" v-model="withdrawForm.exp_month" class="form-control" />
-            <div v-if="validationErrors.exp_month" class="text-danger small">
-              {{ validationErrors.exp_month }}
+          <div class="col-12">
+            <label class="form-label">Account Number</label>
+            <input type="text" v-model="withdrawForm.account_number" class="form-control" />
+            <div v-if="validationErrors.account_number" class="text-danger small">
+              {{ validationErrors.account_number }}
             </div>
           </div>
 
-          <div class="col-6">
-            <label class="form-label">Expiry Year</label>
-            <input type="text" v-model="withdrawForm.exp_year" class="form-control" />
-            <div v-if="validationErrors.exp_year" class="text-danger small">
-              {{ validationErrors.exp_year }}
-            </div>
-          </div>
-
-          <div class="col-6">
-            <label class="form-label">CVV</label>
-            <input type="password" v-model="withdrawForm.cvv" class="form-control" />
-            <div v-if="validationErrors.cvv" class="text-danger small">
-              {{ validationErrors.cvv }}
+          <div class="col-12">
+            <label class="form-label">IFSC Number</label>
+            <input type="text" v-model="withdrawForm.ifsc" class="form-control" />
+            <div v-if="validationErrors.ifsc" class="text-danger small">
+              {{ validationErrors.ifsc }}
             </div>
           </div>
 
           <div class="col-12 withdrawalAmount">
             <label class="form-label fw-bold me-1">Withdrawal Amount:</label>
             <span class="fw-bold">{{ balanceDisplay }}</span>
-
-            <div v-if="validationErrors.amount" class="text-danger small mt-1">
-              {{ validationErrors.amount }}
-            </div>
           </div>
 
           <div class="col-12 mt-2 d-flex justify-content-end gap-2">
@@ -233,17 +221,15 @@ const totalEarningsValue = ref(null);
 const userPlanHistory = ref([]);
 const initialLoading = ref(true);
 const selectedTab = ref("plans");
-const MIN_WITHDRAWAL_AMOUNT = 100;
+const MIN_WITHDRAWAL_AMOUNT = 800;
 const withdrawLoading = ref(false);
 
 // Withdraw form
 const withdrawForm = ref({
-  card_name: "",
-  card_number: "",
-  exp_month: "",
-  exp_year: "",
-  cvv: "",
-  amount: ""
+  account_name: "",
+  bank_name: "",
+  account_number: "",
+  ifsc: ""
 });
 const submittingWithdraw = ref(false);
 const accountDetails = ref(null);
@@ -268,12 +254,10 @@ const openWithdrawModal = async () => {
   } else {
     // If no withdrawals exist, just reset the form
     withdrawForm.value = {
-      card_name: "",
-      card_number: "",
-      exp_month: "",
-      exp_year: "",
-      cvv: "",
-      amount: ""
+      account_name: "",
+      bank_name: "",
+      account_number: "",
+      ifsc: ""
     };
   }
 
@@ -289,14 +273,13 @@ const fetchAffiliateAccountDetails = async () => {
     });
     if (response.data.success) {
       accountDetails.value = response.data.response;
-      withdrawForm.value.card_name = accountDetails.value.account_holder_name;
-      withdrawForm.value.card_number = accountDetails.value.card_number;
-      withdrawForm.value.exp_month = accountDetails.value.expiry_month;
-      withdrawForm.value.exp_year = accountDetails.value.expiry_year;
-      withdrawForm.value.cvv = accountDetails.value.cvv;
+      withdrawForm.value.account_name = accountDetails.value.account_name;
+      withdrawForm.value.bank_name = accountDetails.value.bank_name;
+      withdrawForm.value.account_number = accountDetails.value.account_number;
+      withdrawForm.value.ifsc = accountDetails.value.ifsc;
     } else {
       accountDetails.value = null;
-      withdrawForm.value = { card_name: "", card_number: "", exp_month: "", exp_year: "", cvv: "", amount: "" };
+      withdrawForm.value = { account_name: "", bank_name: "", account_number: "", ifsc: "" };
     }
   } catch (error) {
     console.error(error);
@@ -304,12 +287,10 @@ const fetchAffiliateAccountDetails = async () => {
 };
 
 const validationErrors = ref({
-  card_name: "",
-  card_number: "",
-  exp_month: "",
-  exp_year: "",
-  cvv: "",
-  amount: ""
+  account_name: "",
+  bank_name: "",
+  account_number: "",
+  ifsc: "",
 });
 
 const submitWithdrawal = async () => {
@@ -317,44 +298,29 @@ const submitWithdrawal = async () => {
   Object.keys(validationErrors.value).forEach(key => validationErrors.value[key] = "");
 
   const balance = totalEarningsValue.value - Number(totalWithdrawalAmount.value || 0);
-  const { card_name, card_number, exp_month, exp_year, cvv } = withdrawForm.value;
+  const { account_name, bank_name, account_number, ifsc, } = withdrawForm.value;
 
   let hasError = false;
 
-  if (!card_name) {
-    validationErrors.value.card_name = "Card holder name is required.";
+  if (!account_name) {
+    validationErrors.value.card_name = "Account name is required.";
     hasError = true;
   }
-  if (!card_number) {
-    validationErrors.value.card_number = "Card number is required.";
+  if (!account_number) {
+    validationErrors.value.account_number = "Account number is required.";
     hasError = true;
-  } else if (!/^\d{16}$/.test(card_number)) {
-    validationErrors.value.card_number = "Card number must be 16 digits.";
-    hasError = true;
-  }
-  if (!cvv) {
-    validationErrors.value.cvv = "CVV is required.";
-    hasError = true;
-  } else if (!/^\d{3,4}$/.test(cvv)) {
-    validationErrors.value.cvv = "CVV must be 3 or 4 digits.";
+  } else if (!/^\d{16}$/.test(account_number)) {
+    validationErrors.value.account_number = "Account number must be 16 digits.";
     hasError = true;
   }
-  const monthNum = Number(exp_month);
-  if (!exp_month) {
-    validationErrors.value.exp_month = "Expiry month is required.";
+  if (!bank_name) {
+    validationErrors.value.card_name = "Bank name is required.";
     hasError = true;
   }
-
-  const yearNum = Number(exp_year);
-  const currentYear = new Date().getFullYear();
-  if (!exp_year) {
-    validationErrors.value.exp_year = "Expiry year is required.";
-    hasError = true;
-  } else if (!yearNum || yearNum < currentYear) {
-    validationErrors.value.exp_year = "Expiry year must be current or future year.";
+  if (!ifsc) {
+    validationErrors.value.card_name = "IFSC Number is required.";
     hasError = true;
   }
-
   if (balance < MIN_WITHDRAWAL_AMOUNT) {
     validationErrors.value.amount = `Minimum balance of ₹${MIN_WITHDRAWAL_AMOUNT} is required to withdraw.`;
     hasError = true;
@@ -366,11 +332,10 @@ const submitWithdrawal = async () => {
   submittingWithdraw.value = true;
   try {
     const response = await WordpressService.AffiliateDetails.sendWithdrawalData({
-      card_name,
-      card_number,
-      exp_month,
-      exp_year,
-      cvv,
+      account_name,
+      bank_name,
+      account_number,
+      ifsc,
       amount: balance,
       agent_id: dashboardData.value?.user?.id
     });

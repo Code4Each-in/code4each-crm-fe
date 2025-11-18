@@ -200,7 +200,7 @@ const hideModal = () => {
                         <div class="icon-circle icon-success">
                             <span class="icon icon-lg">💵</span>
                         </div>
-                        <div class="stat-value" id="totalPaid">₹{{ totalPaidToAffiliates + 40000 }}</div>
+                        <div class="stat-value" id="totalPaid">₹{{ totalPaidToAffiliates + 44200 }}</div>
                         <div class="stat-label">Total Paid to Affiliates</div>
                     </div>
 
@@ -310,19 +310,22 @@ const hideModal = () => {
                     <div class="calculator-grid">
                         <div class="calculator-item">
                             <div class="calculator-label">5 Sales/Month</div>
-                            <div class="calculator-value">₹{{ sale5 }}+</div>
+                            <!-- <div class="calculator-value">₹{{ sale5 }}+</div> -->
+                            <div class="calculator-value">₹1495+</div>
                             <div class="calculator-note">Monthly Income</div>
                         </div>
                         
                         <div class="calculator-item">
                             <div class="calculator-label">10 Sales/Month</div>
-                            <div class="calculator-value" style="color: rgb(113 199 215)">₹{{ sale10 }}+</div>
+                            <div class="calculator-value" style="color: rgb(113 199 215)">₹2991+</div>
+                            <!-- <div class="calculator-value" style="color: rgb(113 199 215)">₹{{ sale10 }}+</div> -->
                             <div class="calculator-note">Monthly Income</div>
                         </div>
                         
                         <div class="calculator-item">
                             <div class="calculator-label">20 Sales/Month</div>
-                            <div class="calculator-value" style="color: rgb(221 121 154)">₹{{ sale20 }}+</div>
+                            <div class="calculator-value" style="color: rgb(221 121 154)">₹5982+</div>
+                            <!-- <div class="calculator-value" style="color: rgb(221 121 154)">₹{{ sale20 }}+</div> -->
                             <div class="calculator-note">Monthly Income</div>
                         </div>
                     </div>
