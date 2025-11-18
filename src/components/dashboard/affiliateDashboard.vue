@@ -39,7 +39,7 @@ const fetchDashboardData = async () => {
     const response = await WordpressService.fetchDashboardData();
     if (response.status === 200 && response.data.success) {
       dashboardData.value = response.data;
-      referralLink.value = `http://localhost:5173/?ref=${dashboardData.value.user.referral_code}`;
+      referralLink.value = `https://speedysites.in/?ref=${dashboardData.value.user.referral_code}`;
       calculateTimeDifference();
 
       // Wait for all the other API calls
