@@ -266,25 +266,31 @@ onMounted(() => {
                 </router-link>
 
                 <!-- Primary Card -->
-                <div class="affiliate-metric-card affiliate-metric-card-primary">
-                    <div class="affiliate-card-content">
-                        <div class="affiliate-card-header">
-                            <div class="affiliate-card-info">
-                                <p class="affiliate-card-title">Total Earnings</p>
-                                <h3 class="affiliate-card-value" id="totalEarnings">
-                                    ₹{{ totalEarningsValue }}
-                                </h3>
+                <router-link 
+                :to="{ name: 'affiliate_history' }" 
+                class="affiliate-metric-card-link"
+                style="text-decoration: none; color: inherit;"
+                >
+                    <div class="affiliate-metric-card affiliate-metric-card-primary">
+                        <div class="affiliate-card-content">
+                            <div class="affiliate-card-header">
+                                <div class="affiliate-card-info">
+                                    <p class="affiliate-card-title">Total Earnings</p>
+                                    <h3 class="affiliate-card-value" id="totalEarnings">
+                                        ₹{{ totalEarningsValue }}
+                                    </h3>
+                                </div>
+                                <div class="affiliate-card-icon">
+                                    <i class="fa fa-inr" aria-hidden="true"></i>
+                                </div>
                             </div>
-                            <div class="affiliate-card-icon">
-                                <i class="fa fa-inr" aria-hidden="true"></i>
+                            <div class="affiliate-card-trend">
+                                <span class="affiliate-trend-value">{{ timeDifferenceValue }}</span>
+                                <span class="affiliate-trend-label">{{ timeDifferenceLabel }}</span>
                             </div>
-                        </div>
-                        <div class="affiliate-card-trend">
-                            <span class="affiliate-trend-value">{{ timeDifferenceValue }}</span>
-                            <span class="affiliate-trend-label">{{ timeDifferenceLabel }}</span>
                         </div>
                     </div>
-                </div>
+                </router-link>
 
                 <!-- Pending Withdrawal -->
                 <router-link 
