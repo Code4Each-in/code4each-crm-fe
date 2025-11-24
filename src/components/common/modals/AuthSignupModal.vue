@@ -124,8 +124,7 @@
           </div>
           <div>
             <svg
-              width="67px"
-              height="578px"
+              width="85px"
               viewBox="0 0 67 578"
               version="1.1"
               xmlns="http://www.w3.org/2000/svg"
@@ -235,7 +234,7 @@ const signupValidationSchema = yup.object({
   phone: yup
     .string()
     .matches(/^[0-9()+-\s]+$/, "Please enter a valid phone number.")
-    .required("Please enter your phone number."),
+    .nullable(),
   email: yup
     .string()
     .email("Please enter a valid email address.")

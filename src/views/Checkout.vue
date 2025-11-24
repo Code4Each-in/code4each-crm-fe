@@ -189,6 +189,8 @@ const handleSubmission = async (responseh, planRazorId, plan_id) => {
 
     if (response.status === 200 && response.data.success) {;
       store.updateFlashMeassge(true, `Payment successful!`, 'success');
+      localStorage.removeItem("selectedPlan");
+      localStorage.removeItem("billingDetails"); 
       router.push("/dashboard");
     } else {
       console.error("Payment submission failed:", response);

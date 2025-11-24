@@ -18,14 +18,14 @@
 
         <!-- Email -->
         <div class="form-group">
-          <label>Email</label>
+          <label>Email / Phone</label>
           <input 
             type="email"
             class="form-control"
-            v-model="formDataLogin.email"
-            placeholder="Enter your email"
+            v-model="formDataLogin.login"
+            placeholder="Enter email or phone"
           />
-          <div class="text-danger">{{ allErrorsLogin.email }}</div>
+          <div class="text-danger">{{ allErrorsLogin.login }}</div>
         </div>
 
         <!-- Password -->
@@ -112,11 +112,15 @@ const togglePasswordVisibility = () => {
 };
 
 const validationSchemaLogin = yup.object({
-  email: yup
+  login: yup
     .string()
-    .email("Please enter valid email.")
-    .matches(/^[^+]+@[^+]+\.[^+]+$/, "Email cannot contain '+'")
-    .required("Email is required."),
+    .required("Email or phone is required.")
+    .test("email-or-phone", "Enter valid email or phone number.", function (value) {
+      const emailRegex = /^[^+]+@[^+]+\.[^+]+$/;
+      const phoneRegex = /^[0-9]{8,15}$/;
+
+      return emailRegex.test(value) || phoneRegex.test(value);
+    }),
   password: yup
     .string()
     .min(6, "Minimum 6 characters.")
@@ -135,16 +139,35 @@ const login = handleSubmit(async () => {
     backendError.value = "";
 
     const payload = {
-      ...formDataLogin.value,
+      email: null,
+      phone: null,
+      password: formDataLogin.value.password,
       user_type: "agent",
     };
 
+    if (/^[^+]+@[^+]+\.[^+]+$/.test(formDataLogin.value.login)) {
+      payload.email = formDataLogin.value.login;
+    } else {
+      payload.phone = formDataLogin.value.login;
+    }
+    
     const response = await WordpressService.loginUser(payload);
 
     if (response.status === 200 && response.data.success) {
       localStorage.setItem("access_token", response.data.token);
 
-      router.push("/affiliate-dashboard");
+      const userResponse = await WordpressService.fetchDashboardData();
+      if (userResponse.status === 200 && userResponse.data.success) {
+        const userType = userResponse.data.user?.user_type;
+
+        if (userType === "agent") {
+          router.push("/affiliate-dashboard");
+        } else {
+          router.push("/dashboard");
+        }
+
+        return;
+      }
     }
   } catch (error) {
     allErrorsLogin.value = {};

@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import WordpressService from "@/service/WordpressService";
 import LoginView from '../views/LoginView.vue'
 import EmailVerify from '../views/EmailVerify.vue'
 import DashboardView from '../views/Dashboard.vue'
@@ -219,9 +220,34 @@ const router = createRouter({
   ]
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const pageTitle = to.meta.title || 'SpeedySites';
   document.title = pageTitle;
+
+  let userType = null;
+  if (to.path === "/affiliate-dashboard" || to.path === "/dashboard") {
+    try {
+      const userResponse = await WordpressService.fetchDashboardData();
+      userType = userResponse?.data?.user?.user_type;
+
+      // ------------------------------
+      // RULE 1: Normal user cannot access affiliate dashboard
+      // ------------------------------
+      if (to.path === "/affiliate-dashboard" && userType === "user") {
+        return next("/dashboard");
+      }
+
+      // ------------------------------
+      // RULE 2: Agent cannot access normal dashboard
+      // ------------------------------
+      if (to.path === "/dashboard" && userType === "agent") {
+        return next("/affiliate-dashboard");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   if (to.path === "/home" && isLoggedIn()) {
     next("/dashboard");
   } else if (to.matched.some((record) => record.meta.requiresAuth)) {
