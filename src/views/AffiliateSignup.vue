@@ -114,19 +114,19 @@ const isDisabledSignUp = ref(false);
 const signupValidationSchema = yup.object({
     name: yup.string().required("Please enter your name."),
     phone: yup
-        .string()
-        .matches(/^[0-9()+-\s]+$/, "Please enter a valid phone number.")
-        .required("Please enter your phone number."),
+      .string()
+      .matches(/^[0-9()+-\s]+$/, "Please enter a valid phone number.")
+      .nullable(),
     email: yup
-        .string()
-        .email("Please enter a valid email address.")
-        .matches(/^[^+]+@[^+]+\.[^+]+$/, "Email address cannot contain '+'")
-        .required("Please enter your email."),
+      .string()
+      .email("Please enter a valid email address.")
+      .matches(/^[^+]+@[^+]+\.[^+]+$/, "Email address cannot contain '+'")
+      .required("Please enter your email."),
     password: yup
-        .string()
-        .min(6, "Password must be at least 6 characters.")
-        .max(20, "Password must not exceed 20 characters.")
-        .required("Please enter your password."),
+      .string()
+      .min(6, "Password must be at least 6 characters.")
+      .max(20, "Password must not exceed 20 characters.")
+      .required("Please enter your password."),
 });
 
 const togglePasswordVisibility = () => {

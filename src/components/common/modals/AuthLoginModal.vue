@@ -28,16 +28,16 @@
             <form class="form-start">
               <div class="main-form1" style="display: flex;justify-content: space-evenly;flex-wrap: wrap;">
                 <div class="form-group">
-                  <label for="exampleInputEmail1">Email </label>
+                  <label for="loginInput">Email / Phone </label>
                   <input
                     type="email"
                     class="form-control"
-                    id="exampleInputEmail1"
-                    placeholder="Email"
+                    id="loginInput"
+                    placeholder="Enter email or phone"
                     aria-describedby="emailHelp"
-                    v-model="formDataLogin.email"
+                    v-model="formDataLogin.login"
                   />
-                  <div class="text-danger">{{ allErrorsLogin.email }}</div>
+                  <div class="text-danger">{{ allErrorsLogin.login }}</div>
                 </div>
                 <div class="form-group" style="position: relative;">
                   <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -173,7 +173,7 @@ const props = defineProps({
 });
 
 const resetLoginForm = () => {
-  formDataLogin.value = {};
+  formDataLogin.value = { login: "", password: "" };
   allErrorsLogin.value = {};
   backendError.value = "";
   showPassword.value = false;
@@ -195,14 +195,15 @@ const hideLoginModal = () => {
 };
 
 const validationSchemaLogin = yup.object({
-  email: yup
+  login: yup
     .string()
-    .email("Please enter a valid email address.")
-    .matches(
-      /^[^+]+@[^+]+\.[^+]+$/,
-      "Email address cannot contain the '+' character."
-    )
-    .required("Please enter your email address."),
+    .required("Please enter your email or phone number.")
+    .test("is-valid", "Enter a valid email or phone number.", function (value) {
+      const emailRegex = /^[^+]+@[^+]+\.[^+]+$/;
+      const phoneRegex = /^[0-9]{8,15}$/;
+
+      return emailRegex.test(value) || phoneRegex.test(value);
+    }),
   password: yup
     .string()
     .min(6, "Password must be at least 6 characters.")
@@ -219,7 +220,16 @@ const login = handleSubmit(async () => {
     allErrorsLogin.value = {};
     backendError.value = "";
 
-    const payload = { ...formDataLogin.value, referral_code: props.referralCode };
+    const value = formDataLogin.value.login;
+    const isEmail = /^[^+]+@[^+]+\.[^+]+$/.test(value);
+
+    const payload = {
+      email: isEmail ? value : null,
+      phone: !isEmail ? value : null,
+      password: formDataLogin.value.password,
+      referral_code: props.referralCode
+    };
+
     const response = await WordpressService.loginUser(payload);
 
     if (response.status === 200 && response.data.success) {
