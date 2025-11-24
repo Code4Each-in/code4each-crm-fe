@@ -50,7 +50,7 @@
                       type="name"
                       class="form-control"
                       id="exampleInputName"
-                      placeholder="Name"
+                      placeholder="Enter your Name"
                       v-model="formData.name"
                     />
                     <div class="text-danger">{{ allErrors.name }}</div>
@@ -64,7 +64,7 @@
                       class="form-control"
                       id="exampleInputEmail1"
                       aria-describedby="emailHelp"
-                      placeholder="Email"
+                      placeholder="Enter your Email"
                       v-model="formData.email"
                     />
                     <div class="text-danger">{{ allErrors.email }}</div>
@@ -87,7 +87,7 @@
                       :type="showPassword ? 'text' : 'password'"
                       class="form-control"
                       id="exampleInputPassword1"
-                      placeholder="Password"
+                      placeholder="Enter your Password"
                       v-model="formData.password"
                     />
                      <!-- Toggle icon -->
