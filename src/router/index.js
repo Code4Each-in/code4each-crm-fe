@@ -32,6 +32,7 @@ import AffiliateLogin from '@/views/AffiliateLogin.vue';
 import AffiliateDashboard from '../views/AffiliateDashboard.vue';
 import AffiliatePaymentHistoryView from '../views/AffiliatePaymentHistoryView.vue';
 import AffiliateForgotPassword from '@/views/AffiliateForgotPassword.vue';
+import GoogleImproveBusiness from '../views/GoogleImproveBusiness.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -215,8 +216,12 @@ const router = createRouter({
       path: "/affiliate-forgot-password",
       name: "affiliate-forgot-password",
       component: AffiliateForgotPassword,
+    },
+    {
+      path: "/google-business-setting",
+      name: "google-business-setting",
+      component: GoogleImproveBusiness,
     }
-
   ]
 });
 

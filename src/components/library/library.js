@@ -24,6 +24,7 @@ import COMP_SS_SALON_HEADER2_86 from "./ss_salon_templates/ss_salon_header2.vue"
 import COMP_SS_SALON_ABOUT2_87 from "./ss_salon_templates/ss_salon_about2.vue";
 import COMP_SS_SALON_SERVICE2_88 from "./ss_salon_templates/ss_salon_service2.vue";
 import COMP_SS_SALON_FOOTER2_89 from "./ss_salon_templates/ss_salon_footer2.vue";
+import COMP_SS_GOOGLE_MAP_90 from "./ss_google_map/ss_google_map.vue";
 
 /* =========================
    Composable for editable fields
@@ -151,5 +152,6 @@ export const componentLibrary = {
   COMP_SS_SALON_HEADER2_86: COMP_SS_SALON_HEADER2_86,
   COMP_SS_SALON_ABOUT2_87: COMP_SS_SALON_ABOUT2_87,
   COMP_SS_SALON_SERVICE2_88: COMP_SS_SALON_SERVICE2_88,
-  COMP_SS_SALON_FOOTER2_89: COMP_SS_SALON_FOOTER2_89
+  COMP_SS_SALON_FOOTER2_89: COMP_SS_SALON_FOOTER2_89,
+  COMP_SS_GOOGLE_MAP_90: COMP_SS_GOOGLE_MAP_90,
 };

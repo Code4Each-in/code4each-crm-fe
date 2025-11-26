@@ -9,6 +9,8 @@ import { useStore } from "@/stores/store";
 import WordpressService from "@/service/WordpressService";
 import FlashMessage from "@/components/common/FlashMessage.vue";
 import Loader from "@/components/common/Loader.vue";
+import Alert from "./elements/Alert.vue";
+import Swal from "sweetalert2";
 
 const isSidebarToggled = ref(false);
 const navBarToggle = (value) => {
@@ -202,6 +204,16 @@ const copyReferralLink = () => {
     });
 };
 
+const resendLink = async () => {
+  try {
+    const response = await WordpressService.resendLink();
+    Swal.fire(response.data.message);
+  } catch (error) {
+    console.log(error);
+    console.error("Error Occur while resend link", error);
+  }
+};
+
 // When component loads
 onMounted(() => {
     fetchDashboardData();
@@ -219,7 +231,13 @@ onMounted(() => {
       :toggled="isSidebarToggled"
     ></SideBar>
     <body class="affiliate-body">
-        <div class="affiliate-container">
+        <div style="margin-left: 18%" v-if="dashboardData.notification">
+            <Alert
+                :notification="dashboardData.notification"
+                :resendLink="resendLink"
+            />
+        </div>
+        <div v-else class="affiliate-container">
             <header class="affiliate-header">
                 <div class="affiliate-header-top">
                 <div>
