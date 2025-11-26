@@ -331,6 +331,15 @@ const WordpressService = {
     fetchAffiliateAccountDetails: (data) => {
       return requests(baseUrl).get('/get-affiliate-account-details', { params: data });
     }
+  },
+
+  GoogleImproveBusiness: {
+    getGoogleReviewLink: (data) => {
+      return requests(baseUrl).get('/get-google-review-link', { params: data });
+    },
+    saveGoogleReviewLink: (data) => {
+      return requests(baseUrl).post(`/save-google-review-link`, data)
+    }
   }
 
 }

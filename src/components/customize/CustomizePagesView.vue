@@ -337,6 +337,45 @@ const commonContactFormBlockData = (componentuniqueId) => {
   };
 }
 
+// Common Google Map
+const commonGoogleMapBlockData = (componentuniqueId) => {
+  const fields = getFieldsByComponentType("google_map", componentuniqueId);
+  if (!fields.length) return null;
+
+  const getGlobalVar = (name, fallback = "") => {
+    const item = globalVariables.value.find((v) => v.name === name);
+    return item ? item.value : fallback;
+  };
+  
+  // Build full address
+  const fullAddress = [
+    getGlobalVar("address"),
+    getGlobalVar("city"),
+    getGlobalVar("state"),
+    getGlobalVar("country"),
+    getGlobalVar("pincode")
+  ]
+    .filter(Boolean) 
+    .join(", ");
+
+  return {
+    'googlemap-text1': getFieldValue(fields, "googlemap-text1"),
+    'googlemap-text2': getFieldValue(fields, "googlemap-text2"),
+    'googlemap-description1': getFieldValue(fields, "googlemap-description1"),
+    'googlemap-text3': getFieldValue(fields, "googlemap-text3"),
+    'googlemap-text4': getFieldValue(fields, "googlemap-text4"),
+    'googlemap-text5': getFieldValue(fields, "googlemap-text5"),
+    'googlemap-text6': getFieldValue(fields, "googlemap-text6"),
+    'googlemap-text7': getFieldValue(fields, "googlemap-text7"),
+    'googlemap-text8': getFieldValue(fields, "googlemap-text8"),
+    'googlemap-text9': getFieldValue(fields, "googlemap-text9"),
+    'googlemap-text10': getFieldValue(fields, "googlemap-text10"),
+    address: fullAddress,
+    phone: getGlobalVar("phone", ""),
+    email: adminEmail.value,
+  };
+}
+
 // All sections for editor rendering
 const sections = computed(() => {
   return activeComponents.value
@@ -349,6 +388,7 @@ const sections = computed(() => {
       else if (comp.type === "footer") data = footerBlockData(comp.id);
       else if (comp.type === "common_text") data = commonTextBlockData(comp.id);
       else if (comp.type === "contact_form") data = commonContactFormBlockData(comp.id);
+      else if (comp.type === "google_map") data = commonGoogleMapBlockData(comp.id);
 
       if (!data || Object.keys(data).length === 0) return null;
 
@@ -705,7 +745,7 @@ const closeAddNewSectionPopup = () => {
 /* =========================
    Add Section Popup Logic
 ========================= */
-const alwaysTypesToAdd = ["about_section", "service_section", "common_text", "contact_form"];
+const alwaysTypesToAdd = ["about_section", "service_section", "common_text", "contact_form", "google_map"];
 
 const openAddSectionPopup = async (sectionKey) => {
   showAddSectionPopup.value = true;
