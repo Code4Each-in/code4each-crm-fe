@@ -3,6 +3,9 @@
         <div class="grid">
             <!-- Google Map - Left Side -->
             <div class="map-container">
+                <div class="map-settings" @click.stop="openAddressPopup">
+                    <i class="fa fa-cog" aria-hidden="true"></i>
+                </div>
                 <iframe
                 :src="`https://www.google.com/maps?q=${encodeURIComponent(editableContent.address)}&output=embed`"
                 allowfullscreen
@@ -253,6 +256,38 @@
             </div>
         </div>
     </div>
+    <!-- Address Settings Popup -->
+    <div v-if="showAddressPopup" class="popup-overlay" @click="showAddressPopup = false">
+        <div class="popup-box" @click.stop>
+            <h3>Map Setting</h3>
+
+            <label>Address</label>
+            <input v-model="popupAddress.address" />
+
+            <label>City</label>
+            <input v-model="popupAddress.city" />
+
+            <label>State</label>
+            <input v-model="popupAddress.state" />
+
+            <label>Country</label>
+            <input v-model="popupAddress.country" />
+
+            <label>Pin Code</label>
+            <input v-model="popupAddress.pincode" />
+
+            <div class="popup-btn-row">
+                <button class="popup-cancel-btn" @click="showAddressPopup = false">
+                    Cancel
+                </button>
+
+                <button class="popup-save-btn" @click="updateAddressChanges">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Sidebar Editor -->
     <SidebarEditor
         :isOpen="isSidebarOpen"
@@ -268,9 +303,11 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { useEditable } from '../library';
 import SidebarEditor from '../SidebarEditor.vue';
+import WordpressService from "@/service/WordpressService";
+import { useStore } from "@/stores/store";
 
 const props = defineProps({
     data: {
@@ -297,6 +334,18 @@ const props = defineProps({
 const emit = defineEmits(['field-updated']);
 const editableContent = ref({ ...props.data });
 const componentId = 'COMP_SS_GOOGLE_MAP_90';
+const showAddressPopup = ref(false);
+const dashboardData = ref([]);
+const siteSettingsDetail = ref(null);
+const store = useStore();
+
+const popupAddress = ref({
+  address: "",
+  city: "",
+  state: "",
+  country: "",
+  pincode: ""
+});
 
 watch(() => props.data, (newVal) => {
     editableContent.value = { ...newVal };
@@ -314,6 +363,86 @@ const {
     activeSectionType,
     activeComponentId,
 } = useEditable(emit, editableContent);
+
+function openAddressPopup() {
+  // Load data from API (dashboardData) into popup fields
+  const agency = dashboardData.value.agency_website_info?.[0];
+  console.log("Agency Data:", agency);
+
+  popupAddress.value.address = agency?.address ?? "";
+  popupAddress.value.city = agency?.city ?? "";
+  popupAddress.value.state = agency?.state ?? "";
+  popupAddress.value.country = agency?.country ?? "";
+  popupAddress.value.pincode = agency?.pin ?? "";
+
+  showAddressPopup.value = true;
+}
+
+const fetchDashboardData = async () => {
+  try {
+    const res = await WordpressService.fetchDashboardData();
+
+    if (res.status === 200 && res.data.success) {
+      dashboardData.value = res.data;
+
+      const agency = res.data.agency_website_info?.[0];
+
+      if (agency) {
+        popupAddress.value.address = agency.address ?? "";
+        popupAddress.value.city = agency.city ?? "";
+        popupAddress.value.state = agency.state ?? "";
+        popupAddress.value.country = agency.country ?? "";
+        popupAddress.value.pincode = agency.pin ?? "";
+      }
+    }
+  } catch (error) {
+    console.error("Dashboard fetch error:", error);
+  }
+};
+
+const updateAddressChanges= async () => {
+  try {
+    const formData = new FormData();
+    formData.append("address", popupAddress.value.address || "");
+    formData.append("city", popupAddress.value.city || "");
+    formData.append("state", popupAddress.value.state || "");
+    formData.append("country", popupAddress.value.country || "");
+    formData.append("pincode", popupAddress.value.pincode || "");
+    formData.append("website_domain", siteSettingsDetail.value?.website_domain || "");
+    formData.append("agency_id", dashboardData.value.agency_website_info?.[0]?.id || "");
+
+    const res = await WordpressService.UpdateMapAddress.updateAddressChanges(formData);
+
+    if (res.status === 200) {
+        await fetchDashboardData();
+        const fullAddress = `${popupAddress.value.address}, ${popupAddress.value.city}, ${popupAddress.value.state}, ${popupAddress.value.country}, ${popupAddress.value.pincode}`;
+        editableContent.value.address = fullAddress;
+
+        showAddressPopup.value = false;
+
+        console.log("Address updated successfully", res.data);
+    }
+  } catch (error) {
+    console.error("Error updating address:", error);
+  }
+}
+
+const getSiteDetails = async () => {
+  if (!store.websiteId) return;
+  try {
+    const res = await WordpressService.WebsiteSettings.getSiteDetail({ website_id: store.websiteId });
+    if (res.status === 200 && res.data.success) {
+      siteSettingsDetail.value = res.data.settings_detail;
+    }
+  } catch (error) {
+    console.error("Error fetching site details:", error);
+  }
+};
+
+onMounted(async () => {
+    await fetchDashboardData();
+    await getSiteDetails();
+});
 </script>
 
 <style scoped>
@@ -384,7 +513,7 @@ const {
     order: 2;
     position: relative;
     border-radius: 1rem;
-    overflow: hidden;
+    /* overflow: hidden; */
     box-shadow: 0 8px 30px -8px hsl(25 25% 15% / 0.15);
     height: 400px;
     animation: fadeIn 0.7s ease-out, slideInLeft 0.7s ease-out;
@@ -595,4 +724,122 @@ const {
         margin-top: 0;
         margin-bottom: 0;
     }
+    .map-container {
+        position: relative; 
+    }
+
+    .map-settings {
+        position: absolute;
+        top: -19px;
+        right: -19px;
+        z-index: 50; 
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        border: 2px solid #00adb5;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    }
+
+    .map-settings:hover {
+        background: #00adb5;
+        color: white;
+        transform: scale(1.1);
+    }
+
+    .map-settings i {
+        font-size: 18px;
+    }
+    .popup-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.55);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .popup-box {
+        width: 400px;
+        background: #fff;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        animation: popupFadeIn 0.3s ease;
+    }
+
+    .popup-box h3 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+        font-size: 1.3rem;
+    }
+
+    .popup-box label {
+        font-weight: 600;
+        margin-top: 1rem;
+        display: block;
+    }
+
+    .popup-box input {
+        width: 100%;
+        margin-top: .3rem;
+        padding: .6rem;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+    }
+
+    .popup-save-btn {
+        width: 100%;
+        /* margin-top: 1.5rem; */
+        padding: .8rem;
+        background: #00adb5;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: .25s;
+    }
+
+    .popup-save-btn:hover {
+        background: #008a92;
+    }
+
+    @keyframes popupFadeIn {
+        from {opacity: 0; transform: scale(.9);}
+        to {opacity: 1; transform: scale(1);}
+    }
+    .popup-btn-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .popup-cancel-btn {
+        flex: 1;
+        padding: .8rem;
+        background: #ccc;
+        color: #333;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: .25s;
+    }
+
+    .popup-cancel-btn:hover {
+        background: #b3b3b3;
+    }
+
+    .popup-save-btn {
+        flex: 1;
+    }
+
 </style>

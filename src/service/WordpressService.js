@@ -340,6 +340,12 @@ const WordpressService = {
     saveGoogleReviewLink: (data) => {
       return requests(baseUrl).post(`/save-google-review-link`, data)
     }
+  },
+
+  UpdateMapAddress: {
+    updateAddressChanges: (formData) => {
+      return requests(baseUrl).post(`/update-map-address`, formData);
+    }
   }
 
 }
