@@ -123,7 +123,7 @@ onMounted(async () => {
                 <span class="price">₹{{ plan.price }}</span>
                 <div v-if="index !== 0" class="price-details">
                   <span class="original-price">₹999</span>
-                  <span class="period">{{ index === 1 ? "/6 months" : "/year" }}</span>
+                  <span class="period">/mo</span>
                 </div>
               </div>
             </div>
@@ -144,7 +144,7 @@ onMounted(async () => {
             </ul> -->
 
             <!-- BUTTON SECTION -->
-            <div class="add-listing d-none d-sm-block">
+            <div class="add-listing">
               <!-- Hide button completely if free plan -->
               <template v-if="plan.price > 0">
                 <button
