@@ -540,7 +540,7 @@ const fetchPlans = async () => {
                     <span class="price">₹{{ plan.price }}</span>
                     <div v-if="index !== 0" class="price-details">
                       <span class="original-price">₹999</span>
-                      <span class="period">{{ index === 1 ? "/6 months" : "/year" }}</span>
+                      <span class="period">{{ index === 1 ? "/mo" : "/mo" }}</span>
                     </div>
                   </div>
                 </div>
@@ -560,7 +560,7 @@ const fetchPlans = async () => {
                   </li>
                 </ul> -->
 
-                <div class="add-listing d-none d-sm-block">
+                <div class="add-listing">
                   <button
                     class="button"
                     :class="index === 2 ? 'button-primary hover-top' : 'button-outline hover-top'"
