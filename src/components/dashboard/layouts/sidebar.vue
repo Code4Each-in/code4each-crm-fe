@@ -247,6 +247,20 @@
             <span class="sidebar-link-title">Google Business</span>
           </router-link>
         </li>
+        <li class="sidebar-list-item"
+          v-if="
+            dashboardData?.agency_website_info?.length >= 1 &&
+            dashboardData?.user?.user_type !== 'agent'"
+        >
+          <router-link
+            :to="{ name: 'domain-mapping-setting' }"
+            class="sidebar-link text-muted"
+            :class="{ active: currentRoute.includes('/domain-mapping-setting') }"
+          >
+            <i class="fa fa-globe" aria-hidden="true"></i>
+            <span class="sidebar-link-title">Domain</span>
+          </router-link>
+        </li>
         <li 
           class="sidebar-list-item" 
           v-if="dashboardData?.user?.user_type === 'agent'"
