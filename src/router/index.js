@@ -33,6 +33,7 @@ import AffiliateDashboard from '../views/AffiliateDashboard.vue';
 import AffiliatePaymentHistoryView from '../views/AffiliatePaymentHistoryView.vue';
 import AffiliateForgotPassword from '@/views/AffiliateForgotPassword.vue';
 import GoogleImproveBusiness from '../views/GoogleImproveBusiness.vue';
+import DomainMappingSetting from '../views/DomainMappingSetting.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -221,6 +222,11 @@ const router = createRouter({
       path: "/google-business-setting",
       name: "google-business-setting",
       component: GoogleImproveBusiness,
+    },
+    {
+      path: "/domain-mapping-setting",
+      name: "domain-mapping-setting",
+      component: DomainMappingSetting,
     }
   ]
 });
