@@ -55,10 +55,14 @@
                       <div class="domain-info">
                           <div class="domain-name">{{ item.domain }}</div>
 
-                          <!-- Primary Domain Badge -->
-                          <span v-if="item.is_primary" class="primary-badge">
-                              Primary Domain
-                          </span>
+                            <!-- Primary Domain Badge -->
+                            <span 
+                                v-if="normalize(item.domain) === normalize(currentDomain)" 
+                                class="primary-badge"
+                            >
+                                Primary Domain
+                            </span>
+
                       </div>
 
                       <!-- RIGHT SIDE -->
@@ -86,7 +90,11 @@
                                     v-if="activeMenu === item.id"
                                     class="menu-dropdown"
                                 >
-                                    <div class="menu-item" @click="setPrimaryDomain(item)">
+                                    <div 
+                                        class="menu-item" 
+                                        :class="{ disabled: item.is_primary || currentDomain === item.domain }"
+                                        @click="!(item.is_primary || currentDomain === item.domain) && setPrimaryDomain(item)"
+                                    >
                                         <span v-if="primaryLoading === item.id">
                                             <i class="fa fa-spinner fa-spin"></i> Processing...
                                         </span>
@@ -123,7 +131,8 @@
                                     v-if="activeMenu === item.id"
                                     class="menu-dropdown"
                                 >
-                                    <div class="menu-item" @click="setPrimaryDomain(item)">
+                                    <div class="menu-item" :class="{ disabled: item.is_primary || currentDomain === item.domain }"
+                                        @click="!(item.is_primary || currentDomain === item.domain) && setPrimaryDomain(item)">
                                         Set as Primary Domain
                                     </div>
                                 </div>
@@ -578,6 +587,12 @@ const handleClickOutside = (event) => {
     }
 };
 
+const normalize = (url) =>
+    (url || "")
+        .replace(/^https?:\/\//, "")
+        .replace(/\/$/, "")
+        .toLowerCase();
+
 onMounted(async () => {
     loadingDomain.value = true;
     await fetchDashboardData();
@@ -996,5 +1011,10 @@ onUnmounted(() => {
 .three-body3 {
   top: 37% !important;
   right: 41% !important;
+}
+
+.menu-item.disabled {
+    opacity: 0.4;
+    pointer-events: none;
 }
 </style>
