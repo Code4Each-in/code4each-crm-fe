@@ -7,7 +7,13 @@
     />
     <SideBar :dashboardData="dashboardData" :toggled="isSidebarToggled" />
 
-    <div class="page-wrapper">
+    <div v-if="loadingDomain" class="three-body3">
+        <div class="three-body__dot1"></div>
+        <div class="three-body__dot1"></div>
+        <div class="three-body__dot1"></div>
+    </div>
+
+    <div v-else class="page-wrapper">
 
         <!-- SHOW CURRENT DOMAIN + DOMAIN LIST ONLY WHEN NOT IN SETUP -->
         <div v-if="!showSetup" class="content-area" style="width:100%; margin-left: 200px;">
@@ -38,29 +44,104 @@
                     <button class="primary-btn" @click="startSetup">+ Add Domain</button>
                 </div>
 
-                <table class="domain-table">
-                    <thead>
-                        <tr>
-                            <th>Domain</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="item in domains" :key="item.id">
-                            <td>{{ item.domain }}</td>
-                            <td>{{ item.status }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                <!-- DOMAIN LIST -->
+                <div class="domains-list">
+                    <div 
+                        v-for="item in domains" 
+                        :key="item.id"
+                        class="domain-row"
+                    >
+                      <!-- LEFT SIDE -->
+                      <div class="domain-info">
+                          <div class="domain-name">{{ item.domain }}</div>
 
+                          <!-- Primary Domain Badge -->
+                          <span v-if="item.is_primary" class="primary-badge">
+                              Primary Domain
+                          </span>
+                      </div>
+
+                      <!-- RIGHT SIDE -->
+                      <div class="domain-actions">
+
+                        <!-- Show this only if NOT staging -->
+                        <template v-if="item.type !== 'staging'">
+
+                            <div class="status">
+                                <span
+                                  :class="item.status === 'Verified' ? 'status-dot green' : 'status-dot red'"
+                                ></span>
+                                {{ item.status }}
+                            </div>
+
+                            <button class="check-btn" @click="checkDomain(item)">
+                                Check
+                            </button>
+
+                            <!-- Menu for normal domains -->
+                            <div class="menu-wrapper">
+                                <i class="fa fa-ellipsis-v menu-icon" @click="toggleMenu(item.id)"></i>
+
+                                <div 
+                                    v-if="activeMenu === item.id"
+                                    class="menu-dropdown"
+                                >
+                                    <div class="menu-item" @click="setPrimaryDomain(item)">
+                                        <span v-if="primaryLoading === item.id">
+                                            <i class="fa fa-spinner fa-spin"></i> Processing...
+                                        </span>
+                                        <span v-else>
+                                            Set as Primary Domain
+                                        </span>
+                                    </div>
+
+                                    <div class="menu-item" @click="openDNS(item)">
+                                        DNS Configuration
+                                    </div>
+
+                                    <div class="menu-item delete" @click="deleteDomain(item)">
+                                        <span v-if="deleteLoading === item.id">
+                                            <i class="fa fa-spinner fa-spin"></i> Deleting...
+                                        </span>
+                                        <span v-else>
+                                            Delete Domain
+                                        </span>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </template>
+
+
+                        <!-- Show ONLY this for STAGING domains -->
+                        <template v-else>
+                            <div class="menu-wrapper">
+                                <i class="fa fa-ellipsis-v menu-icon" @click="toggleMenu(item.id)"></i>
+
+                                <div 
+                                    v-if="activeMenu === item.id"
+                                    class="menu-dropdown"
+                                >
+                                    <div class="menu-item" @click="setPrimaryDomain(item)">
+                                        Set as Primary Domain
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
+                    </div>
+                  </div>
+                </div>
+
+            </div>
         </div>
 
         <!-- SETUP WIZARD -->
         <div v-if="showSetup" class="wizard-wrap">
 
             <!-- Sidebar Stepper -->
-            <div class="stepper">
+            <div class="stepper" v-if="!isEditDNS">
                 <div class="step-header">
                     <a href="javascript:void(0)" class="back-link" @click="showSetup = false">← Back</a>
                     <h1>Add your Domain</h1>
@@ -75,11 +156,6 @@
 
                     <div class="step" :class="{ active: currentStep === 2 }">
                         <div class="number">2</div>
-                        <span>Configure SSL Certificate</span>
-                    </div>
-
-                    <div class="step" :class="{ active: currentStep === 3 }">
-                        <div class="number">3</div>
                         <span>Update DNS</span>
                     </div>
                 </div>
@@ -88,7 +164,7 @@
             <!-- Right Content -->
             <div class="content-area">
 
-                <!-- STEP 1 -->
+                <!-- STEP 1 : ENTER DOMAIN -->
                 <div v-if="currentStep === 1" class="card">
                     <h2>Setup Domain Name</h2>
 
@@ -101,48 +177,120 @@
                     />
 
                     <div class="actions">
-                        <button class="cancel-btn" @click="showSetup = false">Cancel</button>
+                        <button class="cancel-btn" @click="showSetup = false; activeMenu = null">Cancel</button>
                         <button 
                             class="primary-btn" 
                             :disabled="!domain"
-                            @click="currentStep = 2"
+                            @click="goToDNS"
                         >
                             Continue
                         </button>
                     </div>
                 </div>
 
-                <!-- STEP 2 -->
-                <div v-if="currentStep === 2" class="card">
-                    <h2>Configure SSL Certificate</h2>
-                    <p>This is a placeholder for SSL verification instructions.</p>
+                <!-- STEP 2 : UPDATE DNS -->
+                <div v-if="currentStep === 2" class="card" :style="isEditDNS ? { marginLeft: '190px' } : {}">
 
-                    <div class="actions">
-                        <button class="cancel-btn" @click="currentStep = 1">Back</button>
-                        <button class="primary-btn" @click="currentStep = 3">Continue</button>
-                    </div>
-                </div>
-
-                <!-- STEP 3 -->
-                <div v-if="currentStep === 3" class="card">
                     <h2>Update DNS</h2>
-                    <p>This is where your DNS records will appear.</p>
+
+                    <!-- Instructions Card -->
+                    <div class="instruction-card">
+                        <h3>Instructions</h3>
+
+                        <div class="instruction-box">
+                            <strong>Step 1:</strong>  
+                            <p>Find the <b>A record</b> with <b>@</b> or your domain and update the value below.</p>
+                        </div>
+
+                        <div class="instruction-box">
+                            <strong>Step 2:</strong>  
+                            <p>Find the <b>www CNAME</b> and update the value shown below.</p>
+                        </div>
+
+                        <div class="instruction-box note">
+                            <strong>Note:</strong>  
+                            <p>If you use Cloudflare, turn OFF Proxy (orange → grey). DNS may take up to 48 hours.</p>
+                        </div>
+                    </div>
+
+                    <!-- DNS Records Card -->
+                    <div class="dns-card">
+
+                        <h3>Your DNS Records</h3>
+
+                        <table class="dns-table">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Key</th>
+                                    <th>Value</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr>
+                                    <td>A</td>
+                                    <td>
+                                      @
+                                      <i class="fa fa-copy copy-icon" @click="copyText('@')"></i>
+                                    </td>
+                                    <td>
+                                        {{ dnsData.a_record }}
+                                        <i class="fa fa-copy copy-icon" @click="copyText(dnsData.a_record)"></i>
+                                    </td>
+                                    <td><span class="pending-tag">Pending</span></td>
+                                </tr>
+
+                                <tr>
+                                    <td>CNAME</td>
+                                    <td>
+                                      www
+                                      <i class="fa fa-copy copy-icon" @click="copyText('www')"></i>
+                                    </td>
+                                    <td>
+                                        {{ dnsData.cname_record }}
+                                        <i class="fa fa-copy copy-icon" @click="copyText(dnsData.cname_record)"></i>
+                                    </td>
+                                    <td><span class="pending-tag">Pending</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
 
                     <div class="actions">
-                        <button class="cancel-btn" @click="currentStep = 2">Back</button>
-                        <button class="primary-btn">Finish</button>
+                        <button class="cancel-btn" 
+                            @click="isEditDNS ? (showSetup = false) : (currentStep = 1)"
+                        >
+                            Back
+                        </button>
+
+                        <button 
+                            v-if="!isEditDNS"
+                            class="primary-btn" 
+                            @click="saveNewDomain" 
+                            :disabled="isLoading"
+                        >
+                            <span v-if="isLoading">
+                                <i class="fa fa-spinner fa-spin"></i> Saving...
+                            </span>
+                            <span v-else>
+                                Finish
+                            </span>
+                        </button>
                     </div>
+
                 </div>
 
             </div>
 
         </div>
-
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, nextTick, computed, onUnmounted } from "vue";
 import { useAuth } from "../../service/useAuth";
 import { useRouter } from "vue-router";
 import { useStore } from "@/stores/store";
@@ -164,11 +312,129 @@ const domain = ref("");
 
 const dashboardData = ref({});
 const currentDomain = ref("");
+const stagingDomain = ref("");
 const domains = ref([]);
+const isLoading = ref(false);
+const loadingDomain = ref(true);
+const primaryLoading = ref(null);
+const deleteLoading = ref(null);
+const isEditDNS = ref(false);
+
+const activeMenu = ref(null);
+const flashClass = computed(() => 
+    store.flashMeassgeType === 'error' ? 'flash-error' : 'flash-success'
+);
+
+const toggleMenu = (id) => {
+    activeMenu.value = activeMenu.value === id ? null : id;
+};
+
+const checkDomain = async (item) => {
+    try {
+        const payload = {
+            domain: item.domain,
+            user_id: dashboardData.value.user.id
+        };
+
+        const response = await WordpressService.Domains.checkDomain(payload);
+
+        if (response.data.success) {
+            store.updateFlashMeassge(true, "test", 'success');
+            await getDomains();
+        }
+
+    } catch (error) {
+        console.log(error);
+        store.setFlashMessage("Domain check failed!", "error");
+    }
+};
+
+const setPrimaryDomain = async (item) => {
+    try {
+        const info = dashboardData.value.agency_website_info?.[0];
+
+        const confirmed = confirm(
+            `Are you sure you want to set "${item.domain}" as the primary domain?`
+        );
+        if (!confirmed) return;
+
+        primaryLoading.value = item.id;
+
+        const payload = {
+            domain: item.domain,
+            staging_domain: stagingDomain.value, 
+            agency_id: info.agency_id,
+            website_id: info.website_detail.id,
+            user_id: dashboardData.value.user.id
+        };
+
+        const response = await WordpressService.Domains.setPrimaryDomain(payload);
+
+        if (response.status === 200 && response.data.success) {
+            store.updateFlashMeassge(true, "Primary domain updated successfully", 'success');
+
+            await fetchDashboardData();
+            await getDomains();
+        }
+
+    } catch (error) {
+        console.error(error);
+        store.setFlashMessage("Failed to update primary domain", "error");
+    } finally {
+        primaryLoading.value = null;
+        activeMenu.value = null;
+    }
+};
+
+const openDNS = (item) => {
+    activeMenu.value = null;
+    showSetup.value = true;
+    currentStep.value = 2;
+    isEditDNS.value = true;
+};
+
+const deleteDomain = async (item) => {
+    try {
+        const info = dashboardData.value.agency_website_info?.[0];
+        if (item.is_primary || currentDomain.value === item.domain) {
+            store.setFlashMessage(
+                "This is your primary domain. Please set another domain as primary before deleting.",
+                "error"
+            );
+            return;
+        }
+
+        const confirmed = confirm(`Are you sure you want to delete the domain "${item.domain}"?`);
+        if (!confirmed) {
+            return;
+        }
+
+        deleteLoading.value = item.id; 
+
+        const payload = {
+            domain_id: item.id,
+        };
+        const response = await WordpressService.Domains.deleteDomain(payload);
+
+        if (response.status === 200 && response.data.success) {
+            store.updateFlashMeassge(true, "Domain deleted successfully", 'success');
+            await getDomains();
+        }
+
+    } catch (error) {
+        console.error(error);
+        store.setFlashMessage("Failed to delete domain", "error");
+    }  finally {
+        deleteLoading.value = null;
+    }
+};
 
 const startSetup = () => {
+    activeMenu.value = null;
     showSetup.value = true;
     currentStep.value = 1;
+    isEditDNS.value = false;
+    domain.value = "";
 };
 
 const fetchDashboardData = async () => {
@@ -181,12 +447,14 @@ const fetchDashboardData = async () => {
         const info = response.data.agency_website_info?.[0];
 
         currentDomain.value = info?.website_detail?.website_domain || "";
+        stagingDomain.value = info?.website_detail?.staging_domain || "";
 
-        // Adjust based on your API structure
-        domains.value = response.data.agency_domains || [];
+        const cleanDomain = (domain) =>
+          domain.replace(/^https?:\/\//, "").replace(/\/$/, "");
+
+        dnsData.value.cname_record = cleanDomain(stagingDomain.value);
     }
   } catch (error) {
-    console.error(error);
     if (error?.response?.status === 401) {
       localStorage.removeItem("access_token");
       router.push("/login");
@@ -196,11 +464,131 @@ const fetchDashboardData = async () => {
 
 const copyDomain = () => {
     navigator.clipboard.writeText(currentDomain.value);
-    store.setFlashMessage("Domain copied to clipboard!", "success");
+    store.setFlashMessage("Domain copied!", "success");
+};
+
+const dnsData = ref({
+    a_record: "77.37.32.140",
+    cname_record: ""
+});
+
+const goToDNS = () => {
+    const enteredDomain = domain.value.trim().toLowerCase();
+    const normalize = (url) =>
+        url.replace(/^https?:\/\//, "")
+           .replace(/\/$/, "")
+           .toLowerCase();
+
+    const alreadyExists = domains.value.some(item => 
+        normalize(item.domain) === normalize(enteredDomain)
+    );
+
+    if (alreadyExists) {
+        store.updateFlashMeassge('true',"This domain is already in use.", "error");
+        return;
+    }
+
+    currentStep.value = 2;
+};
+
+const copyText = (text) => {
+    navigator.clipboard.writeText(text);
+    store.setFlashMessage("Copied!", "success");
+};
+
+const getDomains = async () => {
+    try {
+        const info = dashboardData.value.agency_website_info?.[0];
+
+        const payload = {
+            website_id: info.website_detail.id,
+            user_id: dashboardData.value.user.id
+        };
+
+        const response = await WordpressService.Domains.getDomains(payload);
+
+        if (response.status === 200 && response.data.success) {
+            domains.value = response.data.domains;
+        }
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+const saveNewDomain = async () => {
+    try {
+        isLoading.value = true;
+        const info = dashboardData.value.agency_website_info?.[0];
+
+        let formattedDomain = domain.value.trim();
+        if (!formattedDomain.startsWith("http")) {
+            formattedDomain = "https://" + formattedDomain;
+        }
+        if (!formattedDomain.endsWith("/")) {
+            formattedDomain += "/";
+        }
+
+        const payload = {
+            new_domain: formattedDomain,
+            agency_id: info.agency_id,
+            website_id: info.website_detail.id,
+            user_id: dashboardData.value.user.id,
+            old_domain: info.website_detail.website_domain
+        };
+
+        const response = await WordpressService.Domains.saveNewDomain(payload);
+
+        if (response.status === 200 && response.data.success) {
+            store.updateFlashMeassge(true, "Domain Added Successfully", 'success');
+            await fetchDashboardData();
+            await nextTick();
+            await getDomains();
+            showSetup.value = false;
+            domain.value = "";
+            setTimeout(() => {
+                const el = document.querySelector(".domains-list");
+                if (el) el.scrollIntoView({ behavior: "smooth" });
+            }, 100);
+        }
+        } catch (error) {
+            if (error.response) {
+                
+                // If domain already exists (409)
+                if (error.response.status === 409) {
+                    store.setFlashMessage("This domain is already in use.", "error");
+                    return;
+                }
+
+                // Other backend errors
+                store.setFlashMessage(error.response.data.message || "Something went wrong", "error");
+            } else {
+                store.setFlashMessage("Server error occurred", "error");
+            }
+        } finally {
+                isLoading.value = false; 
+        }
+};
+
+const handleClickOutside = (event) => {
+    const menu = document.querySelector(".menu-dropdown");
+    const icon = document.querySelector(".menu-icon");
+
+    if (menu && !menu.contains(event.target) && !event.target.classList.contains("menu-icon")) {
+        activeMenu.value = null;
+    }
 };
 
 onMounted(async () => {
+    loadingDomain.value = true;
     await fetchDashboardData();
+    await nextTick();
+    await getDomains();
+    loadingDomain.value = false;
+    document.addEventListener("click", handleClickOutside);
+});
+
+onUnmounted(() => {
+    document.removeEventListener("click", handleClickOutside);
 });
 </script>
 
@@ -214,12 +602,115 @@ onMounted(async () => {
     box-sizing: border-box;
     font-family: sans-serif;
     margin-top: 77px;
+    overflow-y: auto;
 }
 
 /* Wizard layout */
 .wizard-wrap {
     display: flex;
     width: 100%;
+}
+
+/* Domain List */
+.domains-list {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.domain-row {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.domain-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.domain-name {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.primary-badge {
+    background: #e1efff;
+    color: #2271b1;
+    padding: 3px 8px;
+    font-size: 12px;
+    border-radius: 6px;
+    margin-top: 4px;
+}
+
+.domain-actions {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.green { background: #4caf50; }
+.red { background: #e53935; }
+
+.check-btn {
+    background: #eef2f6;
+    border: 1px solid #cfd6df;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.menu-wrapper {
+    position: relative;
+}
+
+.menu-icon {
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px;
+}
+
+.menu-dropdown {
+    position: absolute;
+    right: 0;
+    top: 28px;
+    width: 200px;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    box-shadow: 0px 4px 16px rgba(0,0,0,0.15);
+    z-index: 50;
+}
+
+.menu-item {
+    padding: 12px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.menu-item:hover {
+    background: #f3f4f6;
+}
+
+.menu-item.delete {
+    color: #e53935;
 }
 
 /* SIDEBAR */
@@ -284,6 +775,8 @@ onMounted(async () => {
 .content-area {
   flex: 1;
   padding: 20px 40px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
 }
 
 /* CARD */
@@ -406,4 +899,102 @@ onMounted(async () => {
     color: #4a5568;
 }
 
+.instruction-card {
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    border: 1px solid #e3e6ea;
+}
+
+.instruction-card h3 {
+    margin-bottom: 15px;
+}
+
+.instruction-box {
+    padding: 10px 0;
+}
+
+.instruction-box.note {
+    background: #fffbea;
+    padding: 12px;
+    border-radius: 6px;
+}
+
+.dns-card {
+    background: #ffffff;
+    border: 1px solid #e3e6ea;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.dns-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.dns-table th, .dns-table td {
+    border: 1px solid #cfd6df;
+    padding: 10px;
+}
+
+.copy-icon {
+    margin-left: 10px;
+    cursor: pointer;
+    color: #2271b1;
+}
+
+.pending-tag {
+    background: #ffe8c6;
+    padding: 4px 10px;
+    border-radius: 6px;
+    color: #b36b00;
+    font-size: 12px;
+}
+
+.wizard-wrap .content-area {
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+}
+
+.flash-success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.flash-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 2px solid #721c24;
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(255,255,255,0.7);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loader {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #ddd;
+    border-top-color: #3498db;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.three-body3 {
+  top: 37% !important;
+  right: 41% !important;
+}
 </style>

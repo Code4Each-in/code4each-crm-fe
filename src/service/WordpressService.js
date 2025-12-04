@@ -346,7 +346,25 @@ const WordpressService = {
     updateAddressChanges: (formData) => {
       return requests(baseUrl).post(`/update-map-address`, formData);
     }
-  }
+  },
+
+  Domains: {
+    getDomains: (data) => {
+      return requests(baseUrl).get('/get-domains', { params: data });
+    },
+    saveNewDomain: (data) => {
+      return requests(baseUrl).post(`/save-new-domain`, data)
+    },
+    checkDomain: (data) => {
+      return requests(baseUrl).post(`/check-domain`, data)  
+    },
+    deleteDomain: (data) => {
+      return requests(baseUrl).delete(`/delete-domain`, { params: data });
+    },
+    setPrimaryDomain: (data) => {
+      return requests(baseUrl).post(`/set-primary-domain`, data)
+    }
+  },
 
 }
 export default WordpressService
