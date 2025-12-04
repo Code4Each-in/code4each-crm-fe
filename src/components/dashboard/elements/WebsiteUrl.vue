@@ -20,7 +20,7 @@ const submitColors = async () => {
       return result;
     }, {});
     const response = await WordpressService.updateGlobalColors({
-      website_url: props.websiteData[0].website_domain,
+      website_url: props.websiteData[0].staging_domain,
       colors: transformedObject,
     });
     if (response.status === 200 && response.data.success) {
@@ -35,7 +35,7 @@ const submitColors = async () => {
 };
 
 const openLinkInNewTab = () => {
-  const url = props.websiteData[0].website_domain;
+  const url = props.websiteData[0].staging_domain;
   if (url) {
     window.open(url, "_blank");
   }
@@ -56,7 +56,7 @@ const reloadIframe = () => {
 const getGlobalColors = async () => {
   try {
     const response = await WordpressService.getGlobalColors({
-      website_url: props.websiteData[0].website_domain,
+      website_url: props.websiteData[0].staging_domain,
     });
 
     if (response.status === 200 && response.data.success) {
@@ -97,7 +97,7 @@ provide("reloadIframe", "reloadIframe");
                   class="websiteLinkFrame"
                   height="450"
                   frameborder="0"
-                  :src="websiteData[0].website_domain"
+                  :src="websiteData[0].staging_domain"
                 ></iframe>
                 <img v-else src="/images/wordpres.png" />
               </div>
@@ -121,7 +121,7 @@ provide("reloadIframe", "reloadIframe");
                       type="url"
                       class="form-control"
                       placeholder="https://www.google.com/"
-                      :value="websiteData['0'].website_domain"
+                      :value="websiteData['0'].staging_domain"
                       aria-label="https://www.google.com/"
                       aria-describedby="button-addon2"
                     />
@@ -145,7 +145,7 @@ provide("reloadIframe", "reloadIframe");
                       data-toggle="tooltip"
                       data-placement="top"
                       :title="tooltipText"
-                      @click="handleCopyClick(websiteData[0].website_domain)"
+                      @click="handleCopyClick(websiteData[0].staging_domain)"
                     ></i>
                   </button>
                   <button

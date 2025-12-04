@@ -215,7 +215,7 @@ const fetchForms = async () => {
     formsFetched.value = false;
     try {
         const response = await WordpressService.FormBuilder.fetchForms({
-            website_domain: siteSettingsDeatil.value.website_domain,
+            website_domain: siteSettingsDeatil.value.staging_domain,
         });
 
         if (response.status === 200 && response.data.success) {
@@ -223,7 +223,7 @@ const fetchForms = async () => {
                 // Fetch submission count
                 const submissionsResponse = await WordpressService.FormBuilder.getFormSubmissions({
                     form_id: f.id,
-                    website_domain: siteSettingsDeatil.value.website_domain,
+                    website_domain: siteSettingsDeatil.value.staging_domain,
                 });
                 const rows = submissionsResponse?.data?.rows || [];
                 const submissionCount = rows.length;
@@ -277,7 +277,7 @@ const submitCustomFields = handleSubmit(async () => {
       }
     }
 
-    const website_domain = siteSettingsDeatil.value.website_domain;
+    const website_domain = siteSettingsDeatil.value.staging_domain;
     
     const formData = {
         form_id: formId.value,
@@ -365,7 +365,7 @@ const toggleFormStatus = async (form) => {
     try {
         const newStatus = form.status === "Active" ? "Inactive" : "Active";
         const response = await WordpressService.FormBuilder.updateFormStatus({
-            website_domain: siteSettingsDeatil.value.website_domain,
+            website_domain: siteSettingsDeatil.value.staging_domain,
             form_id: form.id,
             status: newStatus.toLowerCase(),
         });
@@ -396,7 +396,7 @@ const deleteForm = async (form) => {
         loading.value = true;
         deletingFormId.value = form.id;
         const response = await WordpressService.FormBuilder.deleteForm({
-            website_domain: siteSettingsDeatil.value.website_domain,
+            website_domain: siteSettingsDeatil.value.staging_domain,
             form_id: form.id,
         });
 
@@ -426,7 +426,7 @@ const getFormSubmissions = async (form, page = 1) => {
 
     const response = await WordpressService.FormBuilder.getFormSubmissions({
       form_id: form.id,
-      website_domain: siteSettingsDeatil.value.website_domain,
+      website_domain: siteSettingsDeatil.value.staging_domain,
       page,
       per_page: perPage.value,
     });
@@ -484,7 +484,7 @@ const getGlobalValue = (key) => {
 const fetchGlobalVariables = async () => {
     try {
         const response = await WordpressService.getGlobalVariables({
-            website_domain: siteSettingsDeatil.value.website_domain,
+            website_domain: siteSettingsDeatil.value.staging_domain,
         });
         if (response.status === 200 && response.data.success) {
             globalVariables.value = response.data.global_variables || [];
@@ -504,7 +504,7 @@ const getSettingEmailOptions = async (form) => {
 
         const response = await WordpressService.FormBuilder.getSettingEmailOptions({
             form_id: form.id,
-            website_domain: siteSettingsDeatil.value.website_domain,
+            website_domain: siteSettingsDeatil.value.staging_domain,
         });
 
         if (response.status === 200 && response.data.success) {
@@ -534,7 +534,7 @@ const getSettingEmailOptions = async (form) => {
 const updateEmailTemplate = async () => {
   try {
     const response = await WordpressService.FormBuilder.updateSettingEmailOptions({
-      website_domain: siteSettingsDeatil.value.website_domain,
+      website_domain: siteSettingsDeatil.value.staging_domain,
       form_id: currentFormId.value,
       subject: emailTemplate.value.subject,
       body: emailTemplate.value.body,
@@ -572,7 +572,7 @@ onMounted(async () => {
     loading.value = true;
     await fetchDashboardData();
     await getSiteDeatils();
-    if (siteSettingsDeatil.value.website_domain) {
+    if (siteSettingsDeatil.value.staging_domain) {
         await fetchGlobalVariables();
         await fetchForms();
     }

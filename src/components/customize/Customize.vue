@@ -96,7 +96,7 @@ const currentPage = computed(() => {
 const getActiveComponentsData = async () => {
   try {
     const response = await WordpressService.Components.getActiveComponents({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
       page_id: pageId.value,
     });
 
@@ -199,7 +199,7 @@ const changeComponent = async () => {
     loading.value = true;
     btnDisable.value = true;
     const response = await WordpressService.Components.changeComponent({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
       component_unique_id_old: oldComponent.value,
       component_unique_id_new: newComponent.value,
     });
@@ -223,7 +223,7 @@ const handleEditComponentBtnClick = async (componentUniqueId, type) => {
     const response =
       await WordpressService.ComponentsFormField.getComponentsFormField({
         component_unique_id: componentUniqueId,
-        website_url: siteSettingsDeatil.value?.website_domain,
+        website_url: siteSettingsDeatil.value?.staging_domain,
       });
     if (response.status === 200 && response.data.success) {
       siteSettingsFormFields.value = response.data.data;
@@ -286,7 +286,7 @@ const submitCustomFields = async (data) => {
 
     const response =
       await WordpressService.ComponentsFormField.updateComponentsFormField({
-        website_url: siteSettingsDeatil.value?.website_domain,
+        website_url: siteSettingsDeatil.value?.staging_domain,
         component_unique_id: componentsFieldsUnderEdit.value.id,
         form_fields: formFields,
       });
@@ -357,7 +357,7 @@ const getComponentsImages = async () => {
     const response =
       await WordpressService.ComponentsFormField.getComponentsImages({
         type: oldComponentType.value,
-        website_url: siteSettingsDeatil.value?.website_domain,
+        website_url: siteSettingsDeatil.value?.staging_domain,
       });
 
     if (response.status === 200 && response.data.success) {
@@ -387,7 +387,7 @@ const submitForm = async () => {
     }
 
     formData.append("type", fieldType);
-    formData.append("website_url", siteSettingsDeatil.value?.website_domain);
+    formData.append("website_url", siteSettingsDeatil.value?.staging_domain);
 
     const customHeaders = {
       "Content-Type": "multipart/form-data",
@@ -425,7 +425,7 @@ const deleteComponentImage = async () => {
     const response =
       await WordpressService.ComponentsFormField.deleteComponentImage({
         delete_images: deleteImages,
-        website_url: siteSettingsDeatil.value?.website_domain,
+        website_url: siteSettingsDeatil.value?.staging_domain,
       });
     if (response.status === 200 && response.data.success) {
       getComponentsImages();
@@ -460,7 +460,7 @@ const regenerateWebsite = async (id) => {
     loading.value = true;
     const response = await WordpressService.regenerateWebsite({
       agency_id: dashboardData.value.user.agency_id,
-      website_url: siteSettingsDeatil.value.website_domain,
+      website_url: siteSettingsDeatil.value.staging_domain,
       template_id: templateId.value,
     });
     await getSiteDeatils();
@@ -479,7 +479,7 @@ const regenerateWebsite = async (id) => {
 const getTemplatePage = async () => {
     try {
         const response = await WordpressService.TemplatePages.getTemplatePage({
-            website_domain: siteSettingsDeatil.value.website_domain,
+            website_domain: siteSettingsDeatil.value.staging_domain,
         });
 
         if (response.status === 200 && response.data.success) {
@@ -584,7 +584,7 @@ const decodeHtml = (html) => {
             <span class="panel-header-title-span"> </span>
             <img
               src="/images/export.png"
-              @click="openLinkInNewTab(siteSettingsDeatil.website_domain)"
+              @click="openLinkInNewTab(siteSettingsDeatil.staging_domain)"
               style="cursor: pointer"
             />
           </div>
@@ -709,7 +709,7 @@ const decodeHtml = (html) => {
                           <div class="tab-pane" id="Buttons" role="tabpanel">
                             <EditSiteSettingsButtonFormBuilder
                               :siteSettingsFormFields="siteSettingsFormFields"
-                              :websiteDomain="siteSettingsDeatil?.website_domain"
+                              :websiteDomain="siteSettingsDeatil?.staging_domain"
                               @submit-custom-fields="submitCustomFields"
                             />
                           </div>
@@ -882,7 +882,7 @@ const decodeHtml = (html) => {
                 </div>
               </div>
             </div>
-              <AddNewSection v-else :categoryId="siteSettingsDeatil?.agency_website_detail.website_category_id" :domain="siteSettingsDeatil?.website_domain" :position="positionForAddSection" @refreshData="getActiveComponentsData" @loading="showloading"/>
+              <AddNewSection v-else :categoryId="siteSettingsDeatil?.agency_website_detail.website_category_id" :domain="siteSettingsDeatil?.staging_domain" :position="positionForAddSection" @refreshData="getActiveComponentsData" @loading="showloading"/>
           </div>
         </div>
       </div>
@@ -905,7 +905,7 @@ const decodeHtml = (html) => {
     modalTitle="Awesome!"
     modalText="Your website Regenerated successfully"
     confirmText="Preview"
-    @confirm="openLinkInNewTab(siteSettingsDeatil.website_domain)"
+    @confirm="openLinkInNewTab(siteSettingsDeatil.staging_domain)"
   />
 </template>
 <style>

@@ -86,7 +86,7 @@ const goToFormBuilder = () => {
 const fetchForms = async () => {
   try {
     const response = await WordpressService.FormBuilder.fetchForms({
-      website_domain: siteSettingsDetail.value.website_domain,
+      website_domain: siteSettingsDetail.value.staging_domain,
     });
 
     if (response.status === 200 && response.data.success) {
@@ -129,7 +129,7 @@ const getSiteDetails = async () => {
 const fetchCustomComponentsAndFieldsValue = async () => {
   try {
     const res = await WordpressService.CustomComponentsAndFieldValues.getCustomComponentsAndFieldValues({
-      website_domain: siteSettingsDetail.value.website_domain,
+      website_domain: siteSettingsDetail.value.staging_domain,
       page_id: pageId.value,
       component_ids: [props.activeComponentId],
     });
@@ -176,7 +176,7 @@ const handlePublish = async () => {
 
   try {
     const response = await WordpressService.CustomComponentsAndFieldValues.addForm({
-      website_domain: siteSettingsDetail.value.website_domain,
+      website_domain: siteSettingsDetail.value.staging_domain,
       form_id: selectedForm.value,
       type: "form",
       field_name: props.activeFieldName,

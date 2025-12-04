@@ -446,7 +446,7 @@ const fetchPlans = async (paymentId) => {
                         </h4>
                         <div class="input-group mb-3">
                           <p class="website-links">
-                            {{ dash.website_detail.website_domain }}
+                            {{ dash.website_detail.staging_domain }}
                           </p>
                         </div>
                         <p class="text-muted">

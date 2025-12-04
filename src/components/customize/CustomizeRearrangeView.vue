@@ -83,7 +83,7 @@ const saveComponentPosition = async () => {
     saveComponentPositionBtn.value = false;
     const response = await WordpressService.Components.changeComponentPosition({
       updated_positions: storeComponentsPosition.value,
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
     });
     if (response.status === 200 && response.data.success) {
       store.updateFlashMeassge(true, "Position Saved Sucessfully");
@@ -129,7 +129,7 @@ const fetchDashboardData = async () => {
 const getActiveComponentsData = async () => {
   try {
     const response = await WordpressService.Components.getActiveComponents({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
     });
 
     if (response.status === 200 && response.data.success) {
@@ -196,7 +196,7 @@ const regenerateWebsite = async () => {
     loading.value = true;
     const response = await WordpressService.regenerateWebsite({
       agency_id: dashboardData.value.user.agency_id,
-      website_url: siteSettingsDeatil.value.website_domain,
+      website_url: siteSettingsDeatil.value.staging_domain,
       template_id: templateId.value,
     });
     await getSiteDeatils();
@@ -316,7 +316,7 @@ const regenerateWebsite = async () => {
     modalTitle="Awesome!"
     modalText="Your website Regenerated successfully"
     confirmText="Preview"
-    @confirm="openLinkInNewTab(siteSettingsDeatil.website_domain)"
+    @confirm="openLinkInNewTab(siteSettingsDeatil.staging_domain)"
   />
 
 </template>

@@ -130,7 +130,7 @@ const saveKeywords = async () => {
   try {
     saving.value = true;
     const response = await WordpressService.SEOKeywords.saveSEOKeywords({
-      website_domain: siteSettingsDetail.value.website_domain,
+      website_domain: siteSettingsDetail.value.staging_domain,
       seo_keywords: seoKeywords.value,
     });
     if (response.status === 200 && response.data.success) {
@@ -153,7 +153,7 @@ const fetchGlobalVariables = async () => {
     try {
         loading.value = true;
         const response = await WordpressService.getGlobalVariables({
-            website_domain: siteSettingsDetail.value.website_domain,
+            website_domain: siteSettingsDetail.value.staging_domain,
         });
         if (response.status === 200 && response.data.success) {
             globalVariables.value = response.data.global_variables || [];
@@ -193,7 +193,7 @@ onMounted(async () => {
   try {
     await fetchDashboardData();
     await getSiteDeatils();
-    if (siteSettingsDetail.value.website_domain) {
+    if (siteSettingsDetail.value.staging_domain) {
       await fetchGlobalVariables();
     }
   } finally {

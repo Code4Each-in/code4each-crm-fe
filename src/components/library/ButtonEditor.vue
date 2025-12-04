@@ -9,7 +9,7 @@
         <div class="tab-pane" id="Buttons" role="tabpanel">
             <EditSiteSettingsButtonFormBuilder
                 :siteSettingsFormFields="siteSettingsFormFields"
-                :websiteDomain="siteSettingsDetail?.website_domain"
+                :websiteDomain="siteSettingsDetail?.staging_domain"
                 @submit-custom-fields="submitCustomFields"
             />
         </div>
@@ -117,7 +117,7 @@ const fetchCustomComponentsAndFieldsValue = async () => {
   }
   try {
     const res = await WordpressService.CustomComponentsAndFieldValues.getCustomComponentsAndFieldValues({
-      website_domain: siteSettingsDetail.value.website_domain,
+      website_domain: siteSettingsDetail.value.staging_domain,
       page_id: pageId.value,
       component_ids: [activeComponentId],
     });
@@ -163,7 +163,7 @@ const submitCustomFields = async (data) => {
     const activeComponentId = props.activeComponentId;
 
     const response = await WordpressService.ComponentsFormField.updateComponentsFormField({
-      website_url: siteSettingsDetail.value?.website_domain,
+      website_url: siteSettingsDetail.value?.staging_domain,
       component_unique_id: activeComponentId,
       form_fields: formFields,
       section_type: props.sectionType,

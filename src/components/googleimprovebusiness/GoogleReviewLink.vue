@@ -139,7 +139,7 @@ const saveGoogleReviewLink = async (googlelink) => {
 
     try {
         const response = await WordpressService.GoogleImproveBusiness.saveGoogleReviewLink({
-            website_domain: siteSettingsDetail.value.website_domain,
+            website_domain: siteSettingsDetail.value.staging_domain,
             google_review_link: googlelink,
             user_id: dashboardData.value.user?.id
         });
