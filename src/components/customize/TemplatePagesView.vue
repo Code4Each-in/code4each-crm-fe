@@ -132,14 +132,14 @@ watch(
 );
 
 const previewPage = (page) => {
-  if (!siteSettingsDetail.value?.website_domain) {
+  if (!siteSettingsDetail.value?.staging_domain) {
     alert("Website domain not available.");
     return;
   }
 
   // If it's Home, use the root domain
   const url = page.page_name.toLowerCase() === "home"
-    ? siteSettingsDetail.value.website_domain
+    ? siteSettingsDetail.value.staging_domain
     : page.guid;
 
   if (!url) {
@@ -152,8 +152,8 @@ const previewPage = (page) => {
 
 // Full URL computed
 const fullPageUrl = computed(() => {
-  if (!siteSettingsDetail.value?.website_domain) return "";
-  return `${siteSettingsDetail.value.website_domain}${newPage.value.slug || ""}`;
+  if (!siteSettingsDetail.value?.staging_domain) return "";
+  return `${siteSettingsDetail.value.staging_domain}${newPage.value.slug || ""}`;
 });
 
 // Copy URL to clipboard
@@ -175,7 +175,7 @@ const getTemplatePage = async () => {
     try {
         isFetchingPages.value = true;
         const response = await WordpressService.TemplatePages.getTemplatePage({
-            website_domain: siteSettingsDetail.value.website_domain,
+            website_domain: siteSettingsDetail.value.staging_domain,
         });
 
         if (response.status === 200 && response.data.success) {
@@ -201,7 +201,7 @@ const saveTemplatePage = async () => {
         page_id: editingPageId.value,
         page_name: newPage.value.title,
         page_slug: newPage.value.slug,
-        website_domain: siteSettingsDetail.value.website_domain,
+        website_domain: siteSettingsDetail.value.staging_domain,
       });
 
       if (response.status === 200 && response.data.success) {
@@ -216,7 +216,7 @@ const saveTemplatePage = async () => {
         const response = await WordpressService.TemplatePages.saveTemplatePage({
             page_name: newPage.value.title,
             page_slug: newPage.value.slug,
-            website_domain: siteSettingsDetail.value.website_domain,
+            website_domain: siteSettingsDetail.value.staging_domain,
         });
 
         if (response.status === 200 && response.data.success) {
@@ -252,7 +252,7 @@ const deletePage = async (page) => {
 
     const response = await WordpressService.TemplatePages.deleteTemplatePage({
       page_id: page.page_id,
-      website_domain: siteSettingsDetail.value.website_domain,
+      website_domain: siteSettingsDetail.value.staging_domain,
     });
 
     if (response.status === 200 && response.data.success) {
@@ -291,7 +291,7 @@ const confirmStatusChange = async (page) => {
       page_id: page.page_id,
       page_name: page.page_name,
       page_slug: page.page_slug,
-      website_domain: siteSettingsDetail.value.website_domain,
+      website_domain: siteSettingsDetail.value.staging_domain,
       status: newStatus,
     });
 
@@ -326,7 +326,7 @@ const customizePage = (page) => {
 onMounted(async () => {
     await fetchDashboardData();
     await getSiteDetails();
-    if (siteSettingsDetail.value.website_domain) {
+    if (siteSettingsDetail.value.staging_domain) {
         await getTemplatePage();
     }
 });
@@ -491,7 +491,7 @@ onMounted(async () => {
                             <i class="fa fa-clipboard" aria-hidden="true"></i>
                         </span>
                         <div class="url-wrapper">
-                            <span class="input-prefix">{{ siteSettingsDetail?.website_domain }}</span>
+                            <span class="input-prefix">{{ siteSettingsDetail?.staging_domain }}</span>
                             <input 
                                 v-model="newPage.slug" 
                                 type="text" 

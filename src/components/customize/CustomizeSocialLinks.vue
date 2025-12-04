@@ -111,7 +111,7 @@ const fetchDashboardData = async () => {
 const getActiveComponentsData = async () => {
   try {
     const response = await WordpressService.Components.getActiveComponents({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
     });
 
     if (response.status === 200 && response.data.success) {
@@ -132,7 +132,7 @@ const getActiveComponentsData = async () => {
 const saveSocialLinks = async (data) => {
   try {
     const response = await WordpressService.SocialLinks.postSocialLinks({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
       social_links: data,
     });
     if (response.status === 200) {
@@ -195,7 +195,7 @@ const regenerateWebsite = async () => {
     loading.value = true;
     const response = await WordpressService.regenerateWebsite({
       agency_id: dashboardData.value.user.agency_id,
-      website_url: siteSettingsDeatil.value.website_domain,
+      website_url: siteSettingsDeatil.value.staging_domain,
       template_id: templateId.value,
     });
     await getSiteDeatils();
@@ -211,7 +211,7 @@ const regenerateWebsite = async () => {
 const getsocialLinks = async () => {
   try {
     const response = await WordpressService.SocialLinks.getSocialLinks({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
     });
     if (response.status === 200 && response.data.success) {
       let socialLinks = response.data.social_links;
@@ -286,7 +286,7 @@ const saveLinkValue = async (key) => {
             <span class="panel-header-title-span"> </span>
             <img
               src="/images/export.png"
-              @click="openLinkInNewTab(siteSettingsDeatil.website_domain)"
+              @click="openLinkInNewTab(siteSettingsDeatil.staging_domain)"
             />
           </div>
         </header>
@@ -341,7 +341,7 @@ const saveLinkValue = async (key) => {
     modalTitle="Awesome!"
     modalText="Your website Regenerated successfully"
     confirmText="Preview"
-    @confirm="openLinkInNewTab(siteSettingsDeatil.website_domain)"
+    @confirm="openLinkInNewTab(siteSettingsDeatil.staging_domain)"
   />
 </template>
 <style>

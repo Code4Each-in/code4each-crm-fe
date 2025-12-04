@@ -32,7 +32,7 @@
                 data-target="#myModal"
               >
                 <h5 class="text-center">
-                  {{ siteSettingsDeatil?.website_domain }}
+                  {{ siteSettingsDeatil?.staging_domain }}
                 </h5>
               </a>
             </div>

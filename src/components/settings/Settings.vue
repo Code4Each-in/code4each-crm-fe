@@ -307,11 +307,11 @@ const oncategoryChange = (event) => {
                     <a
                       href="#"
                       @click="
-                        openLinkInNewTab(siteSettingsDeatil.website_domain)
+                        openLinkInNewTab(siteSettingsDeatil.staging_domain)
                       "
                       class="website-links"
                     >
-                      {{ siteSettingsDeatil.website_domain }}
+                      {{ siteSettingsDeatil.staging_domain }}
                     </a>
                   </div>
 
@@ -319,7 +319,7 @@ const oncategoryChange = (event) => {
                     class="btn btn-outline-success btn-success linkBtn"
                     type="button"
                     id="button-addon2"
-                    @click="openLinkInNewTab(siteSettingsDeatil.website_domain)"
+                    @click="openLinkInNewTab(siteSettingsDeatil.staging_domain)"
                   >
                     <i class="fa fa-share-square"></i>
                   </button>
@@ -327,7 +327,7 @@ const oncategoryChange = (event) => {
                     class="btn btn-outline-danger btn-danger text-light linkBtn"
                     type="button"
                     id="button-addon3"
-                    @click="handleCopyClick(siteSettingsDeatil.website_domain)"
+                    @click="handleCopyClick(siteSettingsDeatil.staging_domain)"
                   >
                     <i
                       class="fa fa-copy"

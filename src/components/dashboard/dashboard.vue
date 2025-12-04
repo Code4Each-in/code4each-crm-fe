@@ -70,7 +70,7 @@ const regenerateWebsite = async () => {
     loading.value = true;
     const response = await WordpressService.regenerateWebsite({
       agency_id: dashboardData.value.user.agency_id,
-      website_url: dashboardData.value.agency_website_info[0].website_domain,
+      website_url: dashboardData.value.agency_website_info[0].staging_domain,
     });
     await fetchDashboardData();
   } catch (error) {

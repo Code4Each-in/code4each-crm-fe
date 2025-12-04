@@ -78,8 +78,13 @@
                                 {{ item.status }}
                             </div>
 
-                            <button class="check-btn" @click="checkDomain(item)">
-                                Check
+                            <button class="check-btn" @click="checkDomain(item)" :disabled="checkLoading === item.id">
+                                <span v-if="checkLoading === item.id">
+                                    <i class="fa fa-spinner fa-spin"></i> Checking...
+                                </span>
+                                <span v-else>
+                                    Check
+                                </span>
                             </button>
 
                             <!-- Menu for normal domains -->
@@ -91,9 +96,14 @@
                                     class="menu-dropdown"
                                 >
                                     <div 
-                                        class="menu-item" 
-                                        :class="{ disabled: item.is_primary || currentDomain === item.domain }"
-                                        @click="!(item.is_primary || currentDomain === item.domain) && setPrimaryDomain(item)"
+                                        class="menu-item"
+                                        :class="{ 
+                                            disabled: item.is_primary || currentDomain === item.domain || item.status !== 'Verified'
+                                        }"
+                                        @click="
+                                            !(item.is_primary || currentDomain === item.domain || item.status !== 'Verified') &&
+                                            setPrimaryDomain(item)
+                                        "
                                     >
                                         <span v-if="primaryLoading === item.id">
                                             <i class="fa fa-spinner fa-spin"></i> Processing...
@@ -328,6 +338,7 @@ const loadingDomain = ref(true);
 const primaryLoading = ref(null);
 const deleteLoading = ref(null);
 const isEditDNS = ref(false);
+const checkLoading = ref(null);
 
 const activeMenu = ref(null);
 const flashClass = computed(() => 
@@ -340,6 +351,7 @@ const toggleMenu = (id) => {
 
 const checkDomain = async (item) => {
     try {
+        checkLoading.value = item.id
         const payload = {
             domain: item.domain,
             user_id: dashboardData.value.user.id
@@ -355,13 +367,18 @@ const checkDomain = async (item) => {
     } catch (error) {
         console.log(error);
         store.setFlashMessage("Domain check failed!", "error");
+    } finally {
+        checkLoading.value = null; 
     }
 };
 
 const setPrimaryDomain = async (item) => {
     try {
         const info = dashboardData.value.agency_website_info?.[0];
-
+        if (item.status !== 'Verified') {
+            store.setFlashMessage("You can only set verified domains as primary.", "error");
+            return;
+        }
         const confirmed = confirm(
             `Are you sure you want to set "${item.domain}" as the primary domain?`
         );

@@ -106,7 +106,7 @@ const heroBlockData = (componentuniqueId) => {
   const fields = getFieldsByComponentType("header", componentuniqueId);
   if (!fields.length) return null;
 
-  const websiteDomain = siteSettingsDetail.value?.website_domain || "";
+  const websiteDomain = siteSettingsDetail.value?.staging_domain || "";
   const logoField = globalVariables.value.find((item) => item.name === "logo");
   const baseUrl = websiteDomain.replace(/\/$/, "") + "/wp-content/themes/codeforeach/";
 
@@ -431,7 +431,7 @@ const getSiteDetails = async () => {
 const getActiveComponentIds = async () => {
   try {
     const res = await WordpressService.Components.getActiveComponents({
-      website_url: siteSettingsDetail.value?.website_domain,
+      website_url: siteSettingsDetail.value?.staging_domain,
       page_id: pageId.value,
     });
     if (res.status === 200 && res.data.success) {
@@ -454,9 +454,9 @@ const getActiveComponentIds = async () => {
 };
 
 const fetchGlobalVariables = async () => {
-  if (!siteSettingsDetail.value?.website_domain) return;
+  if (!siteSettingsDetail.value?.staging_domain) return;
   try {
-    const res = await WordpressService.getGlobalVariables({ website_domain: siteSettingsDetail.value.website_domain });
+    const res = await WordpressService.getGlobalVariables({ website_domain: siteSettingsDetail.value.staging_domain });
     if (res.status === 200 && res.data.success) {
       globalVariables.value = res.data.global_variables || [];
       adminEmail.value = res.data.admin_email || "";
@@ -477,7 +477,7 @@ const fetchGlobalVariables = async () => {
 
 const getMenus = async () => {
   try {
-    const res = await WordpressService.Menus.getMenus({ website_url: siteSettingsDetail.value?.website_domain });
+    const res = await WordpressService.Menus.getMenus({ website_url: siteSettingsDetail.value?.staging_domain });
     if (res.status === 200 && res.data.success) {
       headerMenus.value = res.data.response.filter((m) => m.menu_type === "header");
       footerMenus.value = res.data.response.filter((m) => m.menu_type === "footer");
@@ -491,7 +491,7 @@ const fetchCustomComponentsAndFieldsValue = async () => {
   try {
     const componentIds = activeComponents.value.map(c => c.id);
     const res = await WordpressService.CustomComponentsAndFieldValues.getCustomComponentsAndFieldValues({
-      website_domain: siteSettingsDetail.value.website_domain,
+      website_domain: siteSettingsDetail.value.staging_domain,
       page_id: pageId.value,
       component_ids: componentIds,
     });
@@ -521,7 +521,7 @@ const saveCustomComponentsFieldValues = (field_name, value, type = "text", file,
   saveTimeout.value = setTimeout(async () => {
     try {
       let formData = new FormData();
-      formData.append("website_url", siteSettingsDetail.value?.website_domain);
+      formData.append("website_url", siteSettingsDetail.value?.staging_domain);
       formData.append("page_id", pageId.value);
       formData.append("field_name", field_name);
       formData.append("value", value);
@@ -555,7 +555,7 @@ const saveCustomComponentsFieldValues = (field_name, value, type = "text", file,
 const getTemplatePage = async () => {
     try {
         const response = await WordpressService.TemplatePages.getTemplatePage({
-            website_domain: siteSettingsDetail.value.website_domain,
+            website_domain: siteSettingsDetail.value.staging_domain,
         });
 
         if (response.status === 200 && response.data.success) {
@@ -584,7 +584,7 @@ const deleteCustomComponent = async (componentUniqueId) => {
     actionLoading.value = true;
     const res = await WordpressService.CustomComponentsAndFieldValues.deleteCustomComponent({
       component_unique_id: compId,
-      website_domain: siteSettingsDetail.value?.website_domain,
+      website_domain: siteSettingsDetail.value?.staging_domain,
     });
 
     if (res.status === 200 && res.data.success) {
@@ -651,7 +651,7 @@ const replaceCustomComponent = async () => {
   try {
     actionLoading.value = true;
     const res = await WordpressService.CustomComponentsAndFieldValues.replaceCustomComponent({
-      website_domain: siteSettingsDetail.value.website_domain,
+      website_domain: siteSettingsDetail.value.staging_domain,
       old_component_id: oldComponentUniqueId,
       new_component_id: newComponentId,
       type,
@@ -700,7 +700,7 @@ const onGlobalToggle = async (type, event) => {
 
   try {
     const res = await WordpressService.CustomComponentsAndFieldValues.addGlobalSwitchValue({
-      website_domain: siteSettingsDetail.value.website_domain,
+      website_domain: siteSettingsDetail.value.staging_domain,
       type, 
       value: newValue ? "on" : "off",
     });
@@ -803,7 +803,7 @@ const addNewSection = async () => {
     const afterSectionPosition = afterSection ? afterSection.position : null;
 
     const res = await WordpressService.CustomComponentsAndFieldValues.addNewSection({
-      website_domain: siteSettingsDetail.value.website_domain,
+      website_domain: siteSettingsDetail.value.staging_domain,
       page_id: pageId.value,
       new_component_id: newComponentId,
       previous_component_id: afterSectionKey, 

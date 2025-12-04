@@ -147,7 +147,7 @@ const submitAddMenu = handleSubmit(async () => {
     data.menu_type = formValues.menu_type;
     allErrors.value = {};
     const response = await WordpressService.Menus.addMenu({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
       menu_data: data,
     });
     if (response.status === 200 && response.data.success) {
@@ -189,7 +189,7 @@ const editMenu = handleSubmit(async () => {
 
     allErrorsEach.value = {};
     const response = await WordpressService.Menus.editMenu({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
       menu_data: data,
     });
     if (response.status === 200 && response.data.success) {
@@ -223,7 +223,7 @@ const deleteMenu = async () => {
     let data = {};
     data.id = menuUnderDelete.value;
     const response = await WordpressService.Menus.deleteMenu({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
       menu_data: data,
     });
     if (response.status === 200 && response.data.success) {
@@ -252,7 +252,7 @@ const handleChange = async (newList, menu_type) => {
     });
 
     const response = await WordpressService.Menus.changePosition({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
       menu_data: headerItems,
     });
     if (response.status === 200 && response.data.success) {
@@ -304,7 +304,7 @@ const fetchDashboardData = async () => {
 const getMenus = async () => {
   try {
     const response = await WordpressService.Menus.getMenus({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
     });
 
     if (response.status === 200 && response.data.success) {
@@ -327,7 +327,7 @@ const getMenus = async () => {
 const getActiveComponentsData = async () => {
   try {
     const response = await WordpressService.Components.getActiveComponents({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
     });
 
     if (response.status === 200 && response.data.success) {
@@ -396,7 +396,7 @@ const regenerateWebsite = async () => {
     loading.value = true;
     const response = await WordpressService.regenerateWebsite({
       agency_id: dashboardData.value.user.agency_id,
-      website_url: siteSettingsDeatil.value.website_domain,
+      website_url: siteSettingsDeatil.value.staging_domain,
       template_id: templateId.value,
     });
     await getSiteDeatils();
@@ -455,7 +455,7 @@ const regenerateWebsite = async () => {
             <span class="panel-header-title-span"> </span>
             <img
               src="/images/export.png"
-              @click="openLinkInNewTab(siteSettingsDeatil.website_domain)"
+              @click="openLinkInNewTab(siteSettingsDeatil.staging_domain)"
               style="cursor: pointer"
             />
           </div>
@@ -801,7 +801,7 @@ const regenerateWebsite = async () => {
     modalTitle="Awesome!"
     modalText="Your website Regenerated successfully"
     confirmText="Preview"
-    @confirm="openLinkInNewTab(siteSettingsDeatil.website_domain)"
+    @confirm="openLinkInNewTab(siteSettingsDeatil.staging_domain)"
   />
 
   <ConfirmUiModal

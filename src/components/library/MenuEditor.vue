@@ -265,7 +265,7 @@ const submitAddMenu = handleSubmit(async () => {
     data.menu_type = formValues.menu_type;
     allErrors.value = {};
     const response = await WordpressService.Menus.addMenu({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
       menu_data: data,
     });
     if (response.status === 200 && response.data.success) {
@@ -307,7 +307,7 @@ const editMenu = handleSubmit(async () => {
 
     allErrorsEach.value = {};
     const response = await WordpressService.Menus.editMenu({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
       menu_data: data,
     });
     if (response.status === 200 && response.data.success) {
@@ -342,7 +342,7 @@ const deleteMenu = async () => {
     data.id = menuUnderDelete.value;
 
     const response = await WordpressService.Menus.deleteMenu({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
       menu_data: data,
     });
 
@@ -366,7 +366,7 @@ const handleChange = async (newList, menu_type) => {
     });
 
     const response = await WordpressService.Menus.changePosition({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
       menu_data: headerItems,
     });
     if (response.status === 200 && response.data.success) {
@@ -399,7 +399,7 @@ const toggleItemOuter = (index, menu_type) => {
 const getMenus = async () => {
   try {
     const response = await WordpressService.Menus.getMenus({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
     });
 
     if (response.status === 200 && response.data.success) {
@@ -425,7 +425,7 @@ const getMenus = async () => {
 const getTemplatePage = async () => {
     try {
         const response = await WordpressService.TemplatePages.getTemplatePage({
-            website_domain: siteSettingsDeatil.value.website_domain,
+            website_domain: siteSettingsDeatil.value.staging_domain,
         });
 
         if (response.status === 200 && response.data.success) {

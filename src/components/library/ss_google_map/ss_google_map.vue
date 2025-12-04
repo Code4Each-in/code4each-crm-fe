@@ -408,7 +408,7 @@ const updateAddressChanges= async () => {
     formData.append("state", popupAddress.value.state || "");
     formData.append("country", popupAddress.value.country || "");
     formData.append("pincode", popupAddress.value.pincode || "");
-    formData.append("website_domain", siteSettingsDetail.value?.website_domain || "");
+    formData.append("website_domain", siteSettingsDetail.value?.staging_domain || "");
     formData.append("agency_id", dashboardData.value.agency_website_info?.[0]?.id || "");
 
     const res = await WordpressService.UpdateMapAddress.updateAddressChanges(formData);

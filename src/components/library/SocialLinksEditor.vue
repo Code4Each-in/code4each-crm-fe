@@ -65,7 +65,7 @@ const socialLinkIconPath = ref({
 const getActiveComponentsData = async () => {
   try {
     const response = await WordpressService.Components.getActiveComponents({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
     });
 
     if (response.status === 200 && response.data.success) {
@@ -86,7 +86,7 @@ const getActiveComponentsData = async () => {
 const saveSocialLinks = async (data) => {
   try {
     const response = await WordpressService.SocialLinks.postSocialLinks({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
       social_links: data,
     });
     if (response.status === 200) {
@@ -139,7 +139,7 @@ const getSiteDeatils = async () => {
 const getsocialLinks = async () => {
   try {
     const response = await WordpressService.SocialLinks.getSocialLinks({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
     });
     if (response.status === 200 && response.data.success) {
       let socialLinks = response.data.social_links;
