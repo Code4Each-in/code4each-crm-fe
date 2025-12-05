@@ -78,7 +78,7 @@
                                 {{ item.status }}
                             </div>
 
-                            <button class="check-btn" @click="checkDomain(item)" :disabled="checkLoading === item.id">
+                            <button v-if="item.status !== 'Verified'"  class="check-btn" @click="checkDomain(item)" :disabled="checkLoading === item.id">
                                 <span v-if="checkLoading === item.id">
                                     <i class="fa fa-spinner fa-spin"></i> Checking...
                                 </span>
@@ -359,14 +359,25 @@ const checkDomain = async (item) => {
 
         const response = await WordpressService.Domains.checkDomain(payload);
 
-        if (response.data.success) {
-            store.updateFlashMeassge(true, "test", 'success');
-            await getDomains();
+        if (!response.data.success) {
+            store.updateFlashMeassge(true, "Domain check failed!", "error");
+            return;
         }
+
+        const aVerified = response.data.a_record_verified;
+        const cnameVerified = response.data.cname_verified;
+
+        if (aVerified && cnameVerified) {
+            store.updateFlashMeassge(true, "Domain has verified successfully", "success");
+        } else {
+            store.updateFlashMeassge(true, "Domain has not been verified yet. Please check again sometime later.", "error");
+        }
+
+        await getDomains();
 
     } catch (error) {
         console.log(error);
-        store.setFlashMessage("Domain check failed!", "error");
+        store.updateFlashMeassge('true', "Domain check failed!", "error");
     } finally {
         checkLoading.value = null; 
     }
@@ -375,8 +386,8 @@ const checkDomain = async (item) => {
 const setPrimaryDomain = async (item) => {
     try {
         const info = dashboardData.value.agency_website_info?.[0];
-        if (item.status !== 'Verified') {
-            store.setFlashMessage("You can only set verified domains as primary.", "error");
+        if (item.status !== 'Verified' && item.type !== 'staging') {
+            store.updateFlashMeassge('true', "You can only set verified domains as primary.", "error");
             return;
         }
         const confirmed = confirm(
@@ -391,7 +402,8 @@ const setPrimaryDomain = async (item) => {
             staging_domain: stagingDomain.value, 
             agency_id: info.agency_id,
             website_id: info.website_detail.id,
-            user_id: dashboardData.value.user.id
+            user_id: dashboardData.value.user.id,
+            domain_name: item.domain
         };
 
         const response = await WordpressService.Domains.setPrimaryDomain(payload);
@@ -405,7 +417,7 @@ const setPrimaryDomain = async (item) => {
 
     } catch (error) {
         console.error(error);
-        store.setFlashMessage("Failed to update primary domain", "error");
+        store.updateFlashMeassge('true', "Failed to update primary domain", "error");
     } finally {
         primaryLoading.value = null;
         activeMenu.value = null;
@@ -423,7 +435,8 @@ const deleteDomain = async (item) => {
     try {
         const info = dashboardData.value.agency_website_info?.[0];
         if (item.is_primary || currentDomain.value === item.domain) {
-            store.setFlashMessage(
+            store.updateFlashMeassge(
+                'true',
                 "This is your primary domain. Please set another domain as primary before deleting.",
                 "error"
             );
@@ -449,7 +462,7 @@ const deleteDomain = async (item) => {
 
     } catch (error) {
         console.error(error);
-        store.setFlashMessage("Failed to delete domain", "error");
+        store.updateFlashMeassge('true', "Failed to delete domain", "error");
     }  finally {
         deleteLoading.value = null;
     }
@@ -490,7 +503,7 @@ const fetchDashboardData = async () => {
 
 const copyDomain = () => {
     navigator.clipboard.writeText(currentDomain.value);
-    store.setFlashMessage("Domain copied!", "success");
+    store.updateFlashMeassge('true', "Domain copied!", "success");
 };
 
 const dnsData = ref({
@@ -519,7 +532,7 @@ const goToDNS = () => {
 
 const copyText = (text) => {
     navigator.clipboard.writeText(text);
-    store.setFlashMessage("Copied!", "success");
+    store.updateFlashMeassge('true', "Copied!", "success");
 };
 
 const getDomains = async () => {
@@ -581,14 +594,13 @@ const saveNewDomain = async () => {
                 
                 // If domain already exists (409)
                 if (error.response.status === 409) {
-                    store.setFlashMessage("This domain is already in use.", "error");
+                    store.updateFlashMeassge('true', "This domain is already in use.", "error");
                     return;
                 }
 
-                // Other backend errors
-                store.setFlashMessage(error.response.data.message || "Something went wrong", "error");
+                store.updateFlashMeassge('true', error.response.data.message || "Something went wrong", "error");
             } else {
-                store.setFlashMessage("Server error occurred", "error");
+                store.updateFlashMeassge('true', "Server error occurred", "error");
             }
         } finally {
                 isLoading.value = false; 
