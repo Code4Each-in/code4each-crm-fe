@@ -228,7 +228,7 @@
 
                         <div class="instruction-box note">
                             <strong>Note:</strong>  
-                            <p>If you use Cloudflare, turn OFF Proxy (orange → grey). DNS may take up to 48 hours.</p>
+                            <p>DNS may take 24–48 hours to update.</p>
                         </div>
                     </div>
 
@@ -354,7 +354,8 @@ const checkDomain = async (item) => {
         checkLoading.value = item.id
         const payload = {
             domain: item.domain,
-            user_id: dashboardData.value.user.id
+            user_id: dashboardData.value.user.id,
+            staging_domain: stagingDomain.value
         };
 
         const response = await WordpressService.Domains.checkDomain(payload);
@@ -366,11 +367,17 @@ const checkDomain = async (item) => {
 
         const aVerified = response.data.a_record_verified;
         const cnameVerified = response.data.cname_verified;
+        const status = response.data.status;
+        const hoursPassed = response.data.hours_passed;
 
-        if (aVerified && cnameVerified) {
+        if (status === "Verified") {
             store.updateFlashMeassge(true, "Domain has verified successfully", "success");
-        } else {
-            store.updateFlashMeassge(true, "Domain has not been verified yet. Please check again sometime later.", "error");
+        } 
+        else if (aVerified && cnameVerified && hoursPassed < 24) {
+            store.updateFlashMeassge(true, "Domain DNS verification needs 24 hours. Please check again later", "error");
+        } 
+        else {
+            store.updateFlashMeassge(true, "Domain is not verified yet. Please check your DNS settings—they may still be updating or incorrect", "error");
         }
 
         await getDomains();
