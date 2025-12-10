@@ -253,9 +253,9 @@
             dashboardData?.user?.user_type !== 'agent'"
         >
           <router-link
-            :to="{ name: 'domain-mapping-setting' }"
+            :to="{ name: 'domains' }"
             class="sidebar-link text-muted"
-            :class="{ active: currentRoute.includes('/domain-mapping-setting') }"
+            :class="{ active: currentRoute.includes('/domains') }"
           >
             <i class="fa fa-globe" aria-hidden="true"></i>
             <span class="sidebar-link-title">Domain</span>

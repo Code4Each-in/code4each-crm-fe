@@ -224,8 +224,8 @@ const router = createRouter({
       component: GoogleImproveBusiness,
     },
     {
-      path: "/domain-mapping-setting",
-      name: "domain-mapping-setting",
+      path: "/domains",
+      name: "domains",
       component: DomainMappingSetting,
     }
   ]

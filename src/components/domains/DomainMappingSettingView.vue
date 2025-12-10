@@ -87,6 +87,13 @@
                                 </span>
                             </button>
 
+                            <!-- INFO ICON WHEN DOMAIN IS VERIFIED -->
+                            <i 
+                                v-if="item.status === 'Verified'" 
+                                class="fa fa-question-circle info-icon"
+                                :data-tip="dnsTooltipMessage"
+                            ></i>
+
                             <!-- Menu for normal domains -->
                             <div class="menu-wrapper">
                                 <i class="fa fa-ellipsis-v menu-icon" @click="toggleMenu(item.id)"></i>
@@ -167,13 +174,13 @@
                     <p class="sub-text">Follow the steps below to configure your domain</p>
                 </div>
 
-                <div class="steps">
-                    <div class="step" :class="{ active: currentStep === 1 }">
+                <div class="ss_steps">
+                    <div class="ss_step" :class="{ active: currentStep === 1 }">
                         <div class="number">1</div>
                         <span>Set Website URL</span>
                     </div>
 
-                    <div class="step" :class="{ active: currentStep === 2 }">
+                    <div class="ss_step" :class="{ active: currentStep === 2 }">
                         <div class="number">2</div>
                         <span>Update DNS</span>
                     </div>
@@ -340,6 +347,9 @@ const deleteLoading = ref(null);
 const isEditDNS = ref(false);
 const checkLoading = ref(null);
 
+const dnsTooltipMessage = 
+  "Your DNS is now correctly matched. It may take 24–48 hours for full propagation.";
+
 const activeMenu = ref(null);
 const flashClass = computed(() => 
     store.flashMeassgeType === 'error' ? 'flash-error' : 'flash-success'
@@ -367,17 +377,11 @@ const checkDomain = async (item) => {
 
         const aVerified = response.data.a_record_verified;
         const cnameVerified = response.data.cname_verified;
-        const status = response.data.status;
-        const hoursPassed = response.data.hours_passed;
 
-        if (status === "Verified") {
+        if (aVerified && cnameVerified) {
             store.updateFlashMeassge(true, "Domain has verified successfully", "success");
-        } 
-        else if (aVerified && cnameVerified && hoursPassed < 24) {
-            store.updateFlashMeassge(true, "Domain DNS verification needs 24 hours. Please check again later", "error");
-        } 
-        else {
-            store.updateFlashMeassge(true, "Domain is not verified yet. Please check your DNS settings—they may still be updating or incorrect", "error");
+        } else {
+            store.updateFlashMeassge(true, "Domain has not been verified yet. Please check again sometime later.", "error");
         }
 
         await getDomains();
@@ -788,11 +792,11 @@ onUnmounted(() => {
   color: #6c757d;
 }
 
-.steps {
+.ss_steps {
   margin-top: 40px;
 }
 
-.step {
+.ss_step {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -800,12 +804,12 @@ onUnmounted(() => {
   color: #6c757d;
 }
 
-.step.active {
+.ss_step.active {
   color: #2271b1;
   font-weight: 600;
 }
 
-.step .number {
+.ss_step .number {
   width: 26px;
   height: 26px;
   border-radius: 50%;
@@ -816,7 +820,7 @@ onUnmounted(() => {
   font-size: 13px;
 }
 
-.step.active .number {
+.ss_step.active .number {
   border-color: #2271b1;
   background: #2271b1;
   color: white;
@@ -1053,4 +1057,28 @@ onUnmounted(() => {
     opacity: 0.4;
     pointer-events: none;
 }
+
+.info-icon {
+    position: relative;
+    display: inline-block;
+    /* color: #2271b1; */
+    font-size: 18px;
+    cursor: pointer;
+    margin-left: -12px;
+}
+
+.info-icon:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    top: -34px;
+    right: -33px;
+    background: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+    font-size: 13px;
+    z-index: 1000;
+}
+
 </style>
