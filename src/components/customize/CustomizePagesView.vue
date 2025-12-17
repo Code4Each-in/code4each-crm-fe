@@ -172,6 +172,7 @@ const aboutBlockData = (componentuniqueId) => {
     "about-text3": getFieldValue(fields, "about-text3"),
     "about-text4": getFieldValue(fields, "about-text4"),
     "about-description1": getFieldValue(fields, "about-description1"),
+    "about-description2": getFieldValue(fields, "about-description2"),
     "about-button1": getFieldValue(fields, "about-button1"),
     "about-image1": getFieldValue(fields, "about-img1") || getFieldValue(fields, "about-image1"),
     "about-image2": getFieldValue(fields, "about-img2") || getFieldValue(fields, "about-image2"),
@@ -274,7 +275,7 @@ const footerBlockData = (componentuniqueId) => {
     const field = fields.find((f) => f.field_name === `footer-image${i}`);
     footerimages[`footer-image${i}`] = field?.value || field?.default_value || `/images/service-image${i}.png`;
   }
-
+  console.log(logoField.value);
   return {
     logo: logoField
       ? "https://alphafour.speedysites.in/wp-content/themes/codeforeach/" +
@@ -376,6 +377,23 @@ const commonGoogleMapBlockData = (componentuniqueId) => {
   };
 }
 
+// Gallery Section
+const commonGallerySectionBlockData = (componentuniqueId) => {
+  const fields = getFieldsByComponentType("gallery_section", componentuniqueId);
+  if (!fields.length) return null;
+
+  return {
+    'gallery-text1': getFieldValue(fields, "gallery-text1"),
+    'gallery-text2': getFieldValue(fields, "gallery-text2"),
+    'gallery-image1': getFieldValue(fields, "gallery-image1"),
+    'gallery-image2': getFieldValue(fields, "gallery-image2"),
+    'gallery-image3': getFieldValue(fields, "gallery-image3"),
+    'gallery-image4': getFieldValue(fields, "gallery-image4"),
+    'gallery-image5': getFieldValue(fields, "gallery-image5"),
+    'gallery-image6': getFieldValue(fields, "gallery-image6"),
+  };
+};
+
 // All sections for editor rendering
 const sections = computed(() => {
   return activeComponents.value
@@ -389,6 +407,7 @@ const sections = computed(() => {
       else if (comp.type === "common_text") data = commonTextBlockData(comp.id);
       else if (comp.type === "contact_form") data = commonContactFormBlockData(comp.id);
       else if (comp.type === "google_map") data = commonGoogleMapBlockData(comp.id);
+      else if (comp.type === "gallery_section") data = commonGallerySectionBlockData(comp.id);
 
       if (!data || Object.keys(data).length === 0) return null;
 
@@ -745,7 +764,7 @@ const closeAddNewSectionPopup = () => {
 /* =========================
    Add Section Popup Logic
 ========================= */
-const alwaysTypesToAdd = ["about_section", "service_section", "common_text", "contact_form", "google_map"];
+const alwaysTypesToAdd = ["about_section", "service_section", "common_text", "contact_form", "google_map", "gallery_section"];
 
 const openAddSectionPopup = async (sectionKey) => {
   showAddSectionPopup.value = true;
