@@ -172,6 +172,7 @@ const aboutBlockData = (componentuniqueId) => {
     "about-text3": getFieldValue(fields, "about-text3"),
     "about-text4": getFieldValue(fields, "about-text4"),
     "about-description1": getFieldValue(fields, "about-description1"),
+    "about-description2": getFieldValue(fields, "about-description2"),
     "about-button1": getFieldValue(fields, "about-button1"),
     "about-image1": getFieldValue(fields, "about-img1") || getFieldValue(fields, "about-image1"),
     "about-image2": getFieldValue(fields, "about-img2") || getFieldValue(fields, "about-image2"),

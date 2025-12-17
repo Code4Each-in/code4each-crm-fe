@@ -13,7 +13,7 @@
                     <input
                         v-if="selectedField === 'about-text1'"
                         v-model="editableContent['about-text1']"
-                        @blur="blurAndUpdate('about-text1', null, 'about', null, componentId)"
+                        @blur="blurAndUpdate('about-text1', null, 'about_section', null, componentId)"
                     />
                     <h2 v-else>{{ editableContent['about-text1'] }}</h2>
                 </div>
@@ -28,15 +28,21 @@
                     <input
                         v-if="selectedField === 'about-text2'"
                         v-model="editableContent['about-text2']"
-                        @blur="blurAndUpdate('about-text2', null, 'about', null, componentId)"
+                        @blur="blurAndUpdate('about-text2', null, 'about_section', null, componentId)"
                     />
                     <p v-else>{{ editableContent['about-text2'] }}</p>
                 </div>
                 <div class="accent-line"></div>
             </div>
             <div class="about-grid">
-                <div class="about-image">
-                    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80" alt="About Us">
+                <div class="about-image ss_editable" 
+                    :class="{ selected: selectedField === 'about-image1' }"
+                    @click.stop="selectField('about-image1', 'image','about_section', componentId)"
+                    @mouseover="hoveredField='about-image1'" 
+                    @mouseleave="hoveredField=null"
+                >
+                    <span v-if="hoveredField==='about-image1'" class="edit-label">Image</span>
+                    <img :src="editableContent['about-image1']" alt="About Us" class="img-fluid">
                 </div>
                 <div class="about-content">
                     <div
@@ -50,7 +56,7 @@
                         <input
                             v-if="selectedField === 'about-text3'"
                             v-model="editableContent['about-text3']"
-                            @blur="blurAndUpdate('about-text3', null, 'about', null, componentId)"
+                            @blur="blurAndUpdate('about-text3', null, 'about_section', null, componentId)"
                         />
                         <h3 v-else>{{ editableContent['about-text3'] }}</h3>
                     </div>
@@ -65,7 +71,7 @@
                         <textarea
                             v-if="selectedField === 'about-description1'"
                             v-model="editableContent['about-description1']"
-                            @blur="blurAndUpdate('about-description1', null, 'about', null, componentId)"
+                            @blur="blurAndUpdate('about-description1', null, 'about_section', null, componentId)"
                         />
                         <p v-else>{{ editableContent['about-description1'] }}</p>
                     </div>
@@ -80,7 +86,7 @@
                         <textarea
                             v-if="selectedField === 'about-description2'"
                             v-model="editableContent['about-description2']"
-                            @blur="blurAndUpdate('about-description2', null, 'about', null, componentId)"
+                            @blur="blurAndUpdate('about-description2', null, 'about_section', null, componentId)"
                         />
                         <p v-else>{{ editableContent['about-description2'] }}</p>
                     </div>
@@ -97,7 +103,7 @@
                                 <input
                                     v-if="selectedField === 'about-text4'"
                                     v-model="editableContent['about-text4']"
-                                    @blur="blurAndUpdate('about-text4', null, 'about', null, componentId)"
+                                    @blur="blurAndUpdate('about-text4', null, 'about_section', null, componentId)"
                                 />
                                 <span v-else>{{ editableContent['about-text4'] }}</span>
                             </div>
@@ -108,15 +114,14 @@
                                 @mouseover="hoveredField = 'about-text5'"
                                 @mouseleave="hoveredField = null"
                             >
-                                <span v-if="hoveredField === 'about-text5'" class="edit-label">Heading</span>
+                                <span v-if="hoveredField === 'about-text5'" class="edit-label">Text</span>
                                 <input
                                     v-if="selectedField === 'about-text5'"
                                     v-model="editableContent['about-text5']"
-                                    @blur="blurAndUpdate('about-text5', null, 'about', null, componentId)"
+                                    @blur="blurAndUpdate('about-text5', null, 'about_section', null, componentId)"
                                 />
                                 <span v-else>{{ editableContent['about-text5'] }}</span>
                             </div>
-                            <div class="stat-label">Properties Sold</div>
                         </div>
                         <div class="stat">
                             <div
@@ -130,7 +135,7 @@
                                 <input
                                     v-if="selectedField === 'about-text6'"
                                     v-model="editableContent['about-text6']"
-                                    @blur="blurAndUpdate('about-text6', null, 'about', null, componentId)"
+                                    @blur="blurAndUpdate('about-text6', null, 'about_section', null, componentId)"
                                 />
                                 <span v-else>{{ editableContent['about-text6'] }}</span>
                             </div>
@@ -141,11 +146,11 @@
                                 @mouseover="hoveredField = 'about-text7'"
                                 @mouseleave="hoveredField = null"
                             >
-                                <span v-if="hoveredField === 'about-text7'" class="edit-label">Heading</span>
+                                <span v-if="hoveredField === 'about-text7'" class="edit-label">Text</span>
                                 <input
                                     v-if="selectedField === 'about-text7'"
                                     v-model="editableContent['about-text7']"
-                                    @blur="blurAndUpdate('about-text7', null, 'about', null, componentId)"
+                                    @blur="blurAndUpdate('about-text7', null, 'about_section', null, componentId)"
                                 />
                                 <span v-else>{{ editableContent['about-text7'] }}</span>
                             </div>
@@ -162,7 +167,7 @@
                                 <input
                                     v-if="selectedField === 'about-text8'"
                                     v-model="editableContent['about-text8']"
-                                    @blur="blurAndUpdate('about-text8', null, 'about', null, componentId)"
+                                    @blur="blurAndUpdate('about-text8', null, 'about_section', null, componentId)"
                                 />
                                 <span v-else>{{ editableContent['about-text8'] }}</span>
                             </div>
@@ -173,11 +178,11 @@
                                 @mouseover="hoveredField = 'about-text9'"
                                 @mouseleave="hoveredField = null"
                             >
-                                <span v-if="hoveredField === 'about-text9'" class="edit-label">Heading</span>
+                                <span v-if="hoveredField === 'about-text9'" class="edit-label">Text</span>
                                 <input
                                     v-if="selectedField === 'about-text9'"
                                     v-model="editableContent['about-text9']"
-                                    @blur="blurAndUpdate('about-text9', null, 'about', null, componentId)"
+                                    @blur="blurAndUpdate('about-text9', null, 'about_section', null, componentId)"
                                 />
                                 <span v-else>{{ editableContent['about-text9'] }}</span>
                             </div>
@@ -187,6 +192,17 @@
             </div>
         </div>
     </section>
+    <SidebarEditor
+        :isOpen="isSidebarOpen"
+        :type="activeEditorType"
+        :editableContent="editableContent"
+        :activeSectionType="activeSectionType"
+        :activeField="selectedField"
+        :activeComponentId = "activeComponentId"
+        @close="closeSidebar"
+        @update-field="(data) => blurAndUpdate(data.field_name, data.value, data.type, data.file, componentId)"
+        @image-upload="(e, field) => handleImageUpload(e, field, 'about_section', componentId)"
+    />
 </template>
 
 <script setup>
@@ -280,7 +296,8 @@ textarea {
 }
 
 .about {
-  background: #f5f0e8;
+    background: #f5f0e8;
+    padding: 30px;
 }
 
 .about-grid {
@@ -320,14 +337,14 @@ textarea {
 
 .about-content p {
   color: #666;
-  margin-bottom: 30px;
+  /* margin-bottom: 30px; */
 }
 
 .stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
-  margin-top: 30px;
+  margin-top: 20px;
 }
 
 .stat {
@@ -355,12 +372,12 @@ textarea {
  {
     font-size: 42px;
     color: #1a2744;
-    margin-bottom: 15px;
+    /* margin-bottom: 15px; */
 }
 
 .section-title {
     text-align: center;
-    margin-bottom: 50px;
+    margin-bottom: 30px;
 }
 
 .section-title .accent-line {

@@ -27,6 +27,7 @@ import COMP_SS_SALON_FOOTER2_89 from "./ss_salon_templates/ss_salon_footer2.vue"
 import COMP_SS_GOOGLE_MAP_90 from "./ss_google_map/ss_google_map.vue";
 import COMP_SS_GALLERY_SECTION_95 from "./ss_gallery_section/ss_gallery_section.vue";
 import COMP_SS_OTHER_ABOUT_92 from "./ss_other_templates/ss_other_about1.vue";
+import COMP_SS_OTHER_SERVICE_93 from "./ss_other_templates/ss_other_service1.vue";
 import COMP_SS_OTHER_FOOTER_94 from "./ss_other_templates/ss_other_footer1.vue";
 
 /* =========================
@@ -159,5 +160,6 @@ export const componentLibrary = {
   COMP_SS_GOOGLE_MAP_90: COMP_SS_GOOGLE_MAP_90,
   COMP_SS_GALLERY_SECTION_95: COMP_SS_GALLERY_SECTION_95,
   COMP_SS_OTHER_ABOUT_92: COMP_SS_OTHER_ABOUT_92,
+  COMP_SS_OTHER_SERVICE_93: COMP_SS_OTHER_SERVICE_93,
   COMP_SS_OTHER_FOOTER_94: COMP_SS_OTHER_FOOTER_94,
 };
