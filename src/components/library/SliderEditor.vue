@@ -267,6 +267,7 @@ const uploadSliderImages = async () => {
     console.error('Error uploading images:', error);
   } finally {
     loading.value = false;
+    await fetchCustomComponentsAndFieldsValue();
   }
 };
 
