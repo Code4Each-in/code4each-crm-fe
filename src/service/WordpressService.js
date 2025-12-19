@@ -366,5 +366,19 @@ const WordpressService = {
     }
   },
 
+  SliderImages: {
+    uploadSliderImages: (data) => {
+      if (data instanceof FormData) {
+        return requests(baseUrl).post(`/upload-slider-images`, data, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      }
+      return requests(baseUrl).post(`/upload-slider-images`, data)
+    },
+    RemoveSliderImages: (formData) => {
+      return requests(baseUrl).post(`/remove-slider-images`, formData)
+    }
+  }
+
 }
 export default WordpressService
