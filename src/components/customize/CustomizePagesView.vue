@@ -158,6 +158,7 @@ const heroBlockData = (componentuniqueId) => {
     phone: getGlobalVar("phone", ""),
     socialLinks,
     email: adminEmail.value,
+    "header-images1": getFieldValue(fields, "header-images"),
   };
 };
 

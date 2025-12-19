@@ -71,6 +71,12 @@
 
       <!-- Social Link Editor -->
       <SocialLinksEditor v-if="type === 'social'" />
+
+      <!-- Slider Editor -->
+      <SliderEditor
+        v-if="type === 'slider'"
+        :section-type="activeSectionTypeProp"
+      />
     </div>
   </div>
 </template>
@@ -81,6 +87,7 @@ import ButtonEditor from "./ButtonEditor.vue";
 import MenuEditor from "./MenuEditor.vue";
 import SocialLinksEditor from "./SocialLinksEditor.vue";
 import FormEditor from "./FormEditor.vue";
+import SliderEditor from "./SliderEditor.vue";
 
 // Props
 const props = defineProps({

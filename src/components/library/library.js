@@ -26,9 +26,11 @@ import COMP_SS_SALON_SERVICE2_88 from "./ss_salon_templates/ss_salon_service2.vu
 import COMP_SS_SALON_FOOTER2_89 from "./ss_salon_templates/ss_salon_footer2.vue";
 import COMP_SS_GOOGLE_MAP_90 from "./ss_google_map/ss_google_map.vue";
 import COMP_SS_GALLERY_SECTION_95 from "./ss_gallery_section/ss_gallery_section.vue";
+import COMP_SS_OTHER_HEADER_91 from "./ss_other_templates/ss_other_header1.vue";
 import COMP_SS_OTHER_ABOUT_92 from "./ss_other_templates/ss_other_about1.vue";
 import COMP_SS_OTHER_SERVICE_93 from "./ss_other_templates/ss_other_service1.vue";
 import COMP_SS_OTHER_FOOTER_94 from "./ss_other_templates/ss_other_footer1.vue";
+import COMP_SS_HEALTH_ABOUT4_97 from "./ss_health_templates/ss_health_about4.vue";
 
 /* =========================
    Composable for editable fields
@@ -45,7 +47,7 @@ export function useEditable(emit, editableContent) {
   function selectField(field, type = null, sectionType = null, componentId) {
     selectedField.value = field;
 
-    const sidebarTypes = ["logo", "image", "button", "menus", "social", "form"];
+    const sidebarTypes = ["logo", "image", "button", "menus", "social", "form", "slider"];
   
     if (type && sidebarTypes.includes(type)) {
       // open sidebar only for these types
@@ -159,7 +161,9 @@ export const componentLibrary = {
   COMP_SS_SALON_FOOTER2_89: COMP_SS_SALON_FOOTER2_89,
   COMP_SS_GOOGLE_MAP_90: COMP_SS_GOOGLE_MAP_90,
   COMP_SS_GALLERY_SECTION_95: COMP_SS_GALLERY_SECTION_95,
+  COMP_SS_OTHER_HEADER_91: COMP_SS_OTHER_HEADER_91,
   COMP_SS_OTHER_ABOUT_92: COMP_SS_OTHER_ABOUT_92,
   COMP_SS_OTHER_SERVICE_93: COMP_SS_OTHER_SERVICE_93,
   COMP_SS_OTHER_FOOTER_94: COMP_SS_OTHER_FOOTER_94,
+  COMP_SS_HEALTH_ABOUT4_97: COMP_SS_HEALTH_ABOUT4_97,
 };
