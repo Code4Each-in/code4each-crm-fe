@@ -212,6 +212,7 @@ const removeImage = async (index) => {
     console.error('Error removing image:', error);
   } finally {
     loading.value = false;
+    await fetchCustomComponentsAndFieldsValue();
   }
 };
 
@@ -266,8 +267,8 @@ const uploadSliderImages = async () => {
   } catch (error) {
     console.error('Error uploading images:', error);
   } finally {
-    await fetchCustomComponentsAndFieldsValue();
     loading.value = false;
+    await fetchCustomComponentsAndFieldsValue();
   }
 };
 
