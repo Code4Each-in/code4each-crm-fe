@@ -307,4 +307,350 @@ textarea {
     padding: 8px;
     border: 1px solid #ccc;
 }
+
+/* ===== CSS Variables (Design System) ===== */
+:root {
+  --primary: hsl(174, 62%, 40%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --primary-hover: hsl(174, 62%, 35%);
+  
+  --background: hsl(180, 20%, 99%);
+  --foreground: hsl(200, 25%, 15%);
+  
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(200, 25%, 15%);
+  
+  --secondary: hsl(180, 30%, 96%);
+  --secondary-foreground: hsl(200, 25%, 25%);
+  
+  --muted: hsl(180, 15%, 94%);
+  --muted-foreground: hsl(200, 10%, 45%);
+  
+  --accent: hsl(174, 50%, 92%);
+  --accent-foreground: hsl(174, 62%, 30%);
+  
+  --border: hsl(180, 20%, 90%);
+  
+  --radius: 0.75rem;
+  --shadow: 0 4px 20px hsla(200, 25%, 15%, 0.08);
+  --shadow-hover: 0 8px 30px hsla(174, 62%, 40%, 0.15);
+  
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-display: 'Playfair Display', Georgia, serif;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+}
+
+/* ===== Utilities ===== */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 0 2rem;
+  }
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ===== Buttons ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background-color: hsl(174, 62%, 40%);
+  color: hsl(0, 0%, 100%);
+  box-shadow: 0 4px 20px hsla(200, 25%, 15%, 0.08);
+}
+
+.btn-primary:hover {
+  background-color: hsl(174, 62%, 35%);
+  box-shadow: 0 8px 30px hsla(174, 62%, 40%, 0.15);
+}
+
+.btn-hero {
+  background-color: hsl(174, 62%, 40%);
+  color: hsl(0, 0%, 100%);
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  box-shadow: 0 10px 30px hsla(174, 62%, 40%, 0.3);
+}
+
+.btn-hero:hover {
+  background-color: hsl(174, 62%, 35%);
+  transform: scale(1.05);
+  box-shadow: 0 15px 40px hsla(174, 62%, 40%, 0.4);
+}
+
+.btn-hero-outline {
+  background-color: transparent;
+  color: hsl(0, 0%, 100%);
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  border: 2px solid hsla(0, 0%, 100%, 0.5);
+}
+
+.btn-hero-outline:hover {
+  background-color: hsl(0, 0%, 100%);
+  color:hsl(200, 25%, 15%);
+}
+
+.btn-white {
+  background-color: hsl(0, 0%, 100%);
+  color: hsl(174, 62%, 40%);
+  padding: 1rem 2rem;
+  font-size: 1rem;
+}
+
+.btn-white:hover {
+  background-color: hsla(0, 0%, 100%, 0.9);
+}
+
+.btn-outline-white {
+  background-color: transparent;
+  color: hsl(0, 0%, 100%);
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  border: 2px solid hsl(0, 0%, 100%);
+}
+
+.btn-outline-white:hover {
+  background-color: hsl(0, 0%, 100%);
+  color: hsl(174, 62%, 40%);
+}
+
+/* ===== Animations ===== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.fade-in {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.fade-in-left {
+  opacity: 0;
+  animation: fadeInLeft 0.6s ease forwards;
+}
+
+.fade-in-right {
+  opacity: 0;
+  animation: fadeInRight 0.6s ease forwards;
+}
+
+.fade-in.visible,
+.fade-in-left.visible,
+.fade-in-right.visible {
+  animation-play-state: running;
+}
+
+.about {
+  padding: 5rem 0 6rem;
+  background-color: hsl(180, 30%, 96%);
+}
+
+@media (min-width: 1024px) {
+  .about {
+    padding: 8rem 0 10rem;
+  }
+}
+
+.about-content {
+  display: grid;
+  gap: 3rem;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .about-content {
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+  }
+}
+
+.about-image {
+  position: relative;
+}
+
+.about-image img {
+  width: 100%;
+  height: 500px;
+  object-fit: cover;
+  border-radius: 1rem;
+  box-shadow: 0 8px 30px hsla(174, 62%, 40%, 0.15);
+}
+
+.experience-badge {
+  position: absolute;
+  bottom: -1.5rem;
+  right: -1.5rem;
+  background-color: hsl(0, 0%, 100%);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 30px hsla(174, 62%, 40%, 0.15);
+  text-align: center;
+}
+
+@media (max-width: 1023px) {
+  .experience-badge {
+    right: 1rem;
+    bottom: -1rem;
+  }
+}
+
+.badge-number {
+  display: block;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: hsl(174, 62%, 40%);
+}
+
+.badge-text {
+  color: hsl(200, 10%, 45%);
+  font-size: 0.875rem;
+}
+
+.section-label {
+  display: inline-block;
+  color: hsl(174, 62%, 40%);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.875rem;
+}
+
+.section-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color:hsl(200, 25%, 15%);
+  margin-top: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .section-title {
+    font-size: 2.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section-title {
+    font-size: 3rem;
+  }
+}
+
+.about-description {
+  color: hsl(200, 10%, 45%);
+  font-size: 1.125rem;
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+
+.about-description-secondary {
+  color: hsl(200, 10%, 45%);
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  background-color: hsl(174, 50%, 92%);
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.75rem;
+  color: hsl(174, 62%, 40%);
+}
+
+.stat-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color:hsl(200, 25%, 15%);
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: hsl(200, 10%, 45%);
+}
 </style>
