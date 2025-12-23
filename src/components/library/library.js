@@ -31,7 +31,9 @@ import COMP_SS_OTHER_ABOUT_92 from "./ss_other_templates/ss_other_about1.vue";
 import COMP_SS_OTHER_SERVICE_93 from "./ss_other_templates/ss_other_service1.vue";
 import COMP_SS_OTHER_FOOTER_94 from "./ss_other_templates/ss_other_footer1.vue";
 import COMP_SS_HEALTH_ABOUT4_97 from "./ss_health_templates/ss_health_about4.vue";
-
+import COMP_SS_HEALTH_HEADER4_98 from "./ss_health_templates/ss_health_header4.vue";
+import COMP_SS_HEALTH_FOOTER4_99 from "./ss_health_templates/ss_health_footer4.vue";
+import COMP_SS_HEALTH_SERVICE4_100 from "./ss_health_templates/ss_health_service4.vue";
 /* =========================
    Composable for editable fields
 ========================= */
@@ -166,4 +168,7 @@ export const componentLibrary = {
   COMP_SS_OTHER_SERVICE_93: COMP_SS_OTHER_SERVICE_93,
   COMP_SS_OTHER_FOOTER_94: COMP_SS_OTHER_FOOTER_94,
   COMP_SS_HEALTH_ABOUT4_97: COMP_SS_HEALTH_ABOUT4_97,
+  COMP_SS_HEALTH_HEADER4_98: COMP_SS_HEALTH_HEADER4_98,
+  COMP_SS_HEALTH_FOOTER4_99: COMP_SS_HEALTH_FOOTER4_99,
+  COMP_SS_HEALTH_SERVICE4_100: COMP_SS_HEALTH_SERVICE4_100,
 };

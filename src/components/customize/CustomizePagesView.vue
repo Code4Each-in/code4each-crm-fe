@@ -151,6 +151,8 @@ const heroBlockData = (componentuniqueId) => {
     "header-text2": getFieldValue(fields, "header-text2"),
     "header-description1": getFieldValue(fields, "header-description1"),
     "header-button1": getFieldValue(fields, "header-button1"),
+    "header-button2": getFieldValue(fields, "header-button2"),
+    "header-button3": getFieldValue(fields, "header-button3"),
     buttonUrl: getFieldValue(fields, "header-button1", 1) || "#",
     buttonTarget: getFieldValue(fields, "header-button1", 2) || "_self",
     "header-image1": getFieldValue(fields, "header-img1") || getFieldValue(fields, "header-image1"),
@@ -187,6 +189,8 @@ const aboutBlockData = (componentuniqueId) => {
     "about-text8": getFieldValue(fields, "about-text8"),
     "about-text9": getFieldValue(fields, "about-text9"),
     "about-text10": getFieldValue(fields, "about-text10"),
+    "about-text11": getFieldValue(fields, "about-text11"),
+    "about-text12": getFieldValue(fields, "about-text12"),
     "about-service1": getFieldValue(fields, "about-service1"),
     "about-service2": getFieldValue(fields, "about-service2"),
     "about-service3": getFieldValue(fields, "about-service3"),
@@ -226,6 +230,8 @@ const serviceBlockData = (componentuniqueId) => {
     "service-description6": getFieldValue(fields, "service-description6"),
     "service-text7": getFieldValue(fields, "service-text7"),
     "service-text8": getFieldValue(fields, "service-text8"),
+    "service-button5": getFieldValue(fields, "service-button5"),
+    "service-button6": getFieldValue(fields, "service-button6"),
   };
 };
 
@@ -290,6 +296,11 @@ const footerBlockData = (componentuniqueId) => {
     "footer-text2": getFieldValue(fields, "footer-text2"),
     "footer-text3": getFieldValue(fields, "footer-text3"),
     "footer-text4": getFieldValue(fields, "footer-text4"),
+    "footer-text5": getFieldValue(fields, "footer-text5"),
+    "footer-text6": getFieldValue(fields, "footer-text6"),
+    "footer-text7": getFieldValue(fields, "footer-text7"),
+    "footer-text8": getFieldValue(fields, "footer-text8"),
+    "footer-text9": getFieldValue(fields, "footer-text9"),
     menu: footerMenus.value.map((m) => m.name),
     socialLinks,
     copyright: getGlobalVar("agency_name", "Your Agency"),
