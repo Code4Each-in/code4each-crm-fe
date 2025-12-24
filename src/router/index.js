@@ -34,6 +34,7 @@ import AffiliatePaymentHistoryView from '../views/AffiliatePaymentHistoryView.vu
 import AffiliateForgotPassword from '@/views/AffiliateForgotPassword.vue';
 import GoogleImproveBusiness from '../views/GoogleImproveBusiness.vue';
 import DomainMappingSetting from '../views/DomainMappingSetting.vue';
+import SocialMediaSettings from '../views/SocialMedia.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -227,6 +228,11 @@ const router = createRouter({
       path: "/domains",
       name: "domains",
       component: DomainMappingSetting,
+    },
+    {
+      path: "/social-media-settings",
+      name: "SocialMediaSettings",
+      component: SocialMediaSettings,
     }
   ]
 });
