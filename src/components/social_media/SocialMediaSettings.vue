@@ -8,74 +8,111 @@ import SideBar from "@/components/dashboard/layouts/sidebar.vue";
 import FlashMessage from "@/components/common/FlashMessage.vue";
 import WordpressService from "@/service/WordpressService";
 
-// Stores & Router
+/* ---------------- STORES ---------------- */
 const store = useStore();
 const router = useRouter();
 const { logout: doLogout } = useAuth();
 
-// Sidebar state
+/* ---------------- STATE ---------------- */
 const isSidebarToggled = ref(false);
 const dashboardData = ref({});
 const loading = ref(true);
 const error = ref(false);
+const showPostModal = ref(false);
+const fileInput = ref(null);
 
-const navBarToggle = (value) => isSidebarToggled.value = value;
+const connectedPlatforms = ref({
+    facebook: { connected: false },
+    instagram: { connected: false },
+    linkedin: { connected: false },
+});
+
+const postForm = ref({
+    image: null,
+    caption: "",
+    platforms: [],
+});
+
+/* ---------------- COMPUTED ---------------- */
+const flashClass = computed(() =>
+    store.flashMeassgeType === "error" ? "flash-error" : "flash-success"
+);
+
+const platforms = [
+    { name: "Instagram", key: "instagram", icon: "/images/instagram.png" },
+    { name: "Facebook", key: "facebook", icon: "/images/facebook.png" },
+    { name: "LinkedIn", key: "linkedin", icon: "/images/linkedin.png" },
+];
+
+const connectedPlatformList = computed(() =>
+    platforms.filter(p => connectedPlatforms.value[p.key]?.connected)
+);
+
+const imagePreview = computed(() =>
+    postForm.value.image ? URL.createObjectURL(postForm.value.image) : null
+);
+
+const canSubmit = computed(() =>
+    postForm.value.image && postForm.value.platforms.length > 0
+);
+
+/* ---------------- METHODS ---------------- */
+const navBarToggle = (v) => (isSidebarToggled.value = v);
+
 const logout = async () => {
     await doLogout();
     router.push("/login");
 };
-const flashClass = computed(() => 
-    store.flashMeassgeType === 'error' ? 'flash-error' : 'flash-success'
-);
 
-// -------------------------
-// Fetch Dashboard Data
-// -------------------------
+const openPostModal = () => (showPostModal.value = true);
+
+const closePostModal = () => {
+    showPostModal.value = false;
+    postForm.value = { image: null, caption: "", platforms: [] };
+};
+
+const handleImageUpload = (e) => {
+    postForm.value.image = e.target.files[0];
+};
+
+const togglePlatform = (key) => {
+    const i = postForm.value.platforms.indexOf(key);
+    i === -1
+        ? postForm.value.platforms.push(key)
+        : postForm.value.platforms.splice(i, 1);
+};
+
+const submitPost = (type) => {
+    if (!canSubmit.value) return;
+    console.log(type, postForm.value);
+    closePostModal();
+};
+
+/* ---------------- API ---------------- */
 const fetchDashboardData = async () => {
     try {
-        const response = await WordpressService.fetchDashboardData();
-        if (response.status === 200 && response.data.success) {
-            dashboardData.value = response.data;
-        }
-    } catch (err) {
-        if (err.response && err.response.status === 401) {
-            localStorage.removeItem("access_token");
-            router.push("/login");
-        } else {
-            console.error(err.message);
-            error.value = true;
-        }
+        const res = await WordpressService.fetchDashboardData();
+        if (res.data.success) dashboardData.value = res.data;
+    } catch {
+        router.push("/login");
     } finally {
         loading.value = false;
     }
 };
 
-const platforms = [
-    { name: "Instagram", key: "instagram", icon: "/public/images/instagram.png" },
-    { name: "Facebook", key: "facebook", icon: "/public/images/facebook.png" },
-    { name: "LinkedIn", key: "linkedin", icon: "/public/images/linkedin.png" },
-    { name: "X", key: "x", icon: "/public/images/x.png" }
-];
-
-const connectPlatform = (platform) => {
-    if (platform !== 'facebook') return;
-
-    const baseUrl = import.meta.env.VITE_CRM_API_URL;
-    const userId = dashboardData.value?.user?.id;
-    if (!baseUrl) {
-        console.error("VITE_CRM_API_URL is not defined!");
-        return;
-    }
-
-    window.location.href = `${baseUrl}/auth/facebook/redirect?user_id=${userId}`;
+const getConnectedPlatforms = async () => {
+    const res = await WordpressService.PlatformIntegration.fetchConnectedPlatforms({
+        user_id: dashboardData.value?.user?.id,
+    });
+    if (res.data.success) connectedPlatforms.value = res.data;
 };
 
 onMounted(async () => {
-    loading.value = true;
     await fetchDashboardData();
-    loading.value = false;
+    await getConnectedPlatforms();
 });
 </script>
+
 <template>
     <div class="page">
         <FlashMessage :visible="store.flashMeassge" v-if="store.flashMeassge" :class="flashClass" />
@@ -95,15 +132,144 @@ onMounted(async () => {
                         v-for="platform in platforms"
                         :key="platform.key"
                         class="social-btn"
-                        :class="platform.key"
+                        :class="[
+                            platform.key,
+                            connectedPlatforms[platform.key].connected ? 'connected' : ''
+                        ]"
+                        :disabled="connectedPlatforms[platform.key].connected"
                         @click="connectPlatform(platform.key)"
                     >
-                        <img :src="platform.icon" :alt="platform.name" />
-                        <span>Connect {{ platform.name }}</span>
+                        <!-- Green Tick -->
+                        <span
+                            v-if="connectedPlatforms[platform.key].connected"
+                            class="connected-badge"
+                        >
+                            ✓
+                        </span>
+
+                        <!-- PLATFORM ICON (always visible) -->
+                        <img :src="platform.icon" :alt="platform.name" class="platform-icon" />
+
+                        <!-- CONNECTED VIEW -->
+                        <template v-if="connectedPlatforms[platform.key].connected">
+                            <img
+                                class="avatar"
+                                :src="connectedPlatforms[platform.key].avatar"
+                                alt="Avatar"
+                            />
+                            <div class="account-info">
+                                <strong>{{ connectedPlatforms[platform.key].name }}</strong>    
+                            </div>
+                        </template>
+
+                        <!-- NOT CONNECTED VIEW -->
+                        <template v-else>
+                            <span>Connect {{ platform.name }}</span>
+                        </template>
                     </button>
+                </div>
+                <br />
+                <div class="divider">
+                    <span>Post Details</span>
+                </div>
+                <!-- POSTS SECTION -->
+                <div class="posts-section">
+
+                    <!-- Header -->
+                    <div class="posts-header">
+                        <button class="post-btn" @click="openPostModal">Add New Post</button>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="posts-table-wrapper">
+                        <table class="posts-table">
+                            <thead>
+                                <tr>
+                                    <th>Platform</th>
+                                    <th>Post Content</th>
+                                    <th>Status</th>
+                                    <th>Posted On</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-if="!dashboardData?.posts?.length">
+                                    <td colspan="4" class="empty-row">
+                                        No posts available
+                                    </td>
+                                </tr>
+
+                                <tr v-for="(post, index) in dashboardData.posts" :key="index">
+                                    <td>
+                                        <img :src="`/images/${post.platform}.png`" class="table-icon" />
+                                        {{ post.platform }}
+                                    </td>
+                                    <td>{{ post.content }}</td>
+                                    <td>
+                                        <span :class="['status', post.status]">
+                                            {{ post.status }}
+                                        </span>
+                                    </td>
+                                    <td>{{ post.created_at }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
                 </div>
             </div>
         </div>
+        <!-- POST MODAL -->
+        <Teleport to="body">
+        <div v-if="showPostModal" class="modal-overlay">
+            <div class="post-modal">
+
+                <div class="modal-header">
+                    <h3>Create New Post</h3>
+                    <button class="close-btn" @click="closePostModal">×</button>
+                </div>
+
+                <div class="modal-body">
+
+                    <!-- Image -->
+                    <label>Upload Image</label>
+                    <input ref="fileInput" type="file" hidden accept="image/*" @change="handleImageUpload" />
+                    <div class="image-placeholder" @click="fileInput.click()">
+                        <img v-if="imagePreview" :src="imagePreview" />
+                        <span v-else>Click to upload image</span>
+                    </div>
+
+                    <!-- Caption -->
+                    <label>Caption</label>
+                    <textarea v-model="postForm.caption" rows="4" placeholder="Write your caption..." />
+
+                    <!-- Platforms -->
+                    <label>Select Platforms</label>
+                    <div class="platform-cards">
+                        <div
+                            v-for="p in connectedPlatformList"
+                            :key="p.key"
+                            class="platform-card"
+                            :class="{ active: postForm.platforms.includes(p.key) }"
+                            @click="togglePlatform(p.key)"
+                        >
+                            <img :src="p.icon" />
+                            {{ p.name }}
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn cancel" @click="closePostModal">Cancel</button>
+                    <button class="btn schedule" :disabled="!canSubmit">Schedule</button>
+                    <button class="btn post" :disabled="!canSubmit" @click="submitPost('post')">
+                        Post Now
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </Teleport>
     </div>
 </template>
 
@@ -167,13 +333,15 @@ onMounted(async () => {
 
 .social-buttons {
     margin-left: 14%;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(260px, 1fr));
-    gap: 20px;
-    margin-top: 30px;
+    display: flex;
+    gap: 40px;
+    margin-top: 40px;
+    justify-content: center;
+    align-items: center;
 }
 
 .social-btn {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -185,6 +353,7 @@ onMounted(async () => {
     font-size: 15px;
     font-weight: 500;
     transition: all 0.25s ease;
+    min-width: 240px;
 }
 
 .social-btn img {
@@ -212,6 +381,346 @@ onMounted(async () => {
 
 .x {
     border-left: 4px solid #000000;
+}
+
+.social-btn.connected {
+    background: #e6f7e6;
+    cursor: not-allowed;
+}
+
+.social-btn.connected span {
+    font-weight: 600;
+}
+
+.connected-badge {
+    position: absolute;
+    top: -7px;
+    right: -7px;
+    width: 20px;
+    height: 20px;
+    background: #4caf50;
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #4caf50;
+}
+
+.account-info {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.account-info strong {
+    font-size: 14px;
+    color: #1f2937;
+}
+
+.account-info small {
+    font-size: 12px;
+    color: #4caf50;
+}
+
+.platform-icon {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+}
+
+/* POSTS SECTION */
+.posts-section {
+    margin-left: 14%;
+}
+
+/* Header */
+.posts-header {
+    margin-bottom: 16px;
+    text-align: end;
+}
+
+.posts-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+/* Post Button */
+.post-btn {
+    background: #1d2b64;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    border: 2px solid #1d2b64;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.post-btn:hover {
+    background: #fff;
+    color: #1d2b64;
+}
+
+/* Table */
+.posts-table-wrapper {
+    background: #ffffff;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    overflow-x: auto;
+}
+
+.posts-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.posts-table th,
+.posts-table td {
+    padding: 12px 14px;
+    text-align: left;
+    font-size: 14px;
+}
+
+.posts-table th {
+    background: #f9fafb;
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.posts-table tr {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.posts-table tr:last-child {
+    border-bottom: none;
+}
+
+/* Empty row */
+.empty-row {
+    text-align: center;
+    color: #9ca3af;
+}
+
+/* Platform Icon in Table */
+.table-icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+/* Status */
+.status {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.status.published {
+    background: #e6f7e6;
+    color: #2e7d32;
+}
+
+.status.pending {
+    background: #fff7e6;
+    color: #b45309;
+}
+
+.status.failed {
+    background: #fdecea;
+    color: #c62828;
+}
+
+/* MODAL */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.post-modal {
+    width: 500px;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.close-btn {
+    font-size: 22px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    resize: none;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: #1d2b64;
+    box-shadow: 0 0 0 2px rgba(29,43,100,0.1);
+}
+
+.platform-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #e5e7eb;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.checkbox-item img {
+    width: 18px;
+    height: 18px;
+}
+
+.muted {
+    font-size: 13px;
+    color: #9ca3af;
+}
+
+/* Footer */
+.modal-footer {
+    padding: 16px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.btn {
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn.cancel {
+    background: #f3f4f6;
+    border: none;
+}
+
+.btn.schedule {
+    background: #f59e0b;
+    color: #fff;
+    border: none;
+}
+
+.btn.post {
+    background: #1d2b64;
+    color: #fff;
+    border: none;
+}
+
+.image-placeholder {
+    height: 160px;
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: #f9fafb;
+    transition: border 0.2s;
+    margin-bottom: 15px;
+}
+
+.image-placeholder:hover {
+    border-color: #1d2b64;
+}
+
+.image-placeholder img {
+    max-height: 100%;
+    max-width: 100%;
+    border-radius: 6px;
+}
+
+.platform-cards {
+    display: flex;
+    gap: 12px;
+}
+
+.platform-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #fff;
+}
+
+.platform-card img {
+    width: 20px;
+}
+
+.platform-card.active {
+    border-color: #1d2b64;
+    background: #eef2ff;
 }
 
 </style>
