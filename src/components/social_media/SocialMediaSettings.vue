@@ -27,10 +27,19 @@ const connectedPlatforms = ref({
     linkedin: { connected: false },
 });
 
+const platforms = [
+    { name: "Facebook", key: "facebook", icon: "/images/facebook.png" },
+    { name: "Instagram", key: "instagram", icon: "/images/instagram.png" },
+    { name: "LinkedIn", key: "linkedin", icon: "/images/linkedin.png" },
+];
+
 const postForm = ref({
-    image: null,
+    media: null,
     caption: "",
-    platforms: [],
+    platforms: platforms.map(p => p.key),
+    schedule: false, 
+    scheduledDate: "",
+    scheduledTime: "", 
 });
 
 /* ---------------- COMPUTED ---------------- */
@@ -38,22 +47,17 @@ const flashClass = computed(() =>
     store.flashMeassgeType === "error" ? "flash-error" : "flash-success"
 );
 
-const platforms = [
-    { name: "Instagram", key: "instagram", icon: "/images/instagram.png" },
-    { name: "Facebook", key: "facebook", icon: "/images/facebook.png" },
-    { name: "LinkedIn", key: "linkedin", icon: "/images/linkedin.png" },
-];
-
 const connectedPlatformList = computed(() =>
     platforms.filter(p => connectedPlatforms.value[p.key]?.connected)
 );
 
-const imagePreview = computed(() =>
-    postForm.value.image ? URL.createObjectURL(postForm.value.image) : null
-);
+const mediaPreview = computed(() => {
+  if (!postForm.value.media) return null;
+  return URL.createObjectURL(postForm.value.media);
+});
 
 const canSubmit = computed(() =>
-    postForm.value.image && postForm.value.platforms.length > 0
+  postForm.value.media && postForm.value.platforms.length > 0
 );
 
 /* ---------------- METHODS ---------------- */
@@ -68,11 +72,22 @@ const openPostModal = () => (showPostModal.value = true);
 
 const closePostModal = () => {
     showPostModal.value = false;
-    postForm.value = { image: null, caption: "", platforms: [] };
+    postForm.value = {
+        media: null,
+        caption: "",
+        platforms: platforms.map(p => p.key),
+        schedule: false,
+        scheduledDate: "",
+        scheduledTime: "",
+    };
 };
 
-const handleImageUpload = (e) => {
-    postForm.value.image = e.target.files[0];
+const handleFileUpload = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  // Save the file object directly (image or video)
+  postForm.value.media = file;
 };
 
 const togglePlatform = (key) => {
@@ -108,8 +123,10 @@ const getConnectedPlatforms = async () => {
 };
 
 onMounted(async () => {
+    loading.value = true;
     await fetchDashboardData();
     await getConnectedPlatforms();
+    loading.value = false;
 });
 </script>
 
@@ -118,7 +135,14 @@ onMounted(async () => {
         <FlashMessage :visible="store.flashMeassge" v-if="store.flashMeassge" :class="flashClass" />
         <NavBar @logout="logout" @nav-bar-toggle="navBarToggle" :dashboardData="dashboardData?.user" />
         <SideBar :dashboardData="dashboardData" :toggled="isSidebarToggled" />
-        <div class="social-media-section page-wrapper">
+        <div v-if="loading" class="loader-wrapper">
+            <div class="three-body">
+            <div class="three-body__dot"></div>
+            <div class="three-body__dot"></div>
+            <div class="three-body__dot"></div>
+            </div>
+        </div>
+        <div v-else class="social-media-section page-wrapper">
             <div class="container">
                 <div class="socialsection">
                     <h2>Social Media Connections</h2>
@@ -232,10 +256,28 @@ onMounted(async () => {
 
                     <!-- Image -->
                     <label>Upload Image</label>
-                    <input ref="fileInput" type="file" hidden accept="image/*" @change="handleImageUpload" />
+                    <input
+                        ref="fileInput"
+                        type="file"
+                        hidden
+                        accept="image/*,video/*"
+                        @change="handleFileUpload"
+                    />
                     <div class="image-placeholder" @click="fileInput.click()">
-                        <img v-if="imagePreview" :src="imagePreview" />
-                        <span v-else>Click to upload image</span>
+                        <template v-if="mediaPreview">
+                            <img
+                            v-if="postForm.media.type.startsWith('image/')"
+                            :src="mediaPreview"
+                            alt="Preview Image"
+                            />
+                            <video
+                            v-else-if="postForm.media.type.startsWith('video/')"
+                            :src="mediaPreview"
+                            controls
+                            style="max-height: 160px; max-width: 100%; border-radius: 6px;"
+                            />
+                        </template>
+                        <span v-else>Click to upload image or video</span>
                     </div>
 
                     <!-- Caption -->
@@ -256,12 +298,29 @@ onMounted(async () => {
                             {{ p.name }}
                         </div>
                     </div>
+                    <!-- Schedule Checkbox -->
+                    <div class="schedule-section">
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="schedule" v-model="postForm.schedule" />
+                            <label for="schedule">Schedule Post</label>
+                        </div>
 
+                        <div v-if="postForm.schedule" class="schedule-datetime">
+                            <div class="datetime-field">
+                            <label for="scheduledDate">Date</label>
+                            <input type="date" id="scheduledDate" v-model="postForm.scheduledDate" />
+                            </div>
+
+                            <div class="datetime-field">
+                            <label for="scheduledTime">Time</label>
+                            <input type="time" id="scheduledTime" v-model="postForm.scheduledTime" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="modal-footer">
                     <button class="btn cancel" @click="closePostModal">Cancel</button>
-                    <button class="btn schedule" :disabled="!canSubmit">Schedule</button>
                     <button class="btn post" :disabled="!canSubmit" @click="submitPost('post')">
                         Post Now
                     </button>
@@ -721,6 +780,63 @@ textarea:focus {
 .platform-card.active {
     border-color: #1d2b64;
     background: #eef2ff;
+}
+
+/* Scoped CSS */
+.schedule-section {
+  margin-top: 15px;
+}
+
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.checkbox-wrapper input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #1d2b64; /* matches your modal primary color */
+  cursor: pointer;
+}
+
+.schedule-datetime {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.datetime-field {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  flex: 1;
+  min-width: 120px;
+}
+
+.datetime-field label {
+  margin-bottom: 4px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.datetime-field input[type="date"],
+.datetime-field input[type="time"] {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.datetime-field input[type="date"]:focus,
+.datetime-field input[type="time"]:focus {
+  border-color: #1d2b64;
+  box-shadow: 0 0 0 2px rgba(29, 43, 100, 0.1);
 }
 
 </style>
