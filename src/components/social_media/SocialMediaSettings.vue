@@ -61,12 +61,13 @@ const connectPlatform = (platform) => {
     if (platform !== 'facebook') return;
 
     const baseUrl = import.meta.env.VITE_CRM_API_URL;
+    const userId = dashboardData.value?.user?.id;
     if (!baseUrl) {
         console.error("VITE_CRM_API_URL is not defined!");
         return;
     }
 
-    window.location.href = `${baseUrl}/auth/facebook/redirect`;
+    window.location.href = `${baseUrl}/auth/facebook/redirect?user_id=${userId}`;
 };
 
 onMounted(async () => {
