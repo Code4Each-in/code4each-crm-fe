@@ -378,7 +378,13 @@ const WordpressService = {
     RemoveSliderImages: (formData) => {
       return requests(baseUrl).post(`/remove-slider-images`, formData)
     }
-  }
+  },
+
+  PlatformIntegration: {
+    fetchConnectedPlatforms: (data) => {
+      return requests(baseUrl).get('/get-connected-platforms', { params: data });
+    },
+  },
 
 }
 export default WordpressService
