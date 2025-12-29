@@ -36,7 +36,7 @@ const platforms = [
 const postForm = ref({
     media: null,
     caption: "",
-    platforms: platforms.map(p => p.key),
+    platforms: [],
     schedule: false, 
     scheduledDate: "",
     scheduledTime: "", 
@@ -68,14 +68,20 @@ const logout = async () => {
     router.push("/login");
 };
 
-const openPostModal = () => (showPostModal.value = true);
+const openPostModal = () => {
+    showPostModal.value = true;
+
+    // Auto-select all connected platforms
+    postForm.value.platforms = Object.keys(connectedPlatforms.value)
+        .filter(key => connectedPlatforms.value[key]?.connected);
+};
 
 const closePostModal = () => {
     showPostModal.value = false;
     postForm.value = {
         media: null,
         caption: "",
-        platforms: platforms.map(p => p.key),
+        platforms: [],
         schedule: false,
         scheduledDate: "",
         scheduledTime: "",
@@ -97,12 +103,6 @@ const togglePlatform = (key) => {
         : postForm.value.platforms.splice(i, 1);
 };
 
-const submitPost = (type) => {
-    if (!canSubmit.value) return;
-    console.log(type, postForm.value);
-    closePostModal();
-};
-
 /* ---------------- API ---------------- */
 const fetchDashboardData = async () => {
     try {
@@ -120,6 +120,59 @@ const getConnectedPlatforms = async () => {
         user_id: dashboardData.value?.user?.id,
     });
     if (res.data.success) connectedPlatforms.value = res.data;
+};
+
+const handlePlatformSelect = (key) => {
+    if (!connectedPlatforms.value[key]?.connected) {
+        store.updateFlashMeassge(true, "This platform is not connected. Please connect it first.", 'error');
+        return;
+    }
+
+    togglePlatform(key);
+};
+
+const submitPost = async () => {
+    if (!canSubmit.value) return;
+    try {
+        const formData = new FormData();
+        const user_id = dashboardData.value?.user?.id;
+        const agency_id = dashboardData.value.user.agency_id;
+        formData.append("user_id", user_id);
+        formData.append("agency_id", agency_id);
+        formData.append("media", postForm.value.media);
+        formData.append("caption", postForm.value.caption);
+        postForm.value.platforms.forEach((p, index) => {
+            formData.append(`platforms[${index}]`, p);
+        });
+        if (postForm.value.schedule && postForm.value.scheduledDate && postForm.value.scheduledTime) {
+            const scheduledAt = `${postForm.value.scheduledDate} ${postForm.value.scheduledTime}`;
+            formData.append("scheduled_at", scheduledAt);
+        } else {
+            formData.append("scheduled_at", "");
+        }
+        const res = await WordpressService.PlatformIntegration.createPost(formData);
+        if (res.data.success) {
+            store.flashMeassge = "Post created successfully";
+            store.flashMeassgeType = "success";
+            closePostModal();
+            await fetchDashboardData(); 
+        }
+    } catch (err) {
+        store.flashMeassge = "Failed to create post";
+        store.flashMeassgeType = "error";
+        console.error(err);
+    }
+};
+
+const connectPlatform = (platform) => {
+    if (platform !== 'facebook') return;
+    const baseUrl = import.meta.env.VITE_CRM_API_URL;
+    const userId = dashboardData.value?.user?.id;
+    if (!baseUrl) {
+        console.error("VITE_CRM_API_URL is not defined!");
+        return;
+    }
+    window.location.href = `${baseUrl}/auth/facebook/redirect?user_id=${userId}`;
 };
 
 onMounted(async () => {
@@ -288,11 +341,14 @@ onMounted(async () => {
                     <label>Select Platforms</label>
                     <div class="platform-cards">
                         <div
-                            v-for="p in connectedPlatformList"
+                            v-for="p in platforms"
                             :key="p.key"
                             class="platform-card"
-                            :class="{ active: postForm.platforms.includes(p.key) }"
-                            @click="togglePlatform(p.key)"
+                            :class="{
+                                active: postForm.platforms.includes(p.key),
+                                disabled: !connectedPlatforms[p.key]?.connected
+                            }"
+                            @click="handlePlatformSelect(p.key)"
                         >
                             <img :src="p.icon" />
                             {{ p.name }}
@@ -837,6 +893,17 @@ textarea:focus {
 .datetime-field input[type="time"]:focus {
   border-color: #1d2b64;
   box-shadow: 0 0 0 2px rgba(29, 43, 100, 0.1);
+}
+
+.platform-card.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f9fafb;
+}
+
+.platform-card.disabled:hover {
+    border-color: #e5e7eb;
+    background: #f9fafb;
 }
 
 </style>
