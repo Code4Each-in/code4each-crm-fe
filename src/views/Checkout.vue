@@ -58,6 +58,21 @@ const fetchDashboardData = async () => {
     if (response.status === 200 && response.data.success) {
     //   loading.value = false;
       dashboardData.value = response.data;
+
+      const user = response.data?.user;
+
+      // Prefill from user if billing not available
+      billing.name = user?.name || "";
+      billing.email = user?.email || "";
+      billing.phone = user?.phone || "";
+
+      // prefill address from agency website
+      const website = user?.agency?.agency_websites?.[0];
+
+      billing.address = website?.address || "";
+      billing.city = website?.city || "";
+      billing.zip = website?.pin || "";
+      billing.country = website?.country || "";
     }
   } catch (error) {
     if (error.response && error.response.status === 401) {
