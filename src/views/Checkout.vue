@@ -142,7 +142,7 @@ const createOrder = async (planRazorId) => {
 
 const submitPayment = async (orderId, planRazorId, plan_id) => {
   const options = {
-    key: "rzp_test_3kOO5za17PvQpv",
+    key: "rzp_live_Rf9C9KObD5YFd6",
     name: billing.name, // Use the name entered in the form
     order_id: orderId,
     description: "Payment",
