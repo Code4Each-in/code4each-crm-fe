@@ -197,6 +197,14 @@ const aboutBlockData = (componentuniqueId) => {
     "about-service4": getFieldValue(fields, "about-service4"),
     "about-service5": getFieldValue(fields, "about-service5"),
     "about-service6": getFieldValue(fields, "about-service6"),
+    "about-stat1": getFieldValue(fields, "about-stat1"),
+    "about-label1": getFieldValue(fields, "about-label1"),
+    "about-stat2": getFieldValue(fields, "about-stat2"),
+    "about-label2": getFieldValue(fields, "about-label2"),
+    "about-stat3": getFieldValue(fields, "about-stat3"),
+    "about-label3": getFieldValue(fields, "about-label3"),
+    "about-stat4": getFieldValue(fields, "about-stat4"),
+    "about-label4": getFieldValue(fields, "about-label4"),
   };
 };
 
@@ -232,6 +240,8 @@ const serviceBlockData = (componentuniqueId) => {
     "service-text8": getFieldValue(fields, "service-text8"),
     "service-button5": getFieldValue(fields, "service-button5"),
     "service-button6": getFieldValue(fields, "service-button6"),
+    "service-text9": getFieldValue(fields, "service-text9"),
+    "service-description7": getFieldValue(fields, "service-description7"),
   };
 };
 
