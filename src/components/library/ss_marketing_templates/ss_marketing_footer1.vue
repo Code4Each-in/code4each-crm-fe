@@ -129,17 +129,17 @@
                         <span v-else>{{ editableContent['footer-text2'] }}</span>
                     </h4>
                     <div class="footer-contact-item">
-                        <i data-lucide="map-pin" style="width:18px;height:18px;"></i>
+                        <i class="fa fa-map-marker" style="width:18px;height:18px;"></i>
                         <span>
                             <i class="bi bi-geo-alt"></i> {{ editableContent.address }}
                         </span>
                     </div>
                     <div class="footer-contact-item">
-                        <i data-lucide="phone" style="width:18px;height:18px;"></i>
+                        <i class="fa fa-phone" style="width:18px;height:18px;"></i>
                         <span>{{ editableContent.phone }}</span>
                     </div>
                     <div class="footer-contact-item">
-                        <i data-lucide="mail" style="width:18px;height:18px;"></i>
+                        <i class="fa fa-envelope" style="width:18px;height:18px;"></i>
                         <span>{{ editableContent.email }}</span>
                     </div>
                 </div>
@@ -162,7 +162,7 @@
                         <span v-else>{{ editableContent['footer-text3'] }}</span>
                     </h4>
                     <div class="footer-hours-item">
-                        <i data-lucide="clock" style="width:16px;height:16px;"></i>
+                        <i class="fa fa-clock-o" style="width:16px;height:16px;margin-top: 7px; "></i>
                         <div>
                             <p
                                 class="footer-hours-day ss_editable"
@@ -198,7 +198,7 @@
                     </div>
                 
                     <div class="footer-hours-item">
-                        <i data-lucide="clock" style="width:16px;height:16px;"></i>
+                        <i class="fa fa-clock-o" style="width:16px;height:16px;margin-top: 7px; "></i>
                         <div>
                             <p
                                 class="footer-hours-day ss_editable"
@@ -233,7 +233,7 @@
                         </div>
                     </div>
                     <div class="footer-hours-item">
-                        <i data-lucide="clock" style="width:16px;height:16px;"></i>
+                        <i class="fa fa-clock-o" style="width:16px;height:16px;margin-top: 7px; "></i>
                         <div>
                             <p
                                 class="footer-hours-day ss_editable"
