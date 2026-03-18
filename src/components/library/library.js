@@ -34,6 +34,11 @@ import COMP_SS_HEALTH_ABOUT4_97 from "./ss_health_templates/ss_health_about4.vue
 import COMP_SS_HEALTH_HEADER4_98 from "./ss_health_templates/ss_health_header4.vue";
 import COMP_SS_HEALTH_FOOTER4_99 from "./ss_health_templates/ss_health_footer4.vue";
 import COMP_SS_HEALTH_SERVICE4_100 from "./ss_health_templates/ss_health_service4.vue";
+import COMP_SS_MARKETING_HEADER1_101 from "./ss_marketing_templates/ss_marketing_header1.vue";
+import COMP_SS_MARKETING_ABOUT1_102 from "./ss_marketing_templates/ss_marketing_about1.vue";
+import COMP_SS_MARKETING_SERVICE1_103 from "./ss_marketing_templates/ss_marketing_service1.vue";
+import COMP_SS_MARKETING_FOOTER1_104 from "./ss_marketing_templates/ss_marketing_footer1.vue";
+
 /* =========================
    Composable for editable fields
 ========================= */
@@ -171,4 +176,8 @@ export const componentLibrary = {
   COMP_SS_HEALTH_HEADER4_98: COMP_SS_HEALTH_HEADER4_98,
   COMP_SS_HEALTH_FOOTER4_99: COMP_SS_HEALTH_FOOTER4_99,
   COMP_SS_HEALTH_SERVICE4_100: COMP_SS_HEALTH_SERVICE4_100,
+  COMP_SS_MARKETING_HEADER1_101: COMP_SS_MARKETING_HEADER1_101,
+  COMP_SS_MARKETING_ABOUT1_102: COMP_SS_MARKETING_ABOUT1_102,
+  COMP_SS_MARKETING_SERVICE1_103: COMP_SS_MARKETING_SERVICE1_103,
+  COMP_SS_MARKETING_FOOTER1_104: COMP_SS_MARKETING_FOOTER1_104
 };
