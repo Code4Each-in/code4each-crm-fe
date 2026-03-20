@@ -38,6 +38,10 @@ import COMP_SS_MARKETING_HEADER1_101 from "./ss_marketing_templates/ss_marketing
 import COMP_SS_MARKETING_ABOUT1_102 from "./ss_marketing_templates/ss_marketing_about1.vue";
 import COMP_SS_MARKETING_SERVICE1_103 from "./ss_marketing_templates/ss_marketing_service1.vue";
 import COMP_SS_MARKETING_FOOTER1_104 from "./ss_marketing_templates/ss_marketing_footer1.vue";
+import COMP_SS_MARKETING_HEADER2_105 from "./ss_marketing_templates/ss_marketing_header2.vue";
+import COMP_SS_MARKETING_ABOUT2_106 from "./ss_marketing_templates/ss_marketing_about2.vue";
+import COMP_SS_MARKETING_SERVICE2_107 from "./ss_marketing_templates/ss_marketing_service2.vue";
+import COMP_SS_MARKETING_FOOTER2_108 from "./ss_marketing_templates/ss_marketing_footer2.vue";
 
 /* =========================
    Composable for editable fields
@@ -179,5 +183,9 @@ export const componentLibrary = {
   COMP_SS_MARKETING_HEADER1_101: COMP_SS_MARKETING_HEADER1_101,
   COMP_SS_MARKETING_ABOUT1_102: COMP_SS_MARKETING_ABOUT1_102,
   COMP_SS_MARKETING_SERVICE1_103: COMP_SS_MARKETING_SERVICE1_103,
-  COMP_SS_MARKETING_FOOTER1_104: COMP_SS_MARKETING_FOOTER1_104
+  COMP_SS_MARKETING_FOOTER1_104: COMP_SS_MARKETING_FOOTER1_104,
+  COMP_SS_MARKETING_HEADER2_105: COMP_SS_MARKETING_HEADER2_105,
+  COMP_SS_MARKETING_ABOUT2_106: COMP_SS_MARKETING_ABOUT2_106,
+  COMP_SS_MARKETING_SERVICE2_107: COMP_SS_MARKETING_SERVICE2_107,
+  COMP_SS_MARKETING_FOOTER2_108: COMP_SS_MARKETING_FOOTER2_108
 };
