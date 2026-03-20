@@ -149,6 +149,8 @@ const heroBlockData = (componentuniqueId) => {
     menu: headerMenus.value.map((m) => m.name),
     "header-text1": getFieldValue(fields, "header-text1"),
     "header-text2": getFieldValue(fields, "header-text2"),
+    "header-text3": getFieldValue(fields, "header-text3"),
+    "header-text4": getFieldValue(fields, "header-text4"),
     "header-description1": getFieldValue(fields, "header-description1"),
     "header-button1": getFieldValue(fields, "header-button1"),
     "header-button2": getFieldValue(fields, "header-button2"),
@@ -161,6 +163,12 @@ const heroBlockData = (componentuniqueId) => {
     socialLinks,
     email: adminEmail.value,
     "header-images1": getFieldValue(fields, "header-images"),
+    "header-stat1": getFieldValue(fields, "header-stat1"),
+    "header-label1": getFieldValue(fields, "header-label1"),
+    "header-stat2": getFieldValue(fields, "header-stat2"),
+    "header-label2": getFieldValue(fields, "header-label2"),
+    "header-stat3": getFieldValue(fields, "header-stat3"),
+    "header-label3": getFieldValue(fields, "header-label3"),
   };
 };
 
@@ -180,7 +188,7 @@ const aboutBlockData = (componentuniqueId) => {
     "about-image1": getFieldValue(fields, "about-img1") || getFieldValue(fields, "about-image1"),
     "about-image2": getFieldValue(fields, "about-img2") || getFieldValue(fields, "about-image2"),
     "about-image3": getFieldValue(fields, "about-img3") || getFieldValue(fields, "about-image3"),
-    "about-image4": getFieldValue(fields, "about-img4"),
+    "about-image4": getFieldValue(fields, "about-img4") || getFieldValue(fields, "about-image4"),
     "about-image5": getFieldValue(fields, "about-img5"),
     "about-image6": getFieldValue(fields, "about-img6"),
     "about-text5": getFieldValue(fields, "about-text5"),
@@ -205,6 +213,8 @@ const aboutBlockData = (componentuniqueId) => {
     "about-label3": getFieldValue(fields, "about-label3"),
     "about-stat4": getFieldValue(fields, "about-stat4"),
     "about-label4": getFieldValue(fields, "about-label4"),
+    "about-description3": getFieldValue(fields, "about-description3"),
+    "about-description4": getFieldValue(fields, "about-description4"),
   };
 };
 
@@ -242,6 +252,12 @@ const serviceBlockData = (componentuniqueId) => {
     "service-button6": getFieldValue(fields, "service-button6"),
     "service-text9": getFieldValue(fields, "service-text9"),
     "service-description7": getFieldValue(fields, "service-description7"),
+    "service-text10": getFieldValue(fields, "service-text10"),
+    "service-text11": getFieldValue(fields, "service-text11"),
+    "service-text12": getFieldValue(fields, "service-text12"),
+    "service-text13": getFieldValue(fields, "service-text13"),
+    "service-text14": getFieldValue(fields, "service-text14"),
+    "service-text15": getFieldValue(fields, "service-text15"),
   };
 };
 

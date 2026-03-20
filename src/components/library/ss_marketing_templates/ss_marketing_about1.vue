@@ -263,7 +263,7 @@ const props = defineProps({
         "about-text2": "Enter about text2",
         "about-text3": "Enter about text3",
         "about-description1": "Enter about description1",
-        "about-description1": "Enter about description2",
+        "about-description2": "Enter about description2",
         "about-stat1": "Enter about stat1",
         "about-label1": "Enter about label1",
         "about-stat2": "Enter about stat2",
