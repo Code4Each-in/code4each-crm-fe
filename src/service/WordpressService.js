@@ -11,11 +11,17 @@ const WordpressService = {
   subscriptionPayment: (data) => {
     return requests(baseUrl).post(`/subscriptionPayment`, data)
   },
-  fetchDashboardData: (data) => {
-    return requests(baseUrl).get(`/dashboard`)
+  fetchDashboardData: () => {
+    const token = getToken();
+    return requests(baseUrl).get(`/dashboard`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
   },
-  resendLink: (data) => {
-    return requests(baseUrl).get(`/email/resend`)
+  resendLink: () => {
+    const token = getToken();
+    return requests(baseUrl).get(`/email/resend`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
   },
   agencyDetails: (data, headers) => {
     return requests(baseUrl).post(`/agency-website-details`, data, { headers })
@@ -387,4 +393,16 @@ const WordpressService = {
   },
 
 }
+
+const getToken = () => {
+  const stored = localStorage.getItem("access_token");
+  const urlToken = new URL(window.location.href).searchParams.get("access_token");
+  const token = stored || urlToken;
+
+  if (token && !stored) {
+    localStorage.setItem("access_token", token);
+  }
+  return token;
+};
+
 export default WordpressService

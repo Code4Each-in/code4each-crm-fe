@@ -56,10 +56,23 @@ const resendLink = async () => {
   }
 };
 
+const applyTokenFromUrl = () => {
+  const url = new URL(window.location.href);
+  const token = url.searchParams.get("access_token");
+  if (!token) return;
+
+  localStorage.setItem("access_token", token);
+
+  // URL se token hata do (same login behavior, but secure)
+  url.searchParams.delete("access_token");
+  window.history.replaceState({}, "", url.pathname + (url.searchParams.toString() ? `?${url.searchParams.toString()}` : ""));
+};
+
 const loadingOnOff = async (value) => {
   loading.value = value;
 };
 onMounted(async () => {
+  applyTokenFromUrl();
   await fetchDashboardData();
   EventBus.on("fetchDashboardData", fetchDashboardData);
   EventBus.on("loadingOnOff", loadingOnOff);
