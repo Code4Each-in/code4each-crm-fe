@@ -3,7 +3,8 @@ import NavBar from "@/components/dashboard/layouts/navbar.vue";
 import SideBar from "@/components/dashboard/layouts/sidebar.vue";
 import { useAuth } from "@/service/useAuth";
 import { useRouter } from "vue-router";
-import { ref, onMounted, provide, watch } from "vue";
+import { useRoute } from "vue-router";
+import { ref, onMounted, provide, watch, computed } from "vue";
 import WordpressService from "@/service/WordpressService";
 import Loader from "@/components/common/Loader.vue";
 import EditSiteSettingsFormBuilder from "@/components/common/EditSiteSettingsFormBuilder.vue";
@@ -14,6 +15,7 @@ import { openLinkInNewTab } from "@/util/helper";
 import { EventBus } from "@/EventBus";
 import DeleteModal from "@/components/common/DeleteModal.vue";
 import ConfirmModal from "@/components/common/ConfirmModal.vue";
+import SelectOptionForRegenerate from "@/components/common/SelectOptionForRegenerate.vue";
 import ProcessCompleteModal from "@/components/common/ProcessCompleteModal.vue";
 import FlashMessage from "@/components/common/FlashMessage.vue";
 import AddNewSection from "./elements/AddNewSection.vue";
@@ -58,6 +60,13 @@ const selectedDeletedImageUrl = ref(null);
 const deleteLoading = ref(false);
 const deleteComponentImageModal = ref(false);
 const positionForAddSection = ref(null);
+const templateId = ref(null);
+const selectedCategory = ref("");
+const route = useRoute();
+const pageId = ref(null);
+const templatePages = ref(null);
+const initialLoading = ref(true);
+const pageLoading = ref(false);
 
 const fetchDashboardData = async () => {
   try {
@@ -79,10 +88,16 @@ const fetchDashboardData = async () => {
   }
 };
 
+const currentPage = computed(() => {
+  if (!templatePages.value || !pageId.value) return null;
+  return templatePages.value.find((p) => p.page_id === pageId.value) || null;
+});
+
 const getActiveComponentsData = async () => {
   try {
     const response = await WordpressService.Components.getActiveComponents({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
+      page_id: pageId.value,
     });
 
     if (response.status === 200 && response.data.success) {
@@ -133,9 +148,21 @@ const openModal = async (compType, oldComponentUniqueeId, src) => {
 
 onMounted(async () => {
   fileInput.value = ref.fileInput;
-  await getSiteDeatils();
-  await fetchDashboardData();
-  await getActiveComponentsData();
+  if (route.query.page_id) {
+    pageId.value = parseInt(route.query.page_id);
+  }
+
+  try {
+    await fetchDashboardData();
+    await getSiteDeatils();
+    await getTemplatePage();
+
+    if (pageId.value) {
+      await getActiveComponentsData();
+    }
+  } finally {
+    initialLoading.value = false; 
+  }
 });
 
 watch(
@@ -147,6 +174,22 @@ watch(
   }
 );
 
+watch(pageId, async (newPageId) => {
+  if (newPageId) {
+    router.push({
+      query: { ...route.query, page_id: newPageId }
+    });
+
+    pageLoading.value = true;
+    activeComponentsDetail.value = [];
+    try {
+      await getActiveComponentsData();
+    } finally {
+      pageLoading.value = false;
+    }
+  }
+});
+
 provide("dashBoardMethods", {
   fetchDashboardData,
 });
@@ -156,7 +199,7 @@ const changeComponent = async () => {
     loading.value = true;
     btnDisable.value = true;
     const response = await WordpressService.Components.changeComponent({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
       component_unique_id_old: oldComponent.value,
       component_unique_id_new: newComponent.value,
     });
@@ -180,7 +223,7 @@ const handleEditComponentBtnClick = async (componentUniqueId, type) => {
     const response =
       await WordpressService.ComponentsFormField.getComponentsFormField({
         component_unique_id: componentUniqueId,
-        website_url: siteSettingsDeatil.value?.website_domain,
+        website_url: siteSettingsDeatil.value?.staging_domain,
       });
     if (response.status === 200 && response.data.success) {
       siteSettingsFormFields.value = response.data.data;
@@ -198,8 +241,9 @@ const submitCustomFields = async (data) => {
     const formFields = Object.keys(data).reduce((acc, key) => {
       let meta1 = null;
       let meta2 = null;
+      let formId = null;
 
-      let modifiedString = key.replace(/-meta1|-meta2/g, "");
+      let modifiedString = key.replace(/-meta1|-meta2|-formId/g, "");
 
       // Check if field_name already exists
       const existingFieldIndex = acc.findIndex(
@@ -215,12 +259,16 @@ const submitCustomFields = async (data) => {
         meta2 =
           existingField.meta2 ||
           (key.includes("meta2") ? data[key] : undefined);
+        formId =
+          existingField.formId ||
+          (key.includes("formId") ? data[key] : undefined);
 
         // Update the existing entry
         acc[existingFieldIndex] = {
           ...existingField,
           meta1: meta1,
           meta2: meta2,
+          formId: formId,
         };
       } else {
         acc.push({
@@ -229,6 +277,7 @@ const submitCustomFields = async (data) => {
           type: componentsFieldsUnderEdit.value.type,
           meta1: meta1,
           meta2: meta2,
+          formId: formId,
           field_type: null,
         });
       }
@@ -237,7 +286,7 @@ const submitCustomFields = async (data) => {
 
     const response =
       await WordpressService.ComponentsFormField.updateComponentsFormField({
-        website_url: siteSettingsDeatil.value?.website_domain,
+        website_url: siteSettingsDeatil.value?.staging_domain,
         component_unique_id: componentsFieldsUnderEdit.value.id,
         form_fields: formFields,
       });
@@ -252,12 +301,20 @@ const submitCustomFields = async (data) => {
 };
 
 const getSiteDeatils = async () => {
+  if (!store.websiteId || store.websiteId === false) {
+    console.warn("websiteId is missing or invalid:", store.websiteId);
+    return;
+  }
   try {
     const response = await WordpressService.WebsiteSettings.getSiteDetail({
       website_id: store.websiteId,
     });
     if (response.status === 200 && response.data.success) {
       siteSettingsDeatil.value = response.data.settings_detail;
+      const responseCatName = siteSettingsDeatil.value.agency_website_detail.website_category_name;
+      if (responseCatName) {
+        selectedCategory.value = responseCatName.trim();
+      }
     }
   } catch (error) {
     console.error("An error occurred:", error);
@@ -300,7 +357,7 @@ const getComponentsImages = async () => {
     const response =
       await WordpressService.ComponentsFormField.getComponentsImages({
         type: oldComponentType.value,
-        website_url: siteSettingsDeatil.value?.website_domain,
+        website_url: siteSettingsDeatil.value?.staging_domain,
       });
 
     if (response.status === 200 && response.data.success) {
@@ -330,7 +387,7 @@ const submitForm = async () => {
     }
 
     formData.append("type", fieldType);
-    formData.append("website_url", siteSettingsDeatil.value?.website_domain);
+    formData.append("website_url", siteSettingsDeatil.value?.staging_domain);
 
     const customHeaders = {
       "Content-Type": "multipart/form-data",
@@ -368,7 +425,7 @@ const deleteComponentImage = async () => {
     const response =
       await WordpressService.ComponentsFormField.deleteComponentImage({
         delete_images: deleteImages,
-        website_url: siteSettingsDeatil.value?.website_domain,
+        website_url: siteSettingsDeatil.value?.staging_domain,
       });
     if (response.status === 200 && response.data.success) {
       getComponentsImages();
@@ -397,12 +454,14 @@ const handleTabClick = () => {
   loading.value = false;
 };
 
-const regenerateWebsite = async () => {
+const regenerateWebsite = async (id) => {
+  templateId.value = id;
   try {
     loading.value = true;
     const response = await WordpressService.regenerateWebsite({
       agency_id: dashboardData.value.user.agency_id,
-      website_url: siteSettingsDeatil.value.website_domain,
+      website_url: siteSettingsDeatil.value.staging_domain,
+      template_id: templateId.value,
     });
     await getSiteDeatils();
     await fetchDashboardData();
@@ -414,6 +473,22 @@ const regenerateWebsite = async () => {
   loading.value = false;
 };
 
+// -------------------------
+// Fetch Template Pages
+// -------------------------
+const getTemplatePage = async () => {
+    try {
+        const response = await WordpressService.TemplatePages.getTemplatePage({
+            website_domain: siteSettingsDeatil.value.staging_domain,
+        });
+
+        if (response.status === 200 && response.data.success) {
+            templatePages.value = response.data.response;
+        }
+    } catch (error) {
+        console.error(error);
+    }
+};
 
 const addSectionHandle = (position) => {
   positionForAddSection.value = position
@@ -423,6 +498,13 @@ const addSectionHandle = (position) => {
 const showloading = (value)=>{
   loading.value = value
 }
+
+const decodeHtml = (html) => {
+  const txt = document.createElement("textarea");
+  txt.innerHTML = html;
+  return txt.value;
+};
+
 </script>
 <template>
   <div class="page">
@@ -436,16 +518,40 @@ const showloading = (value)=>{
       :dashboardData="dashboardData"
       :toggled="isSidebarToggled"
     ></SideBar>
-    <section id="content-wrapper main-content side-content">
-      <div class="side-app">
-        <div class="main-container-components container">
-          <div id="wrapper" :class="loading ? 'fade' : ''">
-            <div
-              class="eidtor-site"
-              aria-hidden="true"
-              data-toggle="modal"
-              data-target="#exampleModalRight-components"
+     <section id="content-wrapper main-content side-content">
+      <Loader v-if="initialLoading" />
+
+      <template v-else>
+        <div v-if="currentPage" class="page-title mt-2">
+         <h2>{{ decodeHtml(currentPage.page_name) }} Customization</h2>
+
+          <div v-if="templatePages && templatePages.length > 0" class="mt-2 select-box-pages">
+            <select
+              id="templatePageSelect"
+              v-model="pageId"
+              class="form-select"
             >
+              <option
+                v-for="page in templatePages.filter(p => p.status === 'publish')"
+                :key="page.page_id"
+                :value="page.page_id"
+              >
+                {{ decodeHtml(page.page_name) }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="side-app">
+          <div class="main-container-components container">
+            <Loader v-if="pageLoading" />
+
+            <div v-else-if="!activeComponentsDetail || activeComponentsDetail.length === 0">
+              <p class="text-center my-4">No components assigned to this page</p>
+            </div>
+
+            <!-- Components list -->
+            <div v-else class="eidtor-site">
               <div
                 v-for="(compValue, index) in activeComponentsDetail"
                 :key="index"
@@ -453,23 +559,20 @@ const showloading = (value)=>{
                 <div
                   class="eidtor-img"
                   :class="oldComponent === compValue.id ? 'active' : ''"
-                  @click="
-                    openModal(compValue.type, compValue.id, compValue.preview)
-                  "
+                  @click="openModal(compValue.type, compValue.id, compValue.preview)"
                 >
                   <img :src="config.CRM_API_URL + compValue.preview" />
                 </div>
-                <div class="main-div1" @click="addSectionHandle(index+2)"><div class="edit-section">
-    
-                  </div><h1><i class="fa fa-plus"></i>  Add new section <i class="fa fa-plus"></i></h1>
-                <div class="edit-section1">
-
-                  </div></div>
+                <div class="main-div1" @click="addSectionHandle(index+2)">
+                  <div class="edit-section"></div>
+                  <h1><i class="fa fa-plus"></i> Add new section <i class="fa fa-plus"></i></h1>
+                  <div class="edit-section1"></div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </template>
     </section>
     <div class="right-side">
       <div class="sidebar-right py-3" id="sidebar-right">
@@ -481,7 +584,7 @@ const showloading = (value)=>{
             <span class="panel-header-title-span"> </span>
             <img
               src="/images/export.png"
-              @click="openLinkInNewTab(siteSettingsDeatil.website_domain)"
+              @click="openLinkInNewTab(siteSettingsDeatil.staging_domain)"
               style="cursor: pointer"
             />
           </div>
@@ -606,6 +709,7 @@ const showloading = (value)=>{
                           <div class="tab-pane" id="Buttons" role="tabpanel">
                             <EditSiteSettingsButtonFormBuilder
                               :siteSettingsFormFields="siteSettingsFormFields"
+                              :websiteDomain="siteSettingsDeatil?.staging_domain"
                               @submit-custom-fields="submitCustomFields"
                             />
                           </div>
@@ -778,7 +882,7 @@ const showloading = (value)=>{
                 </div>
               </div>
             </div>
-              <AddNewSection v-else :categoryId="siteSettingsDeatil?.agency_website_detail.website_category_id" :domain="siteSettingsDeatil?.website_domain" :position="positionForAddSection" @refreshData="getActiveComponentsData" @loading="showloading"/>
+              <AddNewSection v-else :categoryId="siteSettingsDeatil?.agency_website_detail.website_category_id" :domain="siteSettingsDeatil?.staging_domain" :position="positionForAddSection" @refreshData="getActiveComponentsData" @loading="showloading"/>
           </div>
         </div>
       </div>
@@ -786,7 +890,12 @@ const showloading = (value)=>{
     <Loader v-if="loading" />
   </div>
   <DeleteModal @confirm="deleteComponentImage" :loading="deleteLoading" />
-  <ConfirmModal
+  <SelectOptionForRegenerate
+    v-if="selectedCategory" 
+    :initialCategory="selectedCategory"
+    optionTitle="Choose an Option"
+    previousText="Previous"
+    nextText="Next"
     modalTitle="Confirm!"
     modalText="Do you really want to regenrate .This will regenrate your site"
     @confirm="regenerateWebsite"
@@ -796,7 +905,7 @@ const showloading = (value)=>{
     modalTitle="Awesome!"
     modalText="Your website Regenerated successfully"
     confirmText="Preview"
-    @confirm="openLinkInNewTab(siteSettingsDeatil.website_domain)"
+    @confirm="openLinkInNewTab(siteSettingsDeatil.staging_domain)"
   />
 </template>
 <style>
@@ -927,5 +1036,25 @@ p {
 .upload_wrapper_inner_img_cont .upload__img-close {
   right: -10px;
   top: -10px;
+}
+
+.select-box-pages {
+    position: relative;
+    max-width: 20%;
+}
+
+.page-title {
+    margin-left: 230px;
+}
+
+select.form-select {
+    height: 46px !important;
+    padding: 4px 10px !important;
+    margin: 0px !important;
+    width: 100% !important;
+}
+
+.form-select{
+  width: 83% !important;
 }
 </style>

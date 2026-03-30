@@ -11,11 +11,17 @@ const WordpressService = {
   subscriptionPayment: (data) => {
     return requests(baseUrl).post(`/subscriptionPayment`, data)
   },
-  fetchDashboardData: (data) => {
-    return requests(baseUrl).get(`/dashboard`)
+  fetchDashboardData: () => {
+    const token = getToken();
+    return requests(baseUrl).get(`/dashboard`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
   },
-  resendLink: (data) => {
-    return requests(baseUrl).get(`/email/resend`)
+  resendLink: () => {
+    const token = getToken();
+    return requests(baseUrl).get(`/email/resend`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
   },
   agencyDetails: (data, headers) => {
     return requests(baseUrl).post(`/agency-website-details`, data, { headers })
@@ -26,6 +32,9 @@ const WordpressService = {
   regenerateWebsite: (data) => {
     return requests(baseUrl).post(`/components/regenerate`, data)
   },
+  getWebsiteTemplates: () => {
+    return requests(baseUrl).get(`/website-templates`)
+  },
   getGlobalColors: (data) => {
     return requests(baseUrl).get(`/get-components-global-colors`, {
       params: data
@@ -33,6 +42,11 @@ const WordpressService = {
   },
   updateGlobalColors: (data) => {
     return requests(baseUrl).post(`/update-global-colors`, data)
+  },
+  getGlobalVariables: (data) => {
+    return requests(baseUrl).get(`/global-variables`, {
+      params: data
+    },)
   },
   Components: {
     getActiveComponents: (data) => {
@@ -190,8 +204,205 @@ const WordpressService = {
     createOrder: (data) => {
       return requests(baseUrl).post(`/create-order`, data)
     },
-  }
+  },
 
+  FormBuilder: {
+    fetchForms: (data) => {
+      return requests(baseUrl).get('/get-forms', { params: data });
+    },
+    submitCustomFields: (data) => {
+      return requests(baseUrl).post(`/create-customfromfields`, data)
+    },
+    updateFormStatus: (data) => {
+      return requests(baseUrl).post(`/update-form-status`, data)
+    },
+    deleteForm: (data) => {
+      return requests(baseUrl).delete(`/delete-form`, {
+        params: data
+      })
+    },
+    updateCustomFields: (data) => {
+      return requests(baseUrl).post(`/update-customfields`, data)
+    },
+    getFormSubmissions: (data) => {
+      return requests(baseUrl).get('/get-form-submissions', { params: data });
+    },
+    // createEmailTemplate: (data) => {
+    //   return requests(baseUrl).post(`/create-email-template`, data)
+    // },
+    getSettingEmailOptions: (data) => {
+      return requests(baseUrl).get('/get-setting-email-options', { params: data });
+    }, 
+    updateSettingEmailOptions: (data) => {
+      return requests(baseUrl).post(`/update-setting-email-options`, data)
+    },
+  },
+
+  SEOKeywords: {
+    saveSEOKeywords: (data) => {
+      return requests(baseUrl).post(`/save-seo-keywords`, data)
+    }
+  },
+
+  TemplatePages: {
+    getTemplatePage: (data) => {
+      return requests(baseUrl).get('/get-template-pages', { params: data });
+    },
+    saveTemplatePage: (data) => {
+      return requests(baseUrl).post(`/add-template-pages`, data)
+    },
+    updateTemplatePage: (data) => {
+      return requests(baseUrl).post(`/update-template-pages`, data)
+    },
+    deleteTemplatePage: (data) => {
+      return requests(baseUrl).delete(`/delete-template-pages`, { params: data });
+    },
+  },
+
+  CustomComponentsAndFieldValues: {
+    getCustomComponentsAndFieldValues: (data) => {
+      return requests(baseUrl).get('/get-custom-components-and-fieldvalues', { params: data });
+    },
+    saveCustomComponentsFieldValues: (data) => {
+      if (data instanceof FormData) {
+        return requests(baseUrl).post(`/add-custom-components-field-values`, data, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      }
+      return requests(baseUrl).post(`/add-custom-components-field-values`, data)
+    },
+    deleteCustomComponent: (data) => {
+      return requests(baseUrl).delete(`/delete-custom-components`, { params: data });
+    },
+    getComponentsByType: (data) => {
+      return requests(baseUrl).get('/get-custom-components-by-type', { params: data });
+    },
+    replaceCustomComponent: (data) => {
+      return requests(baseUrl).post(`/replace-custom-component`, data)
+    },
+    getComponentForNewSection: (data) => {
+      return requests(baseUrl).get('/get-custom-components-for-new-section', { params: data });
+    },
+    addNewSection: (data) => {
+      return requests(baseUrl).post(`/add-new-custom-component-section`, data)
+    },
+    addGlobalSwitchValue: (data) => {
+      return requests(baseUrl).post(`/add-global-switch-value`, data)
+    },
+    addForm: (data) => {
+      return requests(baseUrl).post(`/add-form`, data)
+    },
+  },
+
+  BillingDetails :{
+    userBillingDetails: (data) => {
+      return requests(baseUrl).post(`/add-userbillingdetails`, data)
+    }
+  },
+
+  ReferredUsers: {
+    getReferralUsersData: (data) => {
+      return requests(baseUrl).get('/get-referred-users', { params: data });
+    },
+    trackClick: (data) => {
+      return requests(baseUrl).post(`/track-referral-click`, data)
+    },
+    fetchTotalReferredUsers: (data) => {
+      return requests(baseUrl).get('/get-total-referred-users', { params: data });
+    },
+    fetchTotalEarnings: (data) => {
+      return requests(baseUrl).get('/get-total-earnings', { params: data });
+    },
+    fetchTotalWithdrawalAmount: (data) => {
+      return requests(baseUrl).get('/get-total-withdrawal-amount', { params: data });
+    },
+    fetchMonthlyEarnings: (data) => {
+      return requests(baseUrl).get('/get-monthly-earnings', { params: data });
+    },
+    fetchWithdrawalHistory: (data) => {
+      return requests(baseUrl).get('/get-withdrawal-history', { params: data });
+    },
+    fetchUserPlanHistory: (data) => {
+      return requests(baseUrl).get('/get-referred-users-plan-history', { params: data });
+    }
+  },
+
+  AffiliateDetails: {
+    fetchAffiliateStats: (data) => {
+      return requests(baseUrl).get('/get-affiliate-stats', { params: data });
+    },
+    sendWithdrawalData: (data) => {
+      return requests(baseUrl).post('/post-withdrawal-data', data);
+    },
+    fetchAffiliateAccountDetails: (data) => {
+      return requests(baseUrl).get('/get-affiliate-account-details', { params: data });
+    }
+  },
+
+  GoogleImproveBusiness: {
+    getGoogleReviewLink: (data) => {
+      return requests(baseUrl).get('/get-google-review-link', { params: data });
+    },
+    saveGoogleReviewLink: (data) => {
+      return requests(baseUrl).post(`/save-google-review-link`, data)
+    }
+  },
+
+  UpdateMapAddress: {
+    updateAddressChanges: (formData) => {
+      return requests(baseUrl).post(`/update-map-address`, formData);
+    }
+  },
+
+  Domains: {
+    getDomains: (data) => {
+      return requests(baseUrl).get('/get-domains', { params: data });
+    },
+    saveNewDomain: (data) => {
+      return requests(baseUrl).post(`/save-new-domain`, data)
+    },
+    checkDomain: (data) => {
+      return requests(baseUrl).post(`/check-domain`, data)  
+    },
+    deleteDomain: (data) => {
+      return requests(baseUrl).delete(`/delete-domain`, { params: data });
+    },
+    setPrimaryDomain: (data) => {
+      return requests(baseUrl).post(`/set-primary-domain`, data)
+    }
+  },
+
+  SliderImages: {
+    uploadSliderImages: (data) => {
+      if (data instanceof FormData) {
+        return requests(baseUrl).post(`/upload-slider-images`, data, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      }
+      return requests(baseUrl).post(`/upload-slider-images`, data)
+    },
+    RemoveSliderImages: (formData) => {
+      return requests(baseUrl).post(`/remove-slider-images`, formData)
+    }
+  },
+
+  PlatformIntegration: {
+    fetchConnectedPlatforms: (data) => {
+      return requests(baseUrl).get('/get-connected-platforms', { params: data });
+    },
+  },
 
 }
+
+const getToken = () => {
+  const stored = localStorage.getItem("access_token");
+  const urlToken = new URL(window.location.href).searchParams.get("access_token");
+  const token = stored || urlToken;
+
+  if (token && !stored) {
+    localStorage.setItem("access_token", token);
+  }
+  return token;
+};
+
 export default WordpressService

@@ -56,10 +56,23 @@ const resendLink = async () => {
   }
 };
 
+const applyTokenFromUrl = () => {
+  const url = new URL(window.location.href);
+  const token = url.searchParams.get("access_token");
+  if (!token) return;
+
+  localStorage.setItem("access_token", token);
+
+  // URL se token hata do (same login behavior, but secure)
+  url.searchParams.delete("access_token");
+  window.history.replaceState({}, "", url.pathname + (url.searchParams.toString() ? `?${url.searchParams.toString()}` : ""));
+};
+
 const loadingOnOff = async (value) => {
   loading.value = value;
 };
 onMounted(async () => {
+  applyTokenFromUrl();
   await fetchDashboardData();
   EventBus.on("fetchDashboardData", fetchDashboardData);
   EventBus.on("loadingOnOff", loadingOnOff);
@@ -70,7 +83,7 @@ const regenerateWebsite = async () => {
     loading.value = true;
     const response = await WordpressService.regenerateWebsite({
       agency_id: dashboardData.value.user.agency_id,
-      website_url: dashboardData.value.agency_website_info[0].website_domain,
+      website_url: dashboardData.value.agency_website_info[0].staging_domain,
     });
     await fetchDashboardData();
   } catch (error) {

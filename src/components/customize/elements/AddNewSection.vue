@@ -76,7 +76,7 @@ const getComponents = async () => {
         category_id: props.categoryId
       });
     if (response.status === 200 && response.data.success) {
-        console.log(response.data.components_detail)
+        // console.log(response.data.components_detail)
         allComponents.value = response.data.components_detail
     }
   } catch (error) {

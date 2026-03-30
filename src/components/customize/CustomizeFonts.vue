@@ -17,6 +17,7 @@ import { openLinkInNewTab } from "@/util/helper";
 import { EventBus } from "@/EventBus";
 import DeleteModal from "@/components/common/DeleteModal.vue";
 import ConfirmModal from "@/components/common/ConfirmModal.vue";
+import SelectOptionForRegenerate from "@/components/common/SelectOptionForRegenerate.vue";
 import ProcessCompleteModal from "@/components/common/ProcessCompleteModal.vue";
 import AnimationLoader from "@/components/common/AnimationLoader.vue";
 import Loader from "@/components/common/Loader.vue";
@@ -64,6 +65,8 @@ const btnDisable = ref(false);
 const currentTab = ref("image");
 const selectedDeletedImageUrl = ref(null);
 const newActiveFontId = ref(null);
+const templateId = ref(null);
+const selectedCategory = ref("");
 
 const defaultUrls = ref();
 
@@ -88,7 +91,7 @@ const fetchDashboardData = async () => {
 const getActiveComponentsData = async () => {
   try {
     const response = await WordpressService.Components.getActiveComponents({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
     });
 
     if (response.status === 200 && response.data.success) {
@@ -113,7 +116,7 @@ const changeDefaultFonts = async () => {
   try {
     btnDisable.value = true;
     const response = await WordpressService.CustomizeFonts.changeDefaulFonts({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
       font_id: newActiveFontId.value,
     });
 
@@ -150,12 +153,20 @@ provide("dashBoardMethods", {
 });
 
 const getSiteDeatils = async () => {
+  if (!store.websiteId || store.websiteId === false) {
+    console.warn("websiteId is missing or invalid:", store.websiteId);
+    return;
+  }
   try {
     const response = await WordpressService.WebsiteSettings.getSiteDetail({
       website_id: store.websiteId,
     });
     if (response.status === 200 && response.data.success) {
       siteSettingsDeatil.value = response.data.settings_detail;
+      const responseCatName = siteSettingsDeatil.value.agency_website_detail.website_category_name;
+      if (responseCatName) {
+        selectedCategory.value = responseCatName.trim();
+      }
     }
   } catch (error) {
     console.error("An error occurred:", error);
@@ -163,11 +174,13 @@ const getSiteDeatils = async () => {
 };
 
 const regenerateWebsite = async () => {
+  templateId.value = id;
   try {
     loading.value = true;
     const response = await WordpressService.regenerateWebsite({
       agency_id: dashboardData.value.user.agency_id,
-      website_url: siteSettingsDeatil.value.website_domain,
+      website_url: siteSettingsDeatil.value.staging_domain,
+      template_id: templateId.value,
     });
     await getSiteDeatils();
     await fetchDashboardData();
@@ -182,7 +195,7 @@ const regenerateWebsite = async () => {
 const getDefaultFonts = async () => {
   try {
     const response = await WordpressService.CustomizeFonts.getDefaulFonts({
-      website_url: siteSettingsDeatil.value?.website_domain,
+      website_url: siteSettingsDeatil.value?.staging_domain,
     });
     if (response.status === 200 && response.data.success) {
       defaultUrls.value = response.data.fonts;
@@ -244,7 +257,7 @@ const activateFontSet = (id, setIndex) => {
             <span class="panel-header-title-span"> </span>
             <img
               src="/images/export.png"
-              @click="openLinkInNewTab(siteSettingsDeatil.website_domain)"
+              @click="openLinkInNewTab(siteSettingsDeatil.staging_domain)"
               style="cursor: pointer"
             />
           </div>
@@ -320,9 +333,14 @@ const activateFontSet = (id, setIndex) => {
   </div>
   <Loader v-if="loading" />
   <!-- <DeleteModal @confirm="deleteComponentImage" /> -->
-  <ConfirmModal
+  <SelectOptionForRegenerate
+    v-if="selectedCategory" 
+    :initialCategory="selectedCategory"
+    optionTitle="Choose an Option"
+    previousText="Previous"
+    nextText="Next"
     modalTitle="Confirm!"
-    modalText="Do you really want to regenrate This will regenrate your site"
+    modalText="Do you really want to regenrate .This will regenrate your site"
     @confirm="regenerateWebsite"
     confirmText="Submit"
   />
@@ -330,7 +348,7 @@ const activateFontSet = (id, setIndex) => {
     modalTitle="Awesome!"
     modalText="Your website Regenerated successfully"
     confirmText="Preview"
-    @confirm="openLinkInNewTab(siteSettingsDeatil.website_domain)"
+    @confirm="openLinkInNewTab(siteSettingsDeatil.staging_domain)"
   />
 </template>
 <style>

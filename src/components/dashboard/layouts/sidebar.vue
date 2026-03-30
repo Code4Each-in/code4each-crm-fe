@@ -9,7 +9,8 @@
         class="show-currentwesbite"
         data-toggle="modal"
         data-target="#myModal"
-        v-if="currentRoute != '/dashboard'"
+        v-if="currentRoute != '/dashboard' && dashboardData?.agency_website_info?.length >= 1 &&
+            dashboardData?.agency_website_info[0].website_id"
       >
         <div class="card">
           <div class="card-show">
@@ -31,7 +32,7 @@
                 data-target="#myModal"
               >
                 <h5 class="text-center">
-                  {{ siteSettingsDeatil?.website_domain }}
+                  {{ siteSettingsDeatil?.staging_domain }}
                 </h5>
               </a>
             </div>
@@ -41,9 +42,11 @@
       <ul class="list-unstyled">
         <li class="sidebar-list-item">
           <router-link
-            :to="{ name: 'dashboard' }"
+            :to="dashboardData?.user?.user_type === 'agent' 
+                  ? { name: 'affiliate_dashboard' } 
+                  : { name: 'dashboard' }"
             class="sidebar-link text-muted"
-            :class="{ active: currentRoute === '/dashboard' }"
+            :class="{ active: currentRoute === '/dashboard' || currentRoute === '/affiliate-dashboard' }"
           >
             <i class="fa fa-home me-3"></i>
             <span class="sidebar-link-title"> Dashboard</span>
@@ -53,7 +56,8 @@
           class="sidebar-list-item"
           v-if="
             dashboardData?.agency_website_info?.length >= 1 &&
-            dashboardData?.agency_website_info[0].website_id
+            dashboardData?.agency_website_info[0].website_id &&
+            dashboardData?.user?.user_type !== 'agent'
           "
         >
           <a
@@ -73,7 +77,7 @@
             v-if="dashboardData?.agency_website_info?.length >= 1"
             id="cmsDropdown"
           >
-            <li
+            <!-- <li
               class="sidebar-list-item"
               :class="{ active: currentRoute === '/customize/components' }"
             >
@@ -88,7 +92,22 @@
                 <span class="sidebar-link-title"> Components</span>
               </router-link>
             </li>
-            <li class="sidebar-list-item">
+            <li
+              class="sidebar-list-item"
+              :class="{ active: currentRoute === '/customize/customize-pages' }"
+            >
+              <router-link
+                :to="{ name: 'customize_customizepages' }"
+                class="sidebar-link text-muted"
+                :class="{
+                  active: currentRoute.includes('/customize/customize-pages'),
+                }"
+              >
+                <i class="fa fa-book"></i>
+                <span class="sidebar-link-title"> Customize Pages</span>
+              </router-link>
+            </li> -->
+            <!-- <li class="sidebar-list-item">
               <router-link
                 :to="{ name: 'customize_colors' }"
                 class="sidebar-link text-muted"
@@ -111,8 +130,8 @@
                 <i class="fa fa-font" aria-hidden="true"></i>
                 <span class="sidebar-link-title">Fonts</span>
               </router-link>
-            </li>
-            <li class="sidebar-list-item">
+            </li> -->
+            <!-- <li class="sidebar-list-item">
               <router-link
                 :to="{ name: 'customize_social_links' }"
                 class="sidebar-link text-muted"
@@ -123,8 +142,8 @@
                 <i class="fa fa-bookmark"></i>
                 <span class="sidebar-link-title">Social Links</span>
               </router-link>
-            </li>
-            <li class="sidebar-list-item">
+            </li> -->
+            <!-- <li class="sidebar-list-item">
               <router-link
                 :to="{ name: 'menusPage' }"
                 class="sidebar-link text-muted"
@@ -135,8 +154,32 @@
                 <i class="fa fa-list-ul" aria-hidden="true"></i>
                 <span class="sidebar-link-title">Site Menus</span>
               </router-link>
+            </li> -->
+            <li class="sidebar-list-item">
+              <router-link
+                :to="{ name: 'templatePages' }"
+                class="sidebar-link text-muted"
+                :class="{
+                  active: currentRoute.includes('/customize/template-pages'),
+                }"
+              >
+                <i class="fa fa-file-o" aria-hidden="true"></i>
+                <span class="sidebar-link-title">Pages</span>
+              </router-link>
             </li>
             <li class="sidebar-list-item">
+              <router-link
+                :to="{ name: 'seoKeywordsPage' }"
+                class="sidebar-link text-muted"
+                :class="{
+                  active: currentRoute.includes('/customize/seo-keywords'),
+                }"
+              >
+                <i class="fa fa-search"></i>
+                <span class="sidebar-link-title">SEO Keywords</span>
+              </router-link>
+            </li>
+            <!-- <li class="sidebar-list-item">
               <router-link
                 :to="{ name: 'rearrangePage' }"
                 class="sidebar-link text-muted"
@@ -147,34 +190,119 @@
                 <i class="fa fa-arrows"></i>
                 <span class="sidebar-link-title">Rearrange</span>
               </router-link>
-            </li>
+            </li> -->
+            <!-- <li class="sidebar-list-item">
+              <a
+                href="#"
+                class="sidebar-link text-muted"
+                data-toggle="modal"
+                data-target="#selectOptionForRegenerate"
+              >
+                <i class="fa fa-retweet" aria-hidden="true"></i>
+                <span class="sidebar-link-title">Change Template</span>
+              </a>
+            </li> -->
           </ul>
         </li>
-        <li class="sidebar-list-item">
-                <router-link
-                  :to="{ name: 'plans' }"
-                  class="sidebar-link text-muted"
-                  :class="{ active: currentRoute === '/plans' }"
-                >
-                  <i class="fa fa-credit-card me-3"></i>
-                  <span class="sidebar-link-title"> Plans</span>
-                </router-link>
-              </li>
+        <li class="sidebar-list-item"
+          v-if="
+            dashboardData?.agency_website_info?.length >= 1 &&
+            dashboardData?.agency_website_info[0].website_id &&
+            dashboardData?.user?.user_type !== 'agent'
+          ">
+          <router-link
+            :to="{ name: 'form_builder' }"
+            class="sidebar-link text-muted"
+            :class="{ active: currentRoute.includes('/form-builder') }"
+          >
+            <i class="fa fa-wpforms me-3" aria-hidden="true"></i>
+            <span class="sidebar-link-title">Form Builder</span>
+          </router-link>
+        </li>
+        <li class="sidebar-list-item"
+          v-if="
+            dashboardData?.agency_website_info?.length >= 1 &&
+            dashboardData?.user?.user_type !== 'agent'"
+        >
+          <router-link
+            :to="{ name: 'plans' }"
+            class="sidebar-link text-muted"
+            :class="{ active: currentRoute.includes('/plans') }"
+          >
+            <i class="fa fa-wpforms me-3" aria-hidden="true"></i>
+            <span class="sidebar-link-title">Plans</span>
+          </router-link>
+        </li>
+        <li class="sidebar-list-item"
+          v-if="
+            dashboardData?.agency_website_info?.length >= 1 &&
+            dashboardData?.user?.user_type !== 'agent'"
+        >
+          <router-link
+            :to="{ name: 'google-business-setting' }"
+            class="sidebar-link text-muted"
+            :class="{ active: currentRoute.includes('/google-business-setting') }"
+          >
+            <i class="fa fa-google" aria-hidden="true"></i>
+            <span class="sidebar-link-title">Google Business</span>
+          </router-link>
+        </li>
+        <li class="sidebar-list-item"
+          v-if="
+            dashboardData?.agency_website_info?.length >= 1 &&
+            dashboardData?.user?.user_type !== 'agent'"
+        >
+          <router-link
+            :to="{ name: 'domains' }"
+            class="sidebar-link text-muted"
+            :class="{ active: currentRoute.includes('/domains') }"
+          >
+            <i class="fa fa-globe" aria-hidden="true"></i>
+            <span class="sidebar-link-title">Domain</span>
+          </router-link>
+        </li>
+        <li class="sidebar-list-item"
+          v-if="
+            dashboardData?.agency_website_info?.length >= 1 &&
+            dashboardData?.user?.user_type !== 'agent'"
+        >
+          <router-link
+            :to="{ name: 'SocialMediaSettings' }"
+            class="sidebar-link text-muted"
+            :class="{ active: currentRoute.includes('/social-media-settings') }"
+          >
+            <i class="fa fa-cog" aria-hidden="true"></i>
+            <span class="sidebar-link-title">Social Media</span>
+          </router-link>
+        </li>
+        <li 
+          class="sidebar-list-item" 
+          v-if="dashboardData?.user?.user_type === 'agent'"
+        >
+          <router-link
+            :to="{ name: 'referred_user' }"
+            class="sidebar-link text-muted"
+            :class="{ active: currentRoute.includes('/referred-user') }"
+          >
+            <i class="fa fa-users" aria-hidden="true"></i>
+            <span class="sidebar-link-title">Users</span>
+          </router-link>
+        </li>
       </ul>
-      <div class="dashboard-design" v-if="currentRoute === '/dashboard'">
+      <div class="dashboard-design" v-if="currentRoute === '/dashboard' || currentRoute === '/affiliate-dashboard'">
         <div class="feedback-btn">
           <button type="submit" class="feedback-button" @click="showModal">
             Help?
           </button>
         </div>
       </div>
-      <div class="Regenerate" v-else>
+      <!-- <div class="Regenerate" v-else>
         <form class="text-start mb-2 mt-3">
           <div class="form-field mb-4">
-            <button class="btn btn-outline-danger btn-danger " type="button" id="button-addon3" data-toggle="modal" data-target="#myform"><i class="fa fa-retweet" aria-hidden="true"></i><span> Regenerate</span></button>
+            <button class="btn btn-outline-danger btn-danger " type="button" id="button-addon3" data-toggle="modal" data-target="#selectOptionForRegenerate"><i class="fa fa-retweet" aria-hidden="true"></i><span> Regenerate</span></button>
           </div>
         </form>
-      </div>
+      </div> -->
     </div>
   </div>
   <ChangeWebsiteModal
@@ -342,6 +470,7 @@ watch(
 );
 
 const getSiteDeatils = async () => {
+  if (!store.websiteId || typeof store.websiteId !== "number") return;
   try {
     const response = await WordpressService.WebsiteSettings.getSiteDetail({
       website_id: store.websiteId,
@@ -392,7 +521,7 @@ const submitFeedback = handleSubmit(async () => {
     const response = await WordpressService.FeedBack.submitFeedback(formData);
     if (response.status === 200 && response.data.success) {
       hideModal();
-      console.log("sidebar.vue");
+      // console.log("sidebar.vue");
       store.updateFlashMeassge(true, "Feedback shared sucessfully");
     }
   } catch (validationErrors) {

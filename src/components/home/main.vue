@@ -10,6 +10,7 @@ import AuthSignupModal from "@/components/common/modals/AuthSignupModal.vue";
 import AuthLoginModal from "@/components/common/modals/AuthLoginModal.vue";
 import EmailResetModal from "@/components/common/modals/EmailResetModal.vue";
 import AlertForSignupModal from "@/components/common/modals/AlertForSignupModal.vue";
+import WordpressService from "@/service/WordpressService";
 
 const store = useStore();
 const route = useRoute();
@@ -21,39 +22,79 @@ const backendError = ref("");
 const ModalShowing = ref(false);
 const alertShow = ref(false);
 const loginExist = ref(false);
+const plans = ref();
+// const redirectToCheckout = ref(false);
+const userType = ref('user');
+const referralCode = ref(null);
+
+// const openPaymentModal = (plan) => {
+//   const storedToken = localStorage.getItem("access_token");
+
+//   // Mark that we want to redirect to checkout after login/signup
+//   redirectToCheckout.value = true;
+
+//   if (!storedToken) {
+//     showModal("signup");
+//     return;
+//   }
+
+//   if (parseFloat(plan.price) === 0) {
+//     router.push("/dashboard");
+//     return;
+//   }
+
+//   const planDetails = {
+//     id: plan.id,
+//     razor_id: plan.razor_id,
+//     name: plan.name,
+//     price: plan.price,
+//     max_websites: plan.max_websites,
+//     duration_months: plan.duration_months,
+//   };
+//   localStorage.setItem("selectedPlan", JSON.stringify(planDetails));
+
+//   const encodedPlanId = btoa(plan.id.toString());
+//   router.push(`/checkout/${encodedPlanId}`);
+// };
 
 const showModal = (modal) => {
   hideModal();
   ModalShowing.value = true;
   backendError.value = "";
+
   if (modal === "forget") {
     loginModalShow.value =
       showSignUpModal.value =
       alertShow.value =
         false;
     forgetModalShow.value = true;
+
   } else if (modal === "login") {
     loginModalShow.value = true;
     forgetModalShow.value =
       showSignUpModal.value =
       alertShow.value =
         false;
+
   } else if (modal === "signup") {
+    userType.value = 'user';
     showSignUpModal.value = true;
     forgetModalShow.value =
       loginModalShow.value =
       alertShow.value =
         false;
+
   } else if (modal === "alert") {
     alertShow.value = true;
     forgetModalShow.value =
       loginModalShow.value =
       showSignUpModal.value =
         false;
-  } else if(modal === "feedback") {
+
+  } else if (modal === "feedback") {
     store.updateFeedbackModalStore();
   }
-};
+};  
 
 const hideModal = () => {
   ModalShowing.value = false;
@@ -70,6 +111,9 @@ onMounted(async () => {
     }
   }, 15000);
   };
+  if (route.query.ref) {
+    referralCode.value = route.query.ref;
+  }
   const storedToken = localStorage.getItem("access_token");
   if (storedToken) {
     loginExist.value = storedToken;
@@ -77,6 +121,7 @@ onMounted(async () => {
   if (route.query.login) {
     loginModalShow.value = true;
   }
+  fetchPlans();
 });
 
 const navigate = () => {
@@ -92,6 +137,22 @@ const handleShowModal = (modal) => {
     alertShow.value = false
   }
  showModal(modal)
+};
+
+const fetchPlans = async () => {
+  try {
+    const response = await WordpressService.Payment.fetchPlans();
+    if (response.status === 200 && response.data.success) {
+      plans.value = response.data?.plans.map((plan, index) => {
+        if (index === 1) plan.duration_months = 6;
+        else if (index === 2) plan.duration_months = 12;
+        else plan.duration_months = 1;
+        return plan;
+      });
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
 };
 
 </script>
@@ -115,7 +176,7 @@ const handleShowModal = (modal) => {
           @click="navigateToHome"
           style="cursor: pointer"
         >
-          <img class="img-fluid" src="/images/logo-beta.png" alt="logo" />
+          <img class="img-fluid" src="/images/ss_logo.png" alt="logo" />
         </a>
         <div class="add-listing d-none d-sm-block">
           <a
@@ -317,6 +378,17 @@ const handleShowModal = (modal) => {
                   <span></span>
                   <span></span>
                 </a>
+                <a
+                  class="btn btn-lg button-trial rounded-pill hover-top m-2"
+                  href="https://calendly.com/arsh-speedysites/30min"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >BOOK A DEMO
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </a>
                 <h5>
                   <i class="fa fa-check" aria-hidden="true"></i> Free Trial. No
                   Credit Card Required
@@ -431,8 +503,10 @@ const handleShowModal = (modal) => {
             <div class="add-listing d-none d-sm-block">
               <a
                 class="btn btn-lg button-trial rounded-pill hover-top"
-                @click="showModal('feedback')"
-                >CONTACT US
+                href="https://calendly.com/arsh-speedysites/30min"
+                target="_blank"
+                rel="noopener noreferrer"
+                >BOOK A DEMO
                 <span></span>
                 <span></span>
                 <span></span>
@@ -444,6 +518,61 @@ const handleShowModal = (modal) => {
       </div>
     </div>
   </div>
+  <div class="payment-plans-section">
+    <div class="max-width">
+            <div class="header">
+                <h1 class="title">Choose Your Perfect Plan</h1>
+                <p class="subtitle">Select the plan that fits your needs. All plans include our core features with flexible pricing options.</p>
+            </div>
+
+            <div class="grid">
+              <div class="payment-card" v-for="(plan, index) in plans" :key="plan.id" :class="{ popular: index === 2 }">
+
+                <div v-if="index !== 0" class="badge">Pre-Launch</div>
+
+                <div class="payment-card-header">
+                  <h3 class="plan-name">{{ plan.name.replace(' Plan', '') }}</h3>
+                  <p class="plan-description">
+                    {{ index === 0 ? "Perfect for getting started" : index === 1 ? "Great for short-term projects" : "Best value for long-term success" }}
+                  </p>
+
+                  <div class="pricing">
+                    <span class="price">₹{{ plan.price }}</span>
+                    <div v-if="index !== 0" class="price-details">
+                      <span class="original-price">₹999</span>
+                      <span class="period">{{ index === 1 ? "/mo" : "/mo" }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- <ul class="features">
+                  <li class="feature">
+                    <div class="check-icon"></div>
+                    <span class="feature-text">Max Websites: {{ plan.max_websites }}</span>
+                  </li>
+                  <li class="feature" v-if="index !== 0">
+                    <div class="check-icon"></div>
+                    <span class="feature-text">Priority Support</span>
+                  </li>
+                  <li class="feature" v-if="index === 2">
+                    <div class="check-icon"></div>
+                    <span class="feature-text">API Access</span>
+                  </li>
+                </ul> -->
+
+                <div class="add-listing">
+                  <button
+                    class="button"
+                    :class="index === 2 ? 'button-primary hover-top' : 'button-outline hover-top'"
+                    @click="showModal('signup')"
+                  >
+                    {{ index === 0 ? 'Get Started' : 'Get Started' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+        </div>
+    </div>
   <section class="email-custom">
     <div class="container-fluid grid-row">
       <div class="grid-customsection">
@@ -494,9 +623,203 @@ const handleShowModal = (modal) => {
       </div>
     </div>
   </section>
-  <AuthSignupModal :showSignUpModal="showSignUpModal" @closeModal="showSignUpModal=false" @showAnotherModal="handleShowModal"></AuthSignupModal>
-  <AuthLoginModal :showLoginModal="loginModalShow" @closeModal="loginModalShow=false" @showAnotherModal="handleShowModal" ></AuthLoginModal>
+  <AuthSignupModal :showSignUpModal="showSignUpModal" :userType="userType" :referralCode="referralCode" @closeModal="showSignUpModal=false" @showAnotherModal="handleShowModal"></AuthSignupModal>
+  <AuthLoginModal :showLoginModal="loginModalShow" :referralCode="referralCode" @closeModal="loginModalShow=false" @showAnotherModal="handleShowModal" ></AuthLoginModal>
   <EmailResetModal :showResetModal="forgetModalShow" @closeModal="forgetModalShow=false" @showAnotherModal="handleShowModal" ></EmailResetModal>
   <AlertForSignupModal :alertShowModal="alertShow" @closeModal="alertShow=false" @showAnotherModal="handleShowModal"></AlertForSignupModal>
 </template>
 
+<style scoped>
+  .payment-plans-section {
+    background-color: #fff;
+    padding: 60px 60px 60px 60px;
+  }
+
+  .payment-plans-section .header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .payment-plans-section .title {
+    font-size: 3rem;
+    font-weight: bold;
+    background: #1d2b64;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .payment-plans-section .subtitle {
+    font-size: 22px;
+    color: #dc3545;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  @media (min-width: 768px) {
+    .grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .payment-plans-section .payment-card {
+    position: relative;
+    padding: 2rem;
+    background: hsl(0, 0%, 100%);
+    border: 1px solid hsl(0, 0%, 90%);
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .payment-plans-section .payment-card:hover {
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.2);
+  }
+
+  .payment-plans-section .payment-card.popular {
+    border: 2px solid hsl(200, 100%, 50%);
+    box-shadow: 0 10px 30px -10px rgba(0, 150, 255, 0.3);
+    transform: scale(1.05);
+  }
+
+  .payment-plans-section .badge {
+    position: absolute;
+    top: -0.75rem;
+    right: 1rem;
+    padding: 10px 20px;
+    background: hsl(200, 100%, 95%);
+    color: hsl(200, 100%, 30%);
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 9999px;
+  }
+
+  .payment-plans-section .payment-card-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .plan-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+
+  .plan-description {
+    font-size: 0.875rem;
+    color: hsl(0, 0%, 45%);
+    margin-bottom: 1rem;
+  }
+
+  .pricing {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .price {
+    font-size: 3.75rem;
+    font-weight: 800;
+    background: #1d2b64de;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 4px 6px rgba(0, 150, 255, 0.3));
+  }
+
+  .price-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  .original-price {
+    font-size: 0.875rem;
+    color: hsl(0, 0%, 45%);
+    text-decoration: line-through;
+    text-decoration-color: hsl(0, 84%, 60%);
+    text-decoration-thickness: 1px;
+  }
+
+  .period {
+    font-size: 0.875rem;
+    color: hsl(0, 0%, 45%);
+    font-weight: 500;
+  }
+
+  .features {
+    list-style: none;
+    margin-bottom: 2rem;
+  }
+
+  .feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .check-icon {
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    background: hsl(200, 100%, 95%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0.125rem;
+  }
+
+  .check-icon::before {
+    content: "✓";
+    color: hsl(200, 100%, 30%);
+    font-size: 0.75rem;
+    font-weight: bold;
+  }
+
+  .feature-text {
+    font-size: 0.875rem;
+  }
+
+  .payment-plans-section .button {
+    width: 100%;
+    padding: 0.75rem 2rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    line-height: 0px;
+    position: unset;
+    transform: none;
+  }
+
+  .payment-plans-section .button-primary {
+    background: hsl(200, 100%, 50%);
+    color: white;
+  }
+
+  .payment-plans-section .button-primary:hover {
+    background: hsl(200, 100%, 45%);
+  }
+
+  .payment-plans-section .button-outline {
+      background: transparent;
+      color: hsl(0, 0%, 3.9%);
+      border: 1px solid hsl(0, 0%, 90%);
+  }
+
+  .payment-plans-section .button-outline:hover {
+    background: hsl(200, 100%, 95%);
+    color: hsl(200, 100%, 30%);
+  }
+</style>

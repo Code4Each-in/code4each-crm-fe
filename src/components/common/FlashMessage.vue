@@ -1,7 +1,16 @@
 <template>
-  <div :class="['flash animate--drop-in-fade-out']">
-    <div class="flash__icon">
-      <i class="icon fa fa-check-circle-o"></i>
+  <div :class="['flash animate--drop-in-fade-out', flashClass]">
+    <div class="flash__icon" :class="{'flash-error-icon': store.flashMeassgeType === 'error'}">
+      <i
+        v-if="store.flashMeassgeType === 'success'"
+        class="fa fa-check-circle-o"
+        aria-hidden="true"
+      ></i>
+      <i
+        v-else-if="store.flashMeassgeType === 'error'"
+        class="fa fa-times-circle-o"
+        aria-hidden="true"
+      ></i>
     </div>
     <p class="flash__body">{{ store.flashMeassgeValue }}</p>
   </div>
@@ -24,7 +33,6 @@ const handlePageClick = () => {
 };
 
 onMounted(() => {
-  console.log("flash message");
   // isAnimating.value = true;
   handlePageClick();
 });

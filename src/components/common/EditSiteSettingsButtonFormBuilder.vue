@@ -4,9 +4,9 @@
       <form class="button-from mt-2">
         <div v-for="(field, index) in siteSettingsFormFieldsCopy" :key="index">
           <div class="color2" v-if="field.field_type === 'button'">
-            <button class="button btn-success">
+            <!-- <button class="button btn-success">
               {{ capitalizeAndReplaceChar(field.field_name, "-") }}
-            </button>
+            </button> -->
             <div class="row">
               <div class="col-sm-6 form-group">
                 <label for="" class="form-label">Label</label>
@@ -42,7 +42,35 @@
               >
                 <option value="_self">Self</option>
                 <option value="_blank">Blank</option>
+                <option value="form">Form</option>
               </select>
+            </div>
+            <!-- Show form dropdown if user selects "form" -->
+            <div
+              class="col-sm-12 form-group mt-2"
+              v-if="formData[field.field_name + '-meta2'] === 'form'"
+            >
+              <!-- If no forms exist -->
+              <div v-if="activeForms.length === 0" class="text-danger mb-2">
+                Please create a form first.
+                <button class="create-form-btn" @click="goToFormBuilder">
+                  Create a Form
+                </button>
+              </div>
+              <!-- If forms exist -->
+              <div v-else>
+                <label for="" class="form-label">Select Form</label>
+                <select
+                  class="form-select"
+                  :name="field.field_name + '-formId'"
+                  v-model="formData[field.field_name + '-formId']"
+                >
+                  <option disabled value="">-- Select a Form --</option>
+                  <option v-for="form in activeForms" :key="form.id" :value="form.id">
+                    {{ form.name }}
+                  </option>
+                </select>
+              </div>
             </div>
           </div>
           <hr v-if="field.field_type === 'button'" />
@@ -121,15 +149,23 @@ import { useForm } from "vee-validate";
 import { capitalizeAndReplaceChar } from "@/util/helper";
 import SelectBox from "@/components/common/SelectBox.vue";
 import { EventBus } from "@/EventBus";
+import WordpressService from "@/service/WordpressService";
+import { useRouter } from "vue-router";
 
 const isButtonDisabled = ref(false);
 const resetToggle = ref(true);
 const formData = ref({});
+const router = useRouter();
 
 const emits = defineEmits();
 const props = defineProps({
   siteSettingsFormFields: Object,
+  websiteDomain: String,
 });
+
+const goToFormBuilder = () => {
+  router.push("/form-builder");
+};
 
 const { handleSubmit } = useForm({
   validationSchema: yup.object({}),
@@ -154,6 +190,11 @@ const submitForm = () => {
 
 const siteSettingsFormFieldsCopy = ref(props.siteSettingsFormFields);
 
+// --- Forms API data ---
+const forms = ref([]);
+const formsFetched = ref(false);
+const activeForms = computed(() => forms.value.filter(f => f.status === "Active"));
+
 const changeHiddenValuesForAllFields = () => {
   siteSettingsFormFieldsCopy.value = JSON.parse(
     JSON.stringify(props.siteSettingsFormFields)
@@ -176,6 +217,34 @@ const changeHiddenValuesForAllFields = () => {
   resetToggle.value = !resetToggle.value;
 };
 
+// -------------------------
+// Fetch Forms
+// -------------------------
+const fetchForms = async () => {
+    formsFetched.value = false;
+    try {
+        // console.log(props.websiteDomain);
+        const response = await WordpressService.FormBuilder.fetchForms({
+          website_domain: props.websiteDomain,
+        });
+
+        if (response.status === 200 && response.data.success) {
+            forms.value = response.data.response.map(f => ({
+                id: f.id,
+                name: f.form_name,
+                status: f.status === "active" ? "Active" : "Inactive",
+                fields: f.fields || []
+            }));
+        } else {
+            forms.value = [];
+        }
+    } catch (error) {
+        console.error(error);
+    } finally {
+        formsFetched.value = true; 
+    }
+};
+
 watch(
   () => props.siteSettingsFormFields,
   (newProp, oldProp) => {
@@ -188,9 +257,21 @@ watch(
           field.meta1 != null ? field.meta1 : field.default_meta1;
         formData.value[field.field_name + "-meta2"] =
           field.meta2 != null ? field.meta2 : field.default_meta2;
+        formData.value[field.field_name + "-formId"] =
+          field.form_id ?? field.formId ?? null;
       }
     });
   }
+);
+
+watch(
+  () => props.websiteDomain,
+  (newVal) => {
+    if (newVal) {
+      fetchForms(); // calls your async function
+    }
+  },
+  { immediate: true }
 );
 
 onMounted(() => {
@@ -204,5 +285,30 @@ onMounted(() => {
 
 .inline-buttons {
   text-align: center;
+}
+
+.no-forms-box {
+  margin-top: 15px;
+  padding: 12px;
+  background: #f7f7f7;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 14px;
+  border: 1px solid #ddd;
+}
+
+.create-form-btn {
+  margin-top: 10px;
+  padding: 6px 12px;
+  background: #007bff;
+  color: #fff;
+  font-size: 13px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+.create-form-btn:hover {
+  background: #0056b3;
 }
 </style>

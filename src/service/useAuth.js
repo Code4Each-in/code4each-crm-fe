@@ -16,6 +16,8 @@ export function useAuth() {
     }
 
     localStorage.removeItem('access_token');
+    localStorage.removeItem("selectedPlan");
+    localStorage.removeItem("billingDetails"); 
     isAuthenticated.value = false;
     router.push('/');
     // Redirect or perform necessary actions after logout
